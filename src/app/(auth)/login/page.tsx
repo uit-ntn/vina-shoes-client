@@ -1,33 +1,40 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from '@/components/ui/Image';
+import { useRouter } from 'next/navigation';
 import { AiOutlineLock, AiOutlineMail } from 'react-icons/ai';
+import { useAuth } from '@/context/AuthContext';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const { login, loading: isLoading, error: authError, user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    // If user is already logged in, redirect to home page
+    if (user) {
+      router.push('/');
+    }
+  }, [user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    setIsLoading(true);
 
     try {
-      // Here you would handle your login logic
-      // For now, just simulate a delay and success
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // If success, redirect to home or dashboard
-      window.location.href = '/';
+      await login(email, password);
+      if (rememberMe) {
+        // Store email in localStorage for remember me functionality
+        localStorage.setItem('rememberedEmail', email);
+      } else {
+        localStorage.removeItem('rememberedEmail');
+      }
     } catch (err) {
-      setError('Invalid email or password. Please try again.');
-    } finally {
-      setIsLoading(false);
+      // Error is handled by AuthContext
+      console.error('Login failed:', err);
     }
   };
 
@@ -55,7 +62,7 @@ export default function LoginPage() {
             </p>
           </div>
           
-          {error && (
+          {authError && (
             <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
               <div className="flex">
                 <div className="flex-shrink-0">
@@ -64,7 +71,7 @@ export default function LoginPage() {
                   </svg>
                 </div>
                 <div className="ml-3">
-                  <p className="text-sm text-red-700">{error}</p>
+                  <p className="text-sm text-red-700">{authError}</p>
                 </div>
               </div>
             </div>
