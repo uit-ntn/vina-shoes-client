@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { AiOutlineArrowRight } from "react-icons/ai";
+import Image from "@/components/ui/Image";
 
 export default function Home() {
   return (
@@ -128,7 +128,7 @@ export default function Home() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-end mb-8">
-            <h2 className="text-3xl font-bold">Featured Collections</h2>
+            <h2 className="text-3xl font-bold text-gray-900">Featured Collections</h2>
             <Link
               href="/shop"
               className="text-gray-600 hover:text-gray-900 flex items-center gap-1"
@@ -240,7 +240,7 @@ export default function Home() {
                   <span className="text-orange-600 font-semibold mb-2 block">
                     Lifestyle
                   </span>
-                  <h3 className="text-3xl font-bold mb-4">Casual Sneakers</h3>
+                    <h3 className="text-3xl font-bold mb-4 text-orange-700">Casual Sneakers</h3>
                   <p className="text-gray-600 mb-6">
                     Where style meets comfort. Our casual sneakers are designed for
                     everyday wear, featuring contemporary designs and premium materials
@@ -266,7 +266,7 @@ export default function Home() {
                   <span className="text-slate-700 font-semibold mb-2 block">
                     Professional
                   </span>
-                  <h3 className="text-3xl font-bold mb-4">Formal Collection</h3>
+                    <h3 className="text-3xl font-bold mb-4 text-slate-900">Formal Collection</h3>
                   <p className="text-gray-600 mb-6">
                     Elevate your professional wardrobe with our range of expertly
                     crafted formal shoes. Made with premium leather and attention to
@@ -324,133 +324,109 @@ export default function Home() {
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-end mb-8">
-            <h2 className="text-3xl font-bold">From Our Blog</h2>
-            <Link
-              href="/blog"
-              className="text-gray-600 hover:text-gray-900 flex items-center gap-1"
-            >
-              View all articles <AiOutlineArrowRight />
-            </Link>
+        <h2 className="text-3xl font-bold">From Our Blog</h2>
+        <Link
+          href="/blog"
+          className="text-gray-600 hover:text-gray-900 flex items-center gap-1"
+        >
+          View all articles <AiOutlineArrowRight />
+        </Link>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Link
-              href="/blog/how-to-choose-running-shoes"
-              className="group"
-            >
-              <div className="bg-white rounded-xl overflow-hidden shadow-sm group-hover:shadow-md transition duration-300">
-                <div className="relative h-48">
-                  <Image
-                    src="https://images.unsplash.com/photo-1565992441121-4367c2967103?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                    alt="How to Choose Running Shoes"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="p-6">
-                  <span className="text-blue-600 text-sm font-medium">Guide</span>
-                  <h3 className="font-bold text-xl mt-2 group-hover:text-blue-600 transition duration-300">
-                    How to Choose the Perfect Running Shoes
-                  </h3>
-                  <p className="text-gray-600 mt-2">
-                    Find the right balance of comfort, support, and performance for
-                    your running style.
-                  </p>
-                  <div className="mt-4 flex items-center text-sm">
-                    <span className="text-gray-500">June 12, 2024</span>
-                    <span className="mx-2 text-gray-300">•</span>
-                    <span className="text-gray-500">5 min read</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              href="/blog/sneaker-trends-2024"
-              className="group"
-            >
-              <div className="bg-white rounded-xl overflow-hidden shadow-sm group-hover:shadow-md transition duration-300">
-                <div className="relative h-48">
-                  <Image
-                    src="https://images.unsplash.com/photo-1552346154-21d32810aba3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                    alt="Sneaker Trends 2024"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="p-6">
-                  <span className="text-orange-600 text-sm font-medium">Fashion</span>
-                  <h3 className="font-bold text-xl mt-2 group-hover:text-orange-600 transition duration-300">
-                    Top Sneaker Trends to Watch in 2024
-                  </h3>
-                  <p className="text-gray-600 mt-2">
-                    Stay ahead of the curve with the latest trends in sneaker fashion
-                    this year.
-                  </p>
-                  <div className="mt-4 flex items-center text-sm">
-                    <span className="text-gray-500">May 28, 2024</span>
-                    <span className="mx-2 text-gray-300">•</span>
-                    <span className="text-gray-500">4 min read</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              href="/blog/caring-for-leather-shoes"
-              className="group"
-            >
-              <div className="bg-white rounded-xl overflow-hidden shadow-sm group-hover:shadow-md transition duration-300">
-                <div className="relative h-48">
-                  <Image
-                    src="https://images.unsplash.com/photo-1520639888713-7851133b1ed0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                    alt="Caring for Leather Shoes"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="p-6">
-                  <span className="text-slate-700 text-sm font-medium">Care</span>
-                  <h3 className="font-bold text-xl mt-2 group-hover:text-slate-700 transition duration-300">
-                    The Ultimate Guide to Caring for Leather Shoes
-                  </h3>
-                  <p className="text-gray-600 mt-2">
-                    Learn how to maintain and extend the life of your premium leather
-                    footwear.
-                  </p>
-                  <div className="mt-4 flex items-center text-sm">
-                    <span className="text-gray-500">April 15, 2024</span>
-                    <span className="mx-2 text-gray-300">•</span>
-                    <span className="text-gray-500">7 min read</span>
-                  </div>
-                </div>
-              </div>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Newsletter */}
-      <section className="py-16 bg-gray-900 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-4">Join Our Newsletter</h2>
-          <p className="text-gray-300 max-w-2xl mx-auto mb-8">
-            Subscribe to get special offers, free giveaways, and once-in-a-lifetime
-            deals.
+        <Link
+          href="/blog/how-to-choose-running-shoes"
+          className="group h-full"
+        >
+          <div className="bg-white rounded-xl overflow-hidden shadow-sm group-hover:shadow-md transition duration-300 flex flex-col h-full">
+            <div className="relative h-48">
+          <Image
+            src="https://images.unsplash.com/photo-1565992441121-4367c2967103?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+            alt="How to Choose Running Shoes"
+            fill
+            className="object-cover"
+          />
+            </div>
+            <div className="p-6 flex flex-col flex-1">
+          <span className="text-blue-600 text-sm font-medium">Guide</span>
+          <h3 className="font-bold text-xl mt-2 group-hover:text-blue-600 text-blue-700 transition duration-300">
+            How to Choose the Perfect Running Shoes
+          </h3>
+          <p className="text-gray-600 mt-2 flex-1">
+            Find the right balance of comfort, support, and performance for
+            your running style.
           </p>
-          <form className="max-w-md mx-auto flex">
-            <input
-              type="email"
-              placeholder="Your email address"
-              className="flex-1 px-4 py-3 rounded-l-lg text-gray-900 focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="bg-yellow-500 hover:bg-yellow-600 px-6 py-3 rounded-r-lg font-semibold transition duration-300"
-            >
-              Subscribe
-            </button>
-          </form>
+          <div className="mt-4 flex items-center text-sm">
+            <span className="text-gray-500">June 12, 2024</span>
+            <span className="mx-2 text-gray-300">•</span>
+            <span className="text-gray-500">5 min read</span>
+          </div>
+            </div>
+          </div>
+        </Link>
+
+        <Link
+          href="/blog/sneaker-trends-2024"
+          className="group h-full"
+        >
+          <div className="bg-white rounded-xl overflow-hidden shadow-sm group-hover:shadow-md transition duration-300 flex flex-col h-full">
+            <div className="relative h-48">
+          <Image
+            src="https://images.unsplash.com/photo-1552346154-21d32810aba3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+            alt="Sneaker Trends 2024"
+            fill
+            className="object-cover"
+          />
+            </div>
+            <div className="p-6 flex flex-col flex-1">
+          <span className="text-orange-600 text-sm font-medium">Fashion</span>
+          <h3 className="font-bold text-xl mt-2 group-hover:text-orange-600 text-orange-700 transition duration-300">
+            Top Sneaker Trends to Watch in 2024
+          </h3>
+          <p className="text-gray-600 mt-2 flex-1">
+            Stay ahead of the curve with the latest trends in sneaker fashion
+            this year.
+          </p>
+          <div className="mt-4 flex items-center text-sm">
+            <span className="text-gray-500">May 28, 2024</span>
+            <span className="mx-2 text-gray-300">•</span>
+            <span className="text-gray-500">4 min read</span>
+          </div>
+            </div>
+          </div>
+        </Link>
+
+        <Link
+          href="/blog/caring-for-leather-shoes"
+          className="group h-full"
+        >
+          <div className="bg-white rounded-xl overflow-hidden shadow-sm group-hover:shadow-md transition duration-300 flex flex-col h-full">
+            <div className="relative h-48">
+          <Image
+            src="https://images.unsplash.com/photo-1520639888713-7851133b1ed0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+            alt="Caring for Leather Shoes"
+            fill
+            className="object-cover"
+          />
+            </div>
+            <div className="p-6 flex flex-col flex-1">
+          <span className="text-slate-700 text-sm font-medium">Care</span>
+          <h3 className="font-bold text-xl mt-2 group-hover:text-slate-700 text-slate-700 transition duration-300">
+            The Ultimate Guide to Caring for Leather Shoes
+          </h3>
+          <p className="text-gray-600 mt-2 flex-1">
+            Learn how to maintain and extend the life of your premium leather
+            footwear.
+          </p>
+          <div className="mt-4 flex items-center text-sm">
+            <span className="text-gray-500">April 15, 2024</span>
+            <span className="mx-2 text-gray-300">•</span>
+            <span className="text-gray-500">7 min read</span>
+          </div>
+            </div>
+          </div>
+        </Link>
+          </div>
         </div>
       </section>
     </div>
