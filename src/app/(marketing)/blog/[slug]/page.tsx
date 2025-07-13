@@ -114,7 +114,7 @@ export default function BlogPostPage() {
                 </span>
               </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-6">{post.title}</h1>
-              <div className="flex items-center justify-center gap-6 text-blue-100">
+              <div className="flex items-center justify-center gap-6 text-white">
                 <div className="flex items-center">
                   <FiUser className="mr-2" />
                   {post.author}
@@ -138,8 +138,8 @@ export default function BlogPostPage() {
         <div className="flex flex-col lg:flex-row gap-12">
           {/* Main Content */}
           <div className="lg:w-2/3">
-            <article className="prose prose-lg max-w-none">
-              <div dangerouslySetInnerHTML={{ __html: post.content }} />
+            <article className="prose prose-xl max-w-none prose-headings:text-blue-900 prose-headings:font-bold prose-headings:text-3xl prose-p:text-blue-950 prose-p:text-lg prose-li:text-blue-950 prose-li:text-lg prose-ul:text-blue-950 prose-ul:text-lg prose-strong:text-blue-900 prose-strong:font-bold">
+              <div dangerouslySetInnerHTML={{ __html: post.content }} className="space-y-8" />
             </article>
 
             {/* Tags */}
@@ -147,7 +147,7 @@ export default function BlogPostPage() {
               {post.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="px-4 py-2 bg-gray-100 rounded-full text-sm text-gray-700 hover:bg-gray-200 transition duration-300"
+                  className="px-4 py-2 bg-blue-50 rounded-full text-sm text-blue-800 hover:bg-blue-100 transition duration-300 font-medium"
                 >
                   {tag}
                 </span>
@@ -155,21 +155,21 @@ export default function BlogPostPage() {
             </div>
 
             {/* Social Share */}
-            <div className="mt-12 flex items-center gap-4 py-6 border-t border-b border-gray-200">
-              <span className="text-gray-600">Share this article:</span>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300">
+            <div className="mt-12 flex items-center gap-4 py-6 border-t border-b border-blue-100">
+              <span className="text-blue-900">Share this article:</span>
+              <button className="p-2 hover:bg-blue-50 rounded-full transition duration-300 text-blue-800">
                 <FiShare2 size={20} />
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300">
+              <button className="p-2 hover:bg-blue-50 rounded-full transition duration-300 text-blue-800">
                 <FiBookmark size={20} />
               </button>
-              <button className="p-2 hover:bg-gray-100 rounded-full transition duration-300">
+              <button className="p-2 hover:bg-blue-50 rounded-full transition duration-300 text-blue-800">
                 <FiHeart size={20} />
               </button>
             </div>
 
             {/* Author Bio */}
-            <div className="mt-12 bg-gray-50 rounded-xl p-8">
+            <div className="mt-12 bg-blue-50 rounded-xl p-8">
               <div className="flex items-center gap-4 mb-4">
                 <div className="relative w-16 h-16 rounded-full overflow-hidden">
                   <Image
@@ -180,11 +180,11 @@ export default function BlogPostPage() {
                   />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold">{post.author}</h3>
-                  <p className="text-gray-600">Running Expert & Content Writer</p>
+                  <h3 className="text-xl font-semibold text-blue-900">{post.author}</h3>
+                  <p className="text-blue-800">Running Expert & Content Writer</p>
                 </div>
               </div>
-              <p className="text-gray-600">
+              <p className="text-blue-900">
                 Sarah is a certified running coach and fitness writer with over 10 years of experience.
                 She specializes in helping runners of all levels achieve their goals through proper
                 form, gear selection, and training techniques.
@@ -195,7 +195,7 @@ export default function BlogPostPage() {
           {/* Sidebar */}
           <div className="lg:w-1/3">
             <div className="sticky top-8">
-              <h3 className="text-xl font-semibold mb-6">Related Articles</h3>
+              <h3 className="text-xl font-semibold mb-6 text-blue-900">Related Articles</h3>
               <div className="space-y-6">
                 {relatedPosts.map((post) => (
                   <Link 
@@ -216,8 +216,8 @@ export default function BlogPostPage() {
                         <h4 className="font-semibold group-hover:text-blue-600 transition duration-300">
                           {post.title}
                         </h4>
-                        <p className="text-sm text-gray-600 mt-1">{post.author}</p>
-                        <p className="text-sm text-gray-500">{post.date}</p>
+                        <p className="text-sm text-blue-800 mt-1">{post.author}</p>
+                        <p className="text-sm text-blue-700">{post.date}</p>
                       </div>
                     </div>
                   </Link>
@@ -226,13 +226,13 @@ export default function BlogPostPage() {
 
               {/* Categories */}
               <div className="mt-12">
-                <h3 className="text-xl font-semibold mb-6">Categories</h3>
+                <h3 className="text-xl font-semibold mb-6 text-blue-900">Categories</h3>
                 <div className="space-y-2">
                   {['Running', 'Fashion', 'Care Guide', 'Sustainability', 'Reviews'].map((category) => (
                     <Link
                       key={category}
                       href={`/blog/category/${category.toLowerCase()}`}
-                      className="block px-4 py-2 rounded-lg hover:bg-gray-50 transition duration-300"
+                      className="block px-4 py-2 rounded-lg text-gray-800 hover:bg-gray-50 hover:text-blue-600 transition duration-300"
                     >
                       {category}
                     </Link>

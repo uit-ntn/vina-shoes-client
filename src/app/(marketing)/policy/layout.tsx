@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -27,7 +29,7 @@ export default function PolicyLayout({ children }: { children: React.ReactNode }
                   className={`px-3 py-2 rounded-md ${
                     pathname === link.href 
                       ? 'bg-blue-100 text-blue-700 font-medium' 
-                      : 'hover:bg-gray-100'
+                      : 'text-gray-800 hover:bg-blue-50'
                   }`}
                 >
                   {link.name}

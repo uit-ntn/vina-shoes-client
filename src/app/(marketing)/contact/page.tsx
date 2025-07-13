@@ -41,8 +41,8 @@ export default function ContactPage() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="text-center mb-12">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Contact Us</h1>
-        <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+        <h1 className="text-3xl md:text-4xl font-bold text-blue-900 mb-4">Contact Us</h1>
+        <p className="text-lg text-gray-800 max-w-3xl mx-auto">
           We're here to help and answer any questions you might have. We look forward to hearing from you!
         </p>
       </div>
@@ -53,7 +53,7 @@ export default function ContactPage() {
           <div className="bg-blue-100 p-4 rounded-full mb-4">
             <AiOutlinePhone className="h-8 w-8 text-blue-600" />
           </div>
-          <h3 className="text-lg font-semibold mb-2">Phone</h3>
+          <h3 className="text-lg font-semibold mb-2 text-blue-900">Phone</h3>
           <p className="text-gray-600">+84 123 456 789</p>
           <p className="text-gray-600">Mon-Fri, 9am-6pm</p>
         </div>
@@ -62,7 +62,7 @@ export default function ContactPage() {
           <div className="bg-blue-100 p-4 rounded-full mb-4">
             <AiOutlineMail className="h-8 w-8 text-blue-600" />
           </div>
-          <h3 className="text-lg font-semibold mb-2">Email</h3>
+          <h3 className="text-lg font-semibold mb-2 text-blue-900">Email</h3>
           <p className="text-gray-600">support@vinashoes.com</p>
           <p className="text-gray-600">We reply within 24 hours</p>
         </div>
@@ -71,7 +71,7 @@ export default function ContactPage() {
           <div className="bg-blue-100 p-4 rounded-full mb-4">
             <AiOutlineEnvironment className="h-8 w-8 text-blue-600" />
           </div>
-          <h3 className="text-lg font-semibold mb-2">Location</h3>
+          <h3 className="text-lg font-semibold mb-2 text-blue-900">Location</h3>
           <p className="text-gray-600">123 Nguyen Hue Street</p>
           <p className="text-gray-600">Ho Chi Minh City, Vietnam</p>
         </div>
@@ -80,7 +80,7 @@ export default function ContactPage() {
           <div className="bg-blue-100 p-4 rounded-full mb-4">
             <AiOutlineClockCircle className="h-8 w-8 text-blue-600" />
           </div>
-          <h3 className="text-lg font-semibold mb-2">Business Hours</h3>
+          <h3 className="text-lg font-semibold mb-2 text-blue-900">Business Hours</h3>
           <p className="text-gray-600">Monday-Friday: 9AM - 6PM</p>
           <p className="text-gray-600">Saturday: 10AM - 4PM</p>
         </div>
@@ -89,7 +89,7 @@ export default function ContactPage() {
       <div className="grid md:grid-cols-5 gap-8">
         {/* Contact Form */}
         <div className="md:col-span-3 bg-white rounded-lg shadow-md p-6 md:p-8">
-          <h2 className="text-2xl font-bold mb-6">Send Us a Message</h2>
+          <h2 className="text-2xl font-bold mb-6 text-blue-900">Send Us a Message</h2>
           
           {error && (
             <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
@@ -211,7 +211,7 @@ export default function ContactPage() {
         {/* Map and Address */}
         <div className="md:col-span-2">
           <div className="bg-white rounded-lg shadow-md p-6 md:p-8 mb-8">
-            <h2 className="text-2xl font-bold mb-4">Find Us</h2>
+            <h2 className="text-2xl font-bold mb-4 text-blue-900">Find Us</h2>
             <p className="text-gray-600 mb-6">
               Visit our store in Ho Chi Minh City, Vietnam. 
               We're located in the heart of the shopping district.
@@ -254,7 +254,7 @@ export default function ContactPage() {
       {/* FAQ Quick Links */}
       <div className="mt-16">
         <div className="text-center mb-8">
-          <h2 className="text-2xl font-bold">Frequently Asked Questions</h2>
+          <h2 className="text-2xl font-bold text-blue-900">Frequently Asked Questions</h2>
           <p className="text-gray-600 mt-2">
             Find quick answers to common questions
           </p>
@@ -262,19 +262,19 @@ export default function ContactPage() {
         
         <div className="grid md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="font-semibold mb-2">How do I track my order?</h3>
+            <h3 className="font-semibold mb-2 text-blue-900">How do I track my order?</h3>
             <p className="text-gray-600 mb-3">Learn how to track your package and get delivery updates.</p>
             <a href="/faq#tracking" className="text-blue-600 font-medium hover:text-blue-800">Learn more →</a>
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="font-semibold mb-2">What is your return policy?</h3>
+            <h3 className="font-semibold mb-2 text-blue-900">What is your return policy?</h3>
             <p className="text-gray-600 mb-3">Learn about our 30-day return policy and exchange process.</p>
             <a href="/faq#returns" className="text-blue-600 font-medium hover:text-blue-800">Learn more →</a>
           </div>
           
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <h3 className="font-semibold mb-2">Do you offer international shipping?</h3>
+            <h3 className="font-semibold mb-2 text-blue-900">Do you offer international shipping?</h3>
             <p className="text-gray-600 mb-3">Find out about our shipping options and delivery times.</p>
             <a href="/faq#shipping" className="text-blue-600 font-medium hover:text-blue-800">Learn more →</a>
           </div>

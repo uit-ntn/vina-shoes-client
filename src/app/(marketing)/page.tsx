@@ -266,7 +266,7 @@ export default function Home() {
                   <span className="text-slate-700 font-semibold mb-2 block">
                     Professional
                   </span>
-                  <h3 className="text-3xl font-bold mb-4">Formal Collection</h3>
+                    <h3 className="text-3xl font-bold mb-4 text-slate-900">Formal Collection</h3>
                   <p className="text-gray-600 mb-6">
                     Elevate your professional wardrobe with our range of expertly
                     crafted formal shoes. Made with premium leather and attention to
