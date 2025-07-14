@@ -48,22 +48,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             <AiOutlineHeart className="text-gray-600 hover:text-red-500 transition-colors duration-300" size={20} />
           )}
         </button>
-        
-        {/* Tags */}
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
-          {product.price < product.originalPrice && (
-            <div className="bg-red-500 text-white px-3 py-1 text-xs font-bold rounded-full shadow-md">
-              {Math.round((1 - product.price / product.originalPrice) * 100)}% OFF
-            </div>
-          )}
-          
-          {product.isNew && (
-            <div className="bg-green-500 text-white px-3 py-1 text-xs font-bold rounded-full shadow-md">
-              NEW
-            </div>
-          )}
-        </div>
-        
+                
         {/* Quick add to cart - visible on hover */}
         <div className="absolute -bottom-20 group-hover:bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent pt-10 pb-4 px-4 transition-all duration-300">
           <button 
@@ -117,7 +102,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <span className="text-lg font-bold text-gray-900">
             ${product.price.toFixed(2)}
           </span>
-          {product.price < product.originalPrice && (
+          {product.price < product.originalPrice && product.originalPrice > 0 && (
             <span className="text-sm text-gray-500 line-through">
               ${product.originalPrice.toFixed(2)}
             </span>
