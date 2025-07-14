@@ -20,15 +20,15 @@ const ProductListItem: React.FC<ProductListItemProps> = ({
   onAddToCart
 }) => {
   return (
-    <div className="bg-white border rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 p-3 flex flex-col sm:flex-row gap-4 max-h-48">
+    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:border-blue-300 p-3 flex flex-col sm:flex-row gap-4 max-h-48 transition-all">
       {/* Product Image */}
-      <div className="relative w-full sm:w-32 md:w-40 sm:h-32 md:h-40 bg-gray-100 rounded-lg overflow-hidden group flex-shrink-0">
+      <div className="relative w-full sm:w-36 md:w-48 sm:h-36 md:h-40 bg-gray-50 rounded-md overflow-hidden flex-shrink-0">
         <Link href={`/shop/${product.slug || product.id}`} className="block h-full">
           <Image 
             src={product.image} 
             alt={product.name}
             fill
-            className="object-cover transform group-hover:scale-105 transition duration-500"
+            className="object-cover"
           />
         </Link>
         
@@ -105,7 +105,7 @@ const ProductListItem: React.FC<ProductListItemProps> = ({
         </div>
         
         {/* Price and actions */}
-        <div className="flex flex-wrap items-center gap-2 mt-auto pt-1 border-t">
+        <div className="flex flex-wrap items-center gap-2 mt-auto pt-2 border-t border-gray-100">
           {/* Price */}
           <div className="flex items-baseline gap-1">
             <span className="text-sm font-bold text-gray-900">
@@ -114,10 +114,20 @@ const ProductListItem: React.FC<ProductListItemProps> = ({
           </div>
           
           {/* Action buttons */}
-          <div className="flex-1 flex justify-end gap-1">
+          <div className="flex-1 flex justify-end gap-2">
+            <button
+              onClick={() => onToggleFavorite(product.id)}
+              className={`px-2 py-1 rounded-md border flex items-center gap-1 ${
+                isFavorite 
+                  ? 'bg-red-50 text-red-600 border-red-200' 
+                  : 'bg-gray-50 text-gray-600 border-gray-200'
+              }`}
+            >
+              {isFavorite ? <AiFillHeart size={14} /> : <AiOutlineHeart size={14} />}
+            </button>
             <button
               onClick={() => onAddToCart(product.id)}
-              className="px-3 py-1 bg-blue-600 text-white text-xs rounded-md hover:bg-blue-700 transition-colors duration-300 flex items-center gap-1"
+              className="px-3 py-1 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-xs rounded-md shadow-sm hover:shadow flex items-center gap-1 font-medium transition-shadow"
             >
               <AiOutlineShoppingCart size={14} />
               <span>Add to Cart</span>

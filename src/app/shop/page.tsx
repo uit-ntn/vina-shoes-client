@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useShopFilter } from '@/context/ShopFilterContext';
+import { useCart } from '@/context/CartContext';
 import { productService } from '@/services/product.service';
 import { Product } from '@/types/product';
 
@@ -30,6 +31,9 @@ export default function ShopPage() {
     isMobileFilterOpen,
     setMobileFilterOpen
   } = useShopFilter();
+  
+  // Get cart functions
+  const { addToCart } = useCart();
   
   // Product data state
   const [products, setProducts] = useState<Product[]>([]);
@@ -70,9 +74,12 @@ export default function ShopPage() {
   
   // Add to cart handler
   const handleAddToCart = (productId: string) => {
-    // Implement cart functionality
-    console.log(`Add to cart: ${productId}`);
-    // You can dispatch an action to a cart context/store here
+    const product = products.find(p => p.id === productId);
+    if (product) {
+      addToCart(product);
+      // Optionally show a success message
+      console.log(`Added ${product.name} to cart`);
+    }
   };
   
   return (
@@ -286,7 +293,7 @@ export default function ShopPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                       {products.map(product => (
                         <ProductCard
                           key={product.id}

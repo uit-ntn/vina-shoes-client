@@ -20,17 +20,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
   onAddToCart
 }) => {
   return (
-    <div className="bg-white rounded-lg overflow-hidden hover:shadow-lg transition-all duration-300 group border">
+    <div className="bg-white rounded-lg overflow-hidden border border-gray-200 hover:border-blue-300 shadow-sm transition-colors">
       <div className="relative">
         {/* Product Image */}
-        <div className="aspect-square overflow-hidden bg-gray-100">
+        <div className="aspect-square overflow-hidden bg-gray-50">
           <Link href={`/shop/${product.slug || product.id}`}>
             <div className="relative w-full h-full">
               <Image 
                 src={product.image} 
                 alt={product.name}
                 fill
-                className="object-cover transform group-hover:scale-105 transition duration-500"
+                className="object-cover"
               />
             </div>
           </Link>
@@ -39,27 +39,27 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {/* Favorite button */}
         <button 
           onClick={() => onToggleFavorite(product.id)}
-          className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md hover:shadow-lg transition-shadow duration-300"
+          className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md"
           aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
         >
           {isFavorite ? (
-            <AiFillHeart className="text-red-500 transition-colors duration-300" size={20} />
+            <AiFillHeart className="text-red-500" size={20} />
           ) : (
-            <AiOutlineHeart className="text-gray-600 hover:text-red-500 transition-colors duration-300" size={20} />
+            <AiOutlineHeart className="text-gray-600" size={20} />
           )}
         </button>
                 
-        {/* Quick add to cart - visible on hover */}
-        <div className="absolute -bottom-20 group-hover:bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent pt-10 pb-4 px-4 transition-all duration-300">
+        {/* Add to cart button */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-blue-800/90 to-blue-700/75 backdrop-blur-sm py-2 px-3 border-t border-blue-700/30">
           <button 
-            className="w-full bg-white text-gray-900 hover:bg-gray-100 py-2 px-4 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors duration-300"
+            className="w-full bg-white hover:bg-blue-50 text-blue-700 py-1.5 px-3 rounded-md font-medium flex items-center justify-center gap-2 shadow-sm transition-colors"
             onClick={(e) => {
               e.preventDefault();
               onAddToCart(product.id);
             }}
           >
             <AiOutlineShoppingCart size={18} />
-            Add to Cart
+            <span>Add to Cart</span>
           </button>
         </div>
       </div>
