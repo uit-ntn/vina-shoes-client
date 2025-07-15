@@ -1,64 +1,61 @@
-// Authentication endpoints
-export const AUTH = {
-  LOGIN: '/auth/login',
-  REGISTER: '/auth/register',
-  LOGOUT: '/auth/logout',
-  REFRESH: '/auth/refresh',
-  FORGOT_PASSWORD: '/auth/forgot-password',
-  RESET_PASSWORD: '/auth/reset-password',
-};
-
-// User endpoints
-export const USER = {
-  PROFILE: '/users/profile',
-  UPDATE_PROFILE: '/users/profile',
-  CHANGE_PASSWORD: '/users/change-password',
-  ADDRESSES: '/users/addresses',
-};
-
 // Product endpoints
 export const PRODUCTS = {
   LIST: '/products',
-  DETAIL: (id: string | number) => `/products/${id}`,
-  CATEGORIES: '/categories',
-  CATEGORY: (id: string | number) => `/categories/${id}`,
+  DETAIL: (id: string) => `/products/${id}`,
+  BY_CATEGORY: (categoryId: string) => `/products/category/${categoryId}`,
+  BY_BRAND: (brand: string) => `/products/brand/${brand}`,
+  SEARCH: '/products/search',
   FEATURED: '/products/featured',
   NEW_ARRIVALS: '/products/new-arrivals',
-  SEARCH: '/products/search',
+  BEST_SELLERS: '/products/best-sellers',
+  GET_ALL: '/products', // Changed from '/api/products' to match backend
+  GET_BY_ID: (id: string) => `/api/products/${id}`,
+};
+
+// Category endpoints
+export const CATEGORIES = {
+  LIST: '/categories',
+  DETAIL: (id: string) => `/categories/${id}`,
+  PRODUCTS: (id: string) => `/categories/${id}/products`
+};
+
+// Brand endpoints
+export const BRANDS = {
+  LIST: '/brands',
+  DETAIL: (id: string) => `/brands/${id}`,
+  PRODUCTS: (id: string) => `/brands/${id}/products`
 };
 
 // Cart endpoints
 export const CART = {
   GET: '/cart',
-  ADD: '/cart/items',
-  UPDATE: (itemId: string | number) => `/cart/items/${itemId}`,
-  REMOVE: (itemId: string | number) => `/cart/items/${itemId}`,
-  CLEAR: '/cart/clear',
-  APPLY_COUPON: '/cart/apply-coupon',
-  REMOVE_COUPON: '/cart/remove-coupon',
+  ADD: '/cart/add',
+  UPDATE: '/cart/update',
+  REMOVE: '/cart/remove',
+  CLEAR: '/cart/clear'
 };
 
 // Order endpoints
 export const ORDERS = {
   LIST: '/orders',
-  DETAIL: (id: string | number) => `/orders/${id}`,
+  DETAIL: (id: string) => `/orders/${id}`,
   CREATE: '/orders',
-  CANCEL: (id: string | number) => `/orders/${id}/cancel`,
-  TRACK: (id: string | number) => `/orders/${id}/track`,
+  UPDATE_STATUS: (id: string) => `/orders/${id}/status`
 };
 
-// Review endpoints
-export const REVIEWS = {
-  LIST: (productId: string | number) => `/products/${productId}/reviews`,
-  CREATE: (productId: string | number) => `/products/${productId}/reviews`,
-  UPDATE: (reviewId: string | number) => `/reviews/${reviewId}`,
-  DELETE: (reviewId: string | number) => `/reviews/${reviewId}`,
+// Auth endpoints
+export const AUTH = {
+  LOGIN: '/auth/login',
+  REGISTER: '/auth/register',
+  REFRESH: '/auth/refresh',
+  LOGOUT: '/auth/logout',
+  FORGOT_PASSWORD: '/auth/forgot-password',
+  RESET_PASSWORD: '/auth/reset-password'
 };
 
-// Wishlist endpoints
-export const WISHLIST = {
-  LIST: '/wishlist',
-  ADD: '/wishlist',
-  REMOVE: (productId: string | number) => `/wishlist/${productId}`,
-  CHECK: (productId: string | number) => `/wishlist/check/${productId}`,
+// User endpoints
+export const USERS = {
+  PROFILE: '/users/profile',
+  UPDATE_PROFILE: '/users/profile',
+  CHANGE_PASSWORD: '/users/change-password'
 };

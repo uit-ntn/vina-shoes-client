@@ -1,22 +1,29 @@
 import axios from 'axios';
-import { api } from '@/lib/api/api';
-import { PRODUCTS } from '@/lib/api/endpoints';
-import { Product } from '@/types/product';
+import { api } from '../lib/api/http';
+import { PRODUCTS } from '../lib/api/endpoints';
+import { Product } from '../types/product';
 
-// Default categories as fallback
-const DEFAULT_CATEGORIES = ['running', 'casual', 'formal', 'sport'];
-
-export async function getAllProducts(): Promise<Product[]> {
-  try {
-    // Call the API to fetch products
-    const res = await api.get(PRODUCTS.LIST) as unknown as { products: Product[] };
-    if (res && Array.isArray(res.products)) {
-      return res.products;
+export const productService = {
+  getAllProducts: async (): Promise<Product[]> => {
+    try {
+      console.log('Fetching products...');
+      const response = await api.get<{ data: Product[] }>(PRODUCTS.GET_ALL);
+      console.log('Raw response:', response);
+      
+      // Handle different response structures
+      if (Array.isArray(response)) {
+        return response;
+      } else if (response && 'data' in response) {
+        return response.data;
+      } else {
+        console.error('Unexpected response structure:', response);
+        return [];
+      }
+    } catch (error) {
+      console.error('Product service error:', error);
+      throw error;
     }
-    return [];
-  } catch (error) {
-    // Optionally log the error
-    console.error('Error fetching products:', error);
-    return [];
-  }
-}
+  },
+};
+
+export default productService;
