@@ -1,38 +1,25 @@
-import axios from 'axios';
 import { api } from '../lib/api/http';
-import { PRODUCTS } from '../lib/api/endpoints';
 import { Product } from '../types/product';
 
 export const productService = {
   getAllProducts: async (): Promise<Product[]> => {
     try {
       console.log('Fetching products...');
-      const response = await api.get<{ data: Product[] }>(PRODUCTS.GET_ALL);
-      console.log('Raw response:', response);
-      
-      // Handle different response structures
-      if (Array.isArray(response)) {
-        return response;
-      } else if (response && 'data' in response) {
-        return response.data.data;
-      } else {
-        console.error('Unexpected response structure:', response);
-        return [];
-      }
+      const response = await api.get<Product[]>('/products');
+      return response.data;
     } catch (error) {
       console.error('Product service error:', error);
       throw error;
     }
   },
 
-  getProductBySlug: async (slug: string): Promise<Product | null> => {
+  getProductById: async (id: string): Promise<Product | null> => {
     try {
-      console.log(`Fetching product details for slug: ${slug}`);
-      const response = await api.get<Product>(`${PRODUCTS.LIST}/${slug}`);
-      console.log('Product detail response:', response);
+      console.log(`Fetching product with ID:`, id);
+      const response = await api.get<Product>(`/products/${id}`);
       return response.data;
     } catch (error) {
-      console.error('Error fetching product details:', error);
+      console.error('Error fetching product:', error);
       return null;
     }
   },

@@ -51,19 +51,18 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
       setState(prev => ({ ...prev, loading: true, error: null }));
       console.log('Starting product fetch...');
       const data = await productService.getAllProducts();
-      
-      if (!data || !Array.isArray(data)) {
-        throw new Error('Invalid response format');
-      }
-      
-      console.log('Fetched products:', data);
+      console.log('Products fetched successfully:', data);
       setState(prev => ({ ...prev, products: data, loading: false }));
     } catch (error) {
-      console.error('Error in fetchProducts:', error);
+      console.error('Error fetching products:', {
+        error,
+        message: error.message,
+        response: error.response?.data
+      });
       setState(prev => ({
         ...prev,
         loading: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch products'
+        error: error.message || 'Failed to fetch products'
       }));
     }
   };

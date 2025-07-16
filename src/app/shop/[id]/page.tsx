@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
-import { AiOutlineHeart, AiFillHeart, AiOutlineShopping, AiOutlineMinus, AiOutlinePlus } from 'react-icons/ai';
-import { productService } from '@/services/product.service';
 import { Product } from '@/types/product';
+import { productService } from '@/services/product.service';
+import { AiOutlineHeart, AiFillHeart, AiOutlineMinus, AiOutlinePlus, AiOutlineShoppingCart, AiOutlineStar, AiFillStar } from 'react-icons/ai';
+import { BiShareAlt } from 'react-icons/bi';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -15,18 +16,34 @@ export default function ProductDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [activeImage, setActiveImage] = useState(0);
+  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [isWishlist, setIsWishlist] = useState(false);
+
+  console.log('Current params:', params);
 
   useEffect(() => {
     const fetchProduct = async () => {
+      if (!params?.id) {
+        console.log('No ID provided');
+        return;
+      }
+
       try {
         setLoading(true);
-        const data = await productService.getProductBySlug(params.slug as string);
+        setError(null);
+        
+        console.log('Attempting to fetch product with ID:', params.id);
+        
+        const data = await productService.getProductById(params.id as string);
+        console.log('Product data received:', data);
+        
         if (!data) {
           throw new Error('Product not found');
         }
+        
         setProduct(data);
       } catch (err) {
+        console.error('Error fetching product:', err);
         setError(err instanceof Error ? err.message : 'Failed to load product');
       } finally {
         setLoading(false);
@@ -34,7 +51,7 @@ export default function ProductDetailPage() {
     };
 
     fetchProduct();
-  }, [params.slug]);
+  }, [params?.id]);
 
   if (loading) {
     return (
@@ -64,44 +81,78 @@ export default function ProductDetailPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Product Images */}
         <div className="space-y-4">
-          <div className="relative aspect-square rounded-lg overflow-hidden">
+          <div className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
             <Image
-              src={product.images[activeImage]}
+              src={product.images[activeImageIndex]}
               alt={product.name}
               fill
-              className="object-cover"
+              className="object-contain"
             />
           </div>
-          <div className="grid grid-cols-4 gap-4">
-            {product.images.map((image, index) => (
-              <button
-                key={index}
-                onClick={() => setActiveImage(index)}
-                className={`relative aspect-square rounded-md overflow-hidden border-2 ${
-                  activeImage === index ? 'border-blue-500' : 'border-transparent'
-                }`}
-              >
-                <Image
-                  src={image}
-                  alt={`${product.name} ${index + 1}`}
-                  fill
-                  className="object-cover"
-                />
-              </button>
-            ))}
-          </div>
+          {product.images.length > 1 && (
+            <div className="grid grid-cols-4 gap-4">
+              {product.images.map((image, index) => (
+                <button
+                  key={index}
+                  onClick={() => setActiveImageIndex(index)}
+                  className={`relative aspect-square rounded-md overflow-hidden border-2 ${
+                    activeImageIndex === index ? 'border-blue-500' : 'border-transparent'
+                  }`}
+                >
+                  <Image
+                    src={image}
+                    alt={`${product.name} ${index + 1}`}
+                    fill
+                    className="object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Product Info */}
         <div className="space-y-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
-            <p className="text-lg text-gray-500 mb-4">{product.brand}</p>
-            <div className="flex items-center space-x-4">
+            <div className="flex justify-between items-start">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">{product.name}</h1>
+                <p className="text-lg text-gray-500">{product.brand}</p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setIsWishlist(!isWishlist)}
+                  className="p-2 rounded-full hover:bg-gray-100"
+                >
+                  {isWishlist ? (
+                    <AiFillHeart className="w-6 h-6 text-red-500" />
+                  ) : (
+                    <AiOutlineHeart className="w-6 h-6 text-gray-400" />
+                  )}
+                </button>
+                <button className="p-2 rounded-full hover:bg-gray-100">
+                  <BiShareAlt className="w-6 h-6 text-gray-400" />
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center space-x-2">
+              <div className="flex items-center">
+                {[...Array(5)].map((_, index) => (
+                  <span key={index}>
+                    {index < Math.floor(product.rating) ? (
+                      <AiFillStar className="w-5 h-5 text-yellow-400" />
+                    ) : (
+                      <AiOutlineStar className="w-5 h-5 text-yellow-400" />
+                    )}
+                  </span>
+                ))}
+              </div>
+              <span className="text-sm text-gray-500">({product.rating} / 5)</span>
+            </div>
+
+            <div className="mt-6">
               <span className="text-3xl font-bold text-blue-600">${product.price.toLocaleString()}</span>
-              {product.compareAtPrice && (
-                <span className="text-xl text-gray-400 line-through">${product.compareAtPrice.toLocaleString()}</span>
-              )}
             </div>
           </div>
 
@@ -145,23 +196,18 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          {/* Actions */}
-          <div className="flex space-x-4">
-            <button
-              disabled={!selectedSize}
-              className={`flex-1 flex items-center justify-center space-x-2 py-3 px-8 rounded-md ${
-                selectedSize
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
-                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              }`}
-            >
-              <AiOutlineShopping size={22} />
-              <span>Add to Cart</span>
-            </button>
-            <button className="p-3 rounded-md bg-gray-100 hover:bg-gray-200">
-              <AiOutlineHeart size={22} />
-            </button>
-          </div>
+          {/* Add to Cart */}
+          <button
+            disabled={!selectedSize || !product.inStock}
+            className={`w-full flex items-center justify-center space-x-2 py-3 px-8 rounded-md ${
+              !selectedSize || !product.inStock
+                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700'
+            }`}
+          >
+            <AiOutlineShoppingCart size={22} />
+            <span>{product.inStock ? 'Add to Cart' : 'Out of Stock'}</span>
+          </button>
 
           {/* Description */}
           <div>
@@ -169,20 +215,26 @@ export default function ProductDetailPage() {
             <p className="text-gray-600">{product.description}</p>
           </div>
 
-          {/* Additional Info */}
+          {/* Product Details */}
           <div className="border-t pt-6 space-y-4">
             <div className="flex justify-between">
               <span className="text-gray-500">Brand</span>
               <span className="font-medium">{product.brand}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-gray-500">Rating</span>
-              <span className="font-medium">{product.rating} / 5</span>
+              <span className="text-gray-500">Category</span>
+              <span className="font-medium">{product.categoryId}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-500">Availability</span>
               <span className={`font-medium ${product.inStock ? 'text-green-600' : 'text-red-600'}`}>
                 {product.inStock ? 'In Stock' : 'Out of Stock'}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Last Updated</span>
+              <span className="font-medium">
+                {new Date(product.updatedAt).toLocaleDateString()}
               </span>
             </div>
           </div>

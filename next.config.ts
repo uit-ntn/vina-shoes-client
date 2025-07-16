@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     loader: 'default',
     path: '',
+    domains: ['example.com'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -38,33 +39,16 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'static.nike.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'example.com',
+      },
     ],
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
-  // Redirects for SEO and user experience
-  async redirects() {
-    return [
-      {
-        source: '/products/:path*',
-        destination: '/shop/:path*',
-        permanent: true,
-      },
-      {
-        source: '/orders',
-        destination: '/account/orders',
-        permanent: true,
-      },
-      {
-        source: '/profile',
-        destination: '/account/profile',
-        permanent: true,
-      },
-    ];
-  },
-
-  // URL rewrites for cleaner URLs
+  // URL rewrites for cleaner URLs and API proxy
   async rewrites() {
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:8080';
     return [

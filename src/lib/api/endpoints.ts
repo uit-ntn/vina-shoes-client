@@ -8,8 +8,8 @@ export const PRODUCTS = {
   FEATURED: '/products/featured',
   NEW_ARRIVALS: '/products/new-arrivals',
   BEST_SELLERS: '/products/best-sellers',
-  GET_ALL: '/products', // Changed from '/api/products' to match backend
-  GET_BY_ID: (id: string) => `/api/products/${id}`,
+  GET_ALL: '/products',
+  GET_BY_ID: (id: string) => `/products/${id}`,
 };
 
 // Category endpoints
