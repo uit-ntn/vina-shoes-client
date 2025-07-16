@@ -2,90 +2,165 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product } from '@/types/product';
+import { CartItem as ServerCartItem } from '@/types/cartItem';
+import { useAuth } from './AuthContext';
+import { cartService } from '@/services/cart.service';
+import toast from 'react-hot-toast';
 
-interface CartItem {
+interface CartItemClient {
   product: Product;
   quantity: number;
   selectedSize: number;
 }
 
+interface CartItemServer {
+  _id: string;
+  cartId: string;
+  product: Product;
+  quantity: number;
+  size: number;
+}
+
 interface CartContextType {
-  items: CartItem[];
+  items: CartItemClient[];
   addToCart: (product: Product, quantity: number, size: number) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
+  loadUserCart: (userId: string) => Promise<void>;
+  isLoading: boolean;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [items, setItems] = useState<CartItemClient[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
 
-  // Load cart from localStorage when component mounts
+  // Load cart from localStorage on initial mount
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      try {
+    if (typeof window !== 'undefined') {
+      const savedCart = localStorage.getItem('cart');
+      if (savedCart) {
         setItems(JSON.parse(savedCart));
-      } catch (error) {
-        console.error('Error loading cart from localStorage:', error);
       }
     }
   }, []);
 
   // Save cart to localStorage whenever it changes
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(items));
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cart', JSON.stringify(items));
+    }
   }, [items]);
 
-  const addToCart = (product: Product, quantity: number, selectedSize: number) => {
-    setItems(currentItems => {
-      const existingItemIndex = currentItems.findIndex(
-        item => item.product._id === product._id && item.selectedSize === selectedSize
+  // Load user's cart when they log in
+  useEffect(() => {
+    if (user?.id) {
+      loadUserCart(user.id);
+    }
+  }, [user]);
+
+  const loadUserCart = async (userId: string) => {
+    setIsLoading(true);
+    try {
+      const data = await cartService.getUserCart(userId);
+      if (data && typeof data === 'object' && Array.isArray((data as any).items)) {
+        setItems((data as { items: CartItemServer[] }).items.map((item: CartItemServer) => ({
+          product: item.product,
+          quantity: item.quantity,
+          selectedSize: item.size
+        })));
+      } else {
+        setItems([]);
+        toast.error('Invalid cart data received');
+      }
+    } catch (error) {
+      console.error('Error loading user cart:', error);
+      toast.error('Failed to load your cart');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const addToCart = async (product: Product, quantity: number, size: number) => {
+    try {
+      const loadingToast = toast.loading('Adding to cart...');
+      await cartService.addToCart(product._id, quantity, size);
+      
+      // Update local state
+      const updatedItems = [...items];
+      const existingItemIndex = items.findIndex(
+        item => item.product._id === product._id && item.selectedSize === size
       );
 
-      if (existingItemIndex > -1) {
-        // Update quantity if item exists
-        const newItems = [...currentItems];
-        newItems[existingItemIndex].quantity += quantity;
-        return newItems;
+      if (existingItemIndex >= 0) {
+        updatedItems[existingItemIndex].quantity += quantity;
+      } else {
+        updatedItems.push({ product, quantity, selectedSize: size });
       }
+      setItems(updatedItems);
 
-      // Add new item if it doesn't exist
-      return [...currentItems, { product, quantity, selectedSize }];
-    });
+      toast.success('Added to cart!', { id: loadingToast });
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add to cart');
+    }
   };
 
-  const removeFromCart = (productId: string) => {
-    setItems(currentItems => 
-      currentItems.filter(item => item.product._id !== productId)
-    );
+  const removeFromCart = async (productId: string) => {
+    try {
+      const loadingToast = toast.loading('Removing from cart...');
+      await cartService.removeFromCart(productId);
+      
+      // Update local state
+      const updatedItems = items.filter(item => item.product._id !== productId);
+      setItems(updatedItems);
+
+      toast.success('Removed from cart!', { id: loadingToast });
+    } catch (error) {
+      console.error('Error removing from cart:', error);
+      toast.error('Failed to remove from cart');
+    }
   };
 
-  const updateQuantity = (productId: string, newQuantity: number) => {
-    setItems(currentItems =>
-      currentItems.map(item =>
-        item.product._id === productId
-          ? { ...item, quantity: Math.max(1, newQuantity) }
-          : item
-      )
-    );
+  const updateQuantity = async (productId: string, quantity: number) => {
+    if (quantity < 1) return;
+
+    try {
+      const loadingToast = toast.loading('Updating cart...');
+      await cartService.updateCartItem(productId, quantity);
+      
+      // Update local state
+      const updatedItems = items.map(item =>
+        item.product._id === productId ? { ...item, quantity } : item
+      );
+      setItems(updatedItems);
+
+      toast.success('Cart updated!', { id: loadingToast });
+    } catch (error) {
+      console.error('Error updating cart:', error);
+      toast.error('Failed to update cart');
+    }
   };
 
-  const clearCart = () => {
-    setItems([]);
-    localStorage.removeItem('cart');
+  const clearCart = async () => {
+    try {
+      const loadingToast = toast.loading('Clearing cart...');
+      await cartService.clearCart();
+      setItems([]);
+      toast.success('Cart cleared!', { id: loadingToast });
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+      toast.error('Failed to clear cart');
+    }
   };
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-
-  const totalPrice = items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
-    0
-  );
+  const totalPrice = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
 
   return (
     <CartContext.Provider
@@ -97,6 +172,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         clearCart,
         totalItems,
         totalPrice,
+        loadUserCart,
+        isLoading,
       }}
     >
       {children}

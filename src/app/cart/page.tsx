@@ -1,13 +1,54 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 import { AiOutlineMinus, AiOutlinePlus, AiOutlineDelete } from 'react-icons/ai';
 
 export default function CartPage() {
-  const { items, updateQuantity, removeFromCart, totalPrice } = useCart();
+  const { items, updateQuantity, removeFromCart, totalPrice, isLoading } = useCart();
+  const { user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      // Redirect to login if user is not authenticated
+      router.push('/login?redirect=/cart');
+    }
+  }, [user, router]);
+
+  // Show loading state while checking authentication or loading cart
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <div className="max-w-md mx-auto">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Loading your cart...</h2>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show message if user is not authenticated
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <div className="max-w-md mx-auto">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Please Login</h2>
+          <p className="text-gray-600 mb-8">You need to be logged in to view your cart.</p>
+          <Link
+            href="/login?redirect=/cart"
+            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition duration-300"
+          >
+            Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     return (
@@ -58,7 +99,7 @@ export default function CartPage() {
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => updateQuantity(item.product._id, item.quantity - 1)}
-                  className="p-1 rounded-md hover:bg-gray-100"
+                  className="p-1 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={item.quantity <= 1}
                 >
                   <AiOutlineMinus size={20} />

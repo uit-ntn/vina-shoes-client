@@ -5,6 +5,8 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<void>;
+  forgotPassword: (email: string) => Promise<void>;
+  resetPassword: (token: string, newPassword: string) => Promise<void>;
 }
 
 export interface LoginCredentials {
@@ -20,8 +22,13 @@ export interface RegisterData {
 }
 
 export interface AuthResponse {
-  user: User;
-  token: string;
+  access_token: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+  };
 }
 
 export interface PasswordResetRequest {
@@ -33,28 +40,35 @@ export interface PasswordResetConfirm {
   newPassword: string;
   confirmPassword: string;
 }
+
 export interface Address {
   street: string;
   city: string;
+  state?: string;
   country: string;
   postalCode: string;
 }
 
 export interface User {
-  _id: string;
+  id: string;
   name: string;
   email: string;
-  role: "admin" | "customer";
-  address: Address;
-  createdAt: Date;
-  updatedAt: Date;
-  password: string;
+  role: string;
+  address?: Address;
+  phone?: string;
+  avatar?: string;
+  emailVerified?: boolean;
+  lastLogin?: Date;
 }
+
+export type UserRole = 'admin' | 'customer' | 'user';
 
 export interface UpdateProfileData {
   name?: string;
   email?: string;
+  phone?: string;
   address?: Address;
+  avatar?: string;
 }
 
 export interface ChangePasswordData {
@@ -68,21 +82,40 @@ export interface OrderHistoryResponse {
     _id: string;
     products: Array<{
       productId: string;
+      name: string;
       quantity: number;
       price: number;
+      subtotal: number;
     }>;
     total: number;
-    status: string;
+    status: OrderStatus;
+    shippingAddress: Address;
+    paymentMethod: string;
+    paymentStatus: PaymentStatus;
     createdAt: Date;
   }>;
+  totalCount: number;
+  page: number;
+  limit: number;
 }
+
+export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 
 export interface NotificationResponse {
   notifications: Array<{
     _id: string;
-    type: string;
+    type: NotificationType;
+    title: string;
     message: string;
     read: boolean;
     createdAt: Date;
+    link?: string;
   }>;
+  unreadCount: number;
+  totalCount: number;
+  page: number;
+  limit: number;
 }
+
+export type NotificationType = 'order' | 'account' | 'promotion' | 'system';
