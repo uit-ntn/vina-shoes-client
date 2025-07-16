@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { AiOutlineHeart, AiFillHeart, AiOutlineShoppingCart } from 'react-icons/ai';
 import { Product } from '@/types/product';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 
 interface ProductCardProps {
   product: Product;
@@ -16,11 +18,19 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist = fa
   const fallbackImageUrl = '/images/product-placeholder.jpg';
 
   const { addToCart } = useCart();
+  const { user } = useAuth();
+  const router = useRouter();
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
   const [showSizeSelector, setShowSizeSelector] = useState(false);
 
   const handleAddToCart = () => {
     if (!product.inStock) return;
+
+    if (!user) {
+      // Save current URL to redirect back after login
+      router.push(`/login?redirectTo=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
     
     if (!selectedSize) {
       setShowSizeSelector(true);

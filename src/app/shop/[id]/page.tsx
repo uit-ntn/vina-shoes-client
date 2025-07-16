@@ -7,6 +7,8 @@ import { Product } from '@/types/product';
 import { productService } from '@/services/product.service';
 import { AiOutlineHeart, AiFillHeart, AiOutlineMinus, AiOutlinePlus, AiOutlineShoppingCart, AiOutlineStar, AiFillStar } from 'react-icons/ai';
 import { BiShareAlt } from 'react-icons/bi';
+import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/context/AuthContext';
 
 export default function ProductDetailPage() {
   const params = useParams();
@@ -18,6 +20,8 @@ export default function ProductDetailPage() {
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isWishlist, setIsWishlist] = useState(false);
+  const { addToCart } = useCart();
+  const { user } = useAuth();
 
   console.log('Current params:', params);
 
@@ -198,6 +202,16 @@ export default function ProductDetailPage() {
 
           {/* Add to Cart */}
           <button
+            onClick={() => {
+              if (!user) {
+                router.push(`/login?redirectTo=${encodeURIComponent(window.location.pathname)}`);
+                return;
+              }
+              if (selectedSize && product) {
+                addToCart(product, quantity, selectedSize);
+                router.push('/cart');
+              }
+            }}
             disabled={!selectedSize || !product.inStock}
             className={`w-full flex items-center justify-center space-x-2 py-3 px-8 rounded-md ${
               !selectedSize || !product.inStock
