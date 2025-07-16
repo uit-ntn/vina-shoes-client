@@ -16,47 +16,47 @@ const publicRoutes = [
   '/policy',
 ];
 
+// Routes that require authentication
+const protectedRoutes = [
+  '/checkout',
+  '/account',
+  '/orders',
+];
+
 // Routes that require admin role
 const adminRoutes = [
   '/admin',
-  '/admin/products',
-  '/admin/orders',
-  '/admin/users',
 ];
 
 export function middleware(request: NextRequest) {
   const token = request.cookies.get('token');
   const { pathname } = request.nextUrl;
-
-  // Check if the route is public
-  const isPublicRoute = publicRoutes.some(route => 
-    pathname === route || pathname.startsWith(`${route}/`)
-  );
-
-  // If it's a public route, allow access
-  if (isPublicRoute) {
+  
+  // Allow access to public routes
+  if (publicRoutes.some(route => pathname.startsWith(route))) {
     return NextResponse.next();
   }
 
-  // If user is not authenticated and trying to access protected route
-  if (!token) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('from', pathname);
-    return NextResponse.redirect(loginUrl);
+  // Check for protected routes
+  if (protectedRoutes.some(route => pathname.startsWith(route))) {
+    if (!token) {
+      const response = NextResponse.redirect(new URL('/login', request.url));
+      response.cookies.set({
+        name: 'redirectTo',
+        value: pathname,
+        path: '/',
+        maxAge: 60 * 5, // 5 minutes
+      });
+      return response;
+    }
   }
 
-  // For admin routes, verify admin role
+  // Check for admin routes (if you have admin functionality)
   if (adminRoutes.some(route => pathname.startsWith(route))) {
-    try {
-      // Here you would verify the token and check the user's role
-      // This is a simplified example
-      const isAdmin = false; // Replace with actual role check
-      if (!isAdmin) {
-        return NextResponse.redirect(new URL('/', request.url));
-      }
-    } catch (err) {
+    if (!token) {
       return NextResponse.redirect(new URL('/login', request.url));
     }
+    // Add additional admin role check here if needed
   }
 
   return NextResponse.next();
@@ -64,14 +64,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
-    '/((?!api|_next/static|_next/image|favicon.ico|public/).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 };

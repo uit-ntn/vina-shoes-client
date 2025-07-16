@@ -56,13 +56,17 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
     } catch (error) {
       console.error('Error fetching products:', {
         error,
-        message: error.message,
-        response: error.response?.data
+        message: typeof error === 'object' && error !== null && 'message' in error ? (error as { message?: string }).message : undefined,
+        response: typeof error === 'object' && error !== null && 'response' in error
+          ? (error as any).response?.data
+          : undefined
       });
       setState(prev => ({
         ...prev,
         loading: false,
-        error: error.message || 'Failed to fetch products'
+        error: typeof error === 'object' && error !== null && 'message' in error
+          ? (error as { message?: string }).message || 'Failed to fetch products'
+          : 'Failed to fetch products'
       }));
     }
   };

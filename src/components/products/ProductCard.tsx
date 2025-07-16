@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AiOutlineHeart, AiFillHeart, AiOutlineShoppingCart } from 'react-icons/ai';
 import { Product } from '@/types/product';
+import { useCart } from '@/context/CartContext';
 
 interface ProductCardProps {
   product: Product;
@@ -13,6 +14,23 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist = false }: ProductCardProps) => {
   const fallbackImageUrl = '/images/product-placeholder.jpg';
+
+  const { addToCart } = useCart();
+  const [selectedSize, setSelectedSize] = useState<number | null>(null);
+  const [showSizeSelector, setShowSizeSelector] = useState(false);
+
+  const handleAddToCart = () => {
+    if (!product.inStock) return;
+    
+    if (!selectedSize) {
+      setShowSizeSelector(true);
+      return;
+    }
+
+    addToCart(product, 1, selectedSize);
+    setShowSizeSelector(false);
+    setSelectedSize(null);
+  };
 
   return (
     <div className="group relative bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
@@ -29,6 +47,41 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist = fa
           </span>
         )}
       </div>
+
+      {/* Size Selector Popup */}
+      {showSizeSelector && (
+        <div className="absolute inset-0 bg-white/95 z-20 flex flex-col items-center justify-center p-4">
+          <h4 className="text-lg font-semibold mb-3">Select Size</h4>
+          <div className="grid grid-cols-3 gap-2 mb-4 w-full">
+            {product.sizes?.map((size) => (
+              <button
+                key={size}
+                onClick={() => setSelectedSize(size)}
+                className={`py-2 px-3 rounded ${
+                  selectedSize === size
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 hover:bg-gray-200'
+                }`}
+              >
+                {size}
+              </button>
+            ))}
+          </div>
+          <button
+            onClick={handleAddToCart}
+            disabled={!selectedSize}
+            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:bg-gray-300"
+          >
+            Add to Cart
+          </button>
+          <button
+            onClick={() => setShowSizeSelector(false)}
+            className="mt-2 text-gray-600 hover:text-gray-800"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
 
       {/* Wishlist Button */}
       <button
@@ -71,7 +124,7 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist = fa
 
         {/* Add to Cart Button */}
         <button
-          onClick={() => onAddToCart?.(product)}
+          onClick={handleAddToCart}
           disabled={!product.inStock}
           className={`w-full py-2 px-4 rounded-md flex items-center justify-center gap-2 transition-colors duration-200 ${
             product.inStock
