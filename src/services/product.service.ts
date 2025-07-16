@@ -14,7 +14,7 @@ export const productService = {
       if (Array.isArray(response)) {
         return response;
       } else if (response && 'data' in response) {
-        return response.data;
+        return response.data.data;
       } else {
         console.error('Unexpected response structure:', response);
         return [];
@@ -22,6 +22,18 @@ export const productService = {
     } catch (error) {
       console.error('Product service error:', error);
       throw error;
+    }
+  },
+
+  getProductBySlug: async (slug: string): Promise<Product | null> => {
+    try {
+      console.log(`Fetching product details for slug: ${slug}`);
+      const response = await api.get<Product>(`${PRODUCTS.LIST}/${slug}`);
+      console.log('Product detail response:', response);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching product details:', error);
+      return null;
     }
   },
 };
