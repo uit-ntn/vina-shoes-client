@@ -39,132 +39,69 @@ http.interceptors.request.use(
 // Response interceptor
 http.interceptors.response.use(
   (response: AxiosResponse) => {
-    // Any status code within the range of 2xx
     return response;
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
-    
-    // Handle 401 Unauthorized - Token expired
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      
-      try {
-        // Attempt to refresh token
-        const refreshToken = localStorage.getItem('refresh_token');
-        if (!refreshToken) {
-          // No refresh token, redirect to login
-          if (typeof window !== 'undefined') {
-            localStorage.removeItem(AUTH_TOKEN_KEY);
-            window.location.href = '/login';
-          }
-          return Promise.reject(error);
-        }
-        
-        // Call refresh token endpoint
-        const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-          refreshToken
-        });
-        
-        // Update tokens in localStorage
-        const { token, refreshToken: newRefreshToken } = response.data;
-        localStorage.setItem(AUTH_TOKEN_KEY, token);
-        localStorage.setItem('refresh_token', newRefreshToken);
-        
-        // Update authorization header
-        http.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        originalRequest.headers = {
-          ...originalRequest.headers,
-          Authorization: `Bearer ${token}`
-        };
-        
-        // Retry the original request
-        return http(originalRequest);
-      } catch (refreshError) {
-        // Failed to refresh token, redirect to login
+    // Log error details for debugging
+    console.error(`API Error [${error.config?.url}]:`, {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      message: error.message
+    });
+
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      const { status, data } = error.response;
+
+      // Handle authentication errors
+      if (status === 401 || status === 403) {
         if (typeof window !== 'undefined') {
           localStorage.removeItem(AUTH_TOKEN_KEY);
-          localStorage.removeItem('refresh_token');
-          window.location.href = '/login';
+          window.dispatchEvent(new StorageEvent('storage', {
+            key: AUTH_TOKEN_KEY,
+            newValue: null
+          }));
         }
-        return Promise.reject(refreshError);
+      }
+
+      // If we have a response with data and message, use it
+      if (data && typeof data === 'object') {
+        if ('message' in data) {
+          throw new Error(data.message as string);
+        }
+        // If no message but we have data, throw the data
+        throw data;
       }
     }
-    
-    // Handle 403 Forbidden - Insufficient permissions
-    if (error.response?.status === 403) {
-      console.error('Permission denied');
-      // Optionally redirect to a forbidden page
-      // if (typeof window !== 'undefined') {
-      //   window.location.href = '/forbidden';
-      // }
+
+    // Handle network errors
+    if (!error.response) {
+      throw new Error('Network error occurred. Please check your connection.');
     }
-    
-    // Handle 404 Not Found
-    if (error.response?.status === 404) {
-      console.error('Resource not found');
-    }
-    
-    // Handle 500 Internal Server Error
-    if (error.response?.status === 500) {
-      console.error('Server error');
-    }
-    
-    // Network errors
-    if (error.message === 'Network Error') {
-      console.error('Network error - please check your internet connection');
-    }
-    
-    // Timeout errors
-    if (error.code === 'ECONNABORTED') {
-      console.error('Request timeout - the server did not respond in time');
-    }
-    
-    return Promise.reject(error);
+
+    // Fallback error message
+    throw new Error(error.message || 'An unexpected error occurred');
   }
 );
-
-// Helper methods
-export const setAuthToken = (token: string): void => {
-  localStorage.setItem(AUTH_TOKEN_KEY, token);
-  http.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-};
-
-export const clearAuthToken = (): void => {
-  localStorage.removeItem(AUTH_TOKEN_KEY);
-  localStorage.removeItem('refresh_token');
-  delete http.defaults.headers.common['Authorization'];
-};
-
-export const getAuthToken = (): string | null => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem(AUTH_TOKEN_KEY);
-  }
-  return null;
-};
 
 // API Methods
 export const api = {
   get: <T>(url: string, config?: AxiosRequestConfig) => 
-    http.get<T>(url, config)
-      .then(response => response.data),
+    http.get<T>(url, config),
       
   post: <T>(url: string, data?: any, config?: AxiosRequestConfig) => 
-    http.post<T>(url, data, config)
-      .then(response => response.data),
+    http.post<T>(url, data, config),
       
   put: <T>(url: string, data?: any, config?: AxiosRequestConfig) => 
-    http.put<T>(url, data, config)
-      .then(response => response.data),
+    http.put<T>(url, data, config),
       
   patch: <T>(url: string, data?: any, config?: AxiosRequestConfig) => 
-    http.patch<T>(url, data, config)
-      .then(response => response.data),
+    http.patch<T>(url, data, config),
       
   delete: <T>(url: string, config?: AxiosRequestConfig) => 
-    http.delete<T>(url, config)
-      .then(response => response.data),
+    http.delete<T>(url, config),
 };
 
-// Export the axios instance as default
 export default http;

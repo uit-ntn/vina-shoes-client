@@ -15,9 +15,11 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // If user is already logged in, redirect to home page
+    // If user is already logged in, redirect to the previous page or home page
     if (user) {
-      router.push('/');
+      const params = new URLSearchParams(window.location.search);
+      const redirectTo = params.get('redirectTo');
+      router.push(redirectTo || '/');
     }
   }, [user, router]);
 

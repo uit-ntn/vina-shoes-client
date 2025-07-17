@@ -1,64 +1,104 @@
-// Authentication endpoints
+// Auth endpoints
 export const AUTH = {
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
   LOGOUT: '/auth/logout',
-  REFRESH: '/auth/refresh',
+  ME: '/auth/me',
   FORGOT_PASSWORD: '/auth/forgot-password',
   RESET_PASSWORD: '/auth/reset-password',
+  REFRESH_TOKEN: '/auth/refresh-token',
+  VERIFY_EMAIL: '/auth/verify-email',
+  CHANGE_PASSWORD: '/auth/change-password',
+  UPDATE_PROFILE: '/auth/profile',
 };
 
 // User endpoints
 export const USER = {
-  PROFILE: '/users/profile',
-  UPDATE_PROFILE: '/users/profile',
-  CHANGE_PASSWORD: '/users/change-password',
-  ADDRESSES: '/users/addresses',
+  PROFILE: '/user/profile',
+  UPDATE_PROFILE: '/user/profile',
+  CHANGE_PASSWORD: '/user/change-password',
+  ORDERS: '/user/orders',
+  ORDER_DETAIL: (id: string) => `/user/orders/${id}`,
+  ADDRESSES: '/user/addresses',
+  NOTIFICATIONS: '/user/notifications',
+  WISHLIST: '/user/wishlist',
 };
 
 // Product endpoints
 export const PRODUCTS = {
-  LIST: '/products',
-  DETAIL: (id: string | number) => `/products/${id}`,
-  CATEGORIES: '/categories',
-  CATEGORY: (id: string | number) => `/categories/${id}`,
-  FEATURED: '/products/featured',
-  NEW_ARRIVALS: '/products/new-arrivals',
-  SEARCH: '/products/search',
+  LIST: "/products",
+  DETAIL: (id: string) => `/products/${id}`,
+  BY_CATEGORY: (categoryId: string) => `/products/category/${categoryId}`,
+  BY_BRAND: (brand: string) => `/products/brand/${brand}`,
+  SEARCH: "/products/search",
+  FEATURED: "/products/featured",
+  NEW_ARRIVALS: "/products/new-arrivals", 
+  BEST_SELLERS: "/products/best-sellers",
+  REVIEWS: (id: string) => `/products/${id}/reviews`,
+  ADD_REVIEW: (id: string) => `/products/${id}/reviews`
+};
+
+// Category endpoints
+export const CATEGORIES = {
+  LIST: "/categories",
+  DETAIL: (id: string) => `/categories/${id}`,
+  WITH_PRODUCTS: "/categories/with-products"
 };
 
 // Cart endpoints
 export const CART = {
-  GET: '/cart',
-  ADD: '/cart/items',
-  UPDATE: (itemId: string | number) => `/cart/items/${itemId}`,
-  REMOVE: (itemId: string | number) => `/cart/items/${itemId}`,
-  CLEAR: '/cart/clear',
-  APPLY_COUPON: '/cart/apply-coupon',
-  REMOVE_COUPON: '/cart/remove-coupon',
+  GET: "/cart",              // GET user's active cart
+  ADD: "/cart/items",        // POST add item to cart
+  UPDATE: "/cart/items",     // PUT update item
+  REMOVE: "/cart/items",     // DELETE remove item
+  CLEAR: "/cart/items",      // DELETE clear cart
+  COUNT: "/cart/count"       // GET cart item count
 };
 
 // Order endpoints
 export const ORDERS = {
-  LIST: '/orders',
-  DETAIL: (id: string | number) => `/orders/${id}`,
-  CREATE: '/orders',
-  CANCEL: (id: string | number) => `/orders/${id}/cancel`,
-  TRACK: (id: string | number) => `/orders/${id}/track`,
+  CREATE: "/orders",
+  LIST: "/orders",
+  DETAIL: (id: string) => `/orders/${id}`,
+  CANCEL: (id: string) => `/orders/${id}/cancel`,
+  TRACK: (id: string) => `/orders/${id}/track`
 };
 
-// Review endpoints
-export const REVIEWS = {
-  LIST: (productId: string | number) => `/products/${productId}/reviews`,
-  CREATE: (productId: string | number) => `/products/${productId}/reviews`,
-  UPDATE: (reviewId: string | number) => `/reviews/${reviewId}`,
-  DELETE: (reviewId: string | number) => `/reviews/${reviewId}`,
+// Payment endpoints
+export const PAYMENT = {
+  METHODS: "/payment/methods",
+  PROCESS: "/payment/process",
+  VERIFY: "/payment/verify",
+  WEBHOOK: "/payment/webhook"
 };
 
-// Wishlist endpoints
-export const WISHLIST = {
-  LIST: '/wishlist',
-  ADD: '/wishlist',
-  REMOVE: (productId: string | number) => `/wishlist/${productId}`,
-  CHECK: (productId: string | number) => `/wishlist/check/${productId}`,
+// Admin endpoints
+export const ADMIN = {
+  DASHBOARD: "/admin/dashboard",
+  USERS: {
+    LIST: "/admin/users",
+    DETAIL: (id: string) => `/admin/users/${id}`,
+    CREATE: "/admin/users",
+    UPDATE: (id: string) => `/admin/users/${id}`,
+    DELETE: (id: string) => `/admin/users/${id}`
+  },
+  PRODUCTS: {
+    LIST: "/admin/products",
+    DETAIL: (id: string) => `/admin/products/${id}`,
+    CREATE: "/admin/products",
+    UPDATE: (id: string) => `/admin/products/${id}`,
+    DELETE: (id: string) => `/admin/products/${id}`
+  },
+  ORDERS: {
+    LIST: "/admin/orders",
+    DETAIL: (id: string) => `/admin/orders/${id}`,
+    UPDATE_STATUS: (id: string) => `/admin/orders/${id}/status`
+  },
+  CATEGORIES: {
+    LIST: "/admin/categories",
+    DETAIL: (id: string) => `/admin/categories/${id}`,
+    CREATE: "/admin/categories",
+    UPDATE: (id: string) => `/admin/categories/${id}`,
+    DELETE: (id: string) => `/admin/categories/${id}`
+  }
 };

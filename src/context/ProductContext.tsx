@@ -1,0 +1,176 @@
+'use client';
+import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
+import { Product } from '@/types/product';
+import { productService } from '@/services/product.service';
+
+interface ProductContextState {
+  products: Product[];
+  loading: boolean;
+  error: string | null;
+  selectedProduct: Product | null;
+  filters: {
+    brand: string[];
+    category: string[];
+    priceRange: { min: number; max: number };
+    sizes: number[];
+  };
+  sortBy: 'price_asc' | 'price_desc' | 'name_asc' | 'name_desc' | 'newest';
+}
+
+interface ProductContextValue extends ProductContextState {
+  fetchProducts: () => Promise<void>;
+  refreshProducts: () => Promise<void>;
+  setSelectedProduct: (product: Product | null) => void;
+  updateFilters: (filters: Partial<ProductContextState['filters']>) => void;
+  setSortBy: (sort: ProductContextState['sortBy']) => void;
+  filteredProducts: Product[];
+  clearFilters: () => void;
+}
+
+const initialState: ProductContextState = {
+  products: [],
+  loading: false,
+  error: null,
+  selectedProduct: null,
+  filters: {
+    brand: [],
+    category: [],
+    priceRange: { min: 0, max: Infinity },
+    sizes: [],
+  },
+  sortBy: 'newest',
+};
+
+const ProductContext = createContext<ProductContextValue | undefined>(undefined);
+
+export const ProductProvider = ({ children }: { children: React.ReactNode }) => {
+  const [state, setState] = useState<ProductContextState>(initialState);
+
+  const fetchProducts = async () => {
+    try {
+      setState(prev => ({ ...prev, loading: true, error: null }));
+      console.log('Starting product fetch...');
+      const data = await productService.getAllProducts();
+      console.log('Products fetched successfully:', data);
+      setState(prev => ({ ...prev, products: data, loading: false }));
+    } catch (error) {
+      console.error('Error fetching products:', {
+        error,
+        message: typeof error === 'object' && error !== null && 'message' in error ? (error as { message?: string }).message : undefined,
+        response: typeof error === 'object' && error !== null && 'response' in error
+          ? (error as any).response?.data
+          : undefined
+      });
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: typeof error === 'object' && error !== null && 'message' in error
+          ? (error as { message?: string }).message || 'Failed to fetch products'
+          : 'Failed to fetch products'
+      }));
+    }
+  };
+
+  const refreshProducts = async () => {
+    await fetchProducts();
+  };
+
+  const setSelectedProduct = (product: Product | null) => {
+    setState(prev => ({ ...prev, selectedProduct: product }));
+  };
+
+  const updateFilters = (newFilters: Partial<ProductContextState['filters']>) => {
+    setState(prev => ({
+      ...prev,
+      filters: { ...prev.filters, ...newFilters }
+    }));
+  };
+
+  const setSortBy = (sort: ProductContextState['sortBy']) => {
+    setState(prev => ({ ...prev, sortBy: sort }));
+  };
+
+  const clearFilters = () => {
+    setState(prev => ({
+      ...prev,
+      filters: initialState.filters,
+      sortBy: initialState.sortBy
+    }));
+  };
+
+  // Memoize filtered and sorted products
+  const filteredProducts = useMemo(() => {
+    let result = [...state.products];
+
+    // Apply filters
+    const { brand, category, priceRange, sizes } = state.filters;
+
+    if (brand.length) {
+      result = result.filter(p => brand.includes(p.brand));
+    }
+
+    if (category.length) {
+      result = result.filter(p => category.includes(p.categoryId));
+    }
+
+    if (sizes.length) {
+      result = result.filter(p => p.sizes?.some(size => sizes.includes(size)));
+    }
+
+    result = result.filter(p => 
+      p.price >= priceRange.min && 
+      p.price <= priceRange.max
+    );
+
+    // Apply sorting
+    switch (state.sortBy) {
+      case 'price_asc':
+        result.sort((a, b) => a.price - b.price);
+        break;
+      case 'price_desc':
+        result.sort((a, b) => b.price - a.price);
+        break;
+      case 'name_asc':
+        result.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'name_desc':
+        result.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case 'newest':
+        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+    }
+
+    return result;
+  }, [state.products, state.filters, state.sortBy]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  return (
+    <ProductContext.Provider 
+      value={{
+        ...state,
+        fetchProducts,
+        refreshProducts,
+        setSelectedProduct,
+        updateFilters,
+        setSortBy,
+        filteredProducts,
+        clearFilters,
+      }}
+    >
+      {children}
+    </ProductContext.Provider>
+  );
+};
+
+export const useProducts = () => {
+  const context = useContext(ProductContext);
+  if (context === undefined) {
+    throw new Error('useProducts must be used within a ProductProvider');
+  }
+  return context;
+};
+
