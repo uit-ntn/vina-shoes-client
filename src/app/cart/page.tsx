@@ -1,16 +1,24 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { withAuth } from '@/components/auth/withAuth';
 import { AiOutlineMinus, AiOutlinePlus, AiOutlineDelete } from 'react-icons/ai';
 import { CartItem } from '@/types/cartItem';
+import { toast } from 'react-hot-toast';
 
-// Định nghĩa component Cart
 const CartPage = () => {
-  const { cart, updateQuantity, removeFromCart, isLoading } = useCart();
+  const { cart, updateQuantity, removeFromCart } = useCart();
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load cart data
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+  }, [cart]);
 
   // Show loading state while checking authentication or loading cart
   if (isLoading) {
@@ -56,10 +64,15 @@ const CartPage = () => {
             >
               <div className="relative w-24 h-24">
                 <Image
-                  src={item.image}
+                  src={item.image || '/images/placeholder-shoe.jpg'}
                   alt={item.name}
                   fill
+                  sizes="96px"
                   className="object-cover rounded"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = '/images/placeholder-shoe.jpg';
+                  }}
                 />
               </div>
 
@@ -73,16 +86,37 @@ const CartPage = () => {
 
               <div className="flex items-center space-x-2">
                 <button
-                  onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                  onClick={async () => {
+                    try {
+                      setIsLoading(true);
+                      await updateQuantity(item.productId, item.quantity - 1);
+                    } catch (error) {
+                      console.error('Failed to update quantity:', error);
+                      toast.error('Failed to update quantity');
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }}
                   className="p-1 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={item.quantity <= 1}
+                  disabled={item.quantity <= 1 || isLoading}
                 >
                   <AiOutlineMinus size={20} />
                 </button>
                 <span className="w-8 text-center">{item.quantity}</span>
                 <button
-                  onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                  onClick={async () => {
+                    try {
+                      setIsLoading(true);
+                      await updateQuantity(item.productId, item.quantity + 1);
+                    } catch (error) {
+                      console.error('Failed to update quantity:', error);
+                      toast.error('Failed to update quantity');
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }}
                   className="p-1 rounded-md hover:bg-gray-100"
+                  disabled={isLoading}
                 >
                   <AiOutlinePlus size={20} />
                 </button>
@@ -93,8 +127,20 @@ const CartPage = () => {
                   ${(item.price * item.quantity).toLocaleString()}
                 </p>
                 <button
-                  onClick={() => removeFromCart(item.productId)}
+                  onClick={async () => {
+                    try {
+                      setIsLoading(true);
+                      await removeFromCart(item.productId);
+                      toast.success('Item removed from cart');
+                    } catch (error) {
+                      console.error('Failed to remove item:', error);
+                      toast.error('Failed to remove item');
+                    } finally {
+                      setIsLoading(false);
+                    }
+                  }}
                   className="text-red-500 hover:text-red-700 mt-2"
+                  disabled={isLoading}
                 >
                   <AiOutlineDelete size={20} />
                 </button>
