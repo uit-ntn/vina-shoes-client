@@ -12,16 +12,24 @@ export const authService = {
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     try {
       const response = await api.post<AuthResponse>(AUTH.LOGIN, credentials);
-      if (typeof window !== 'undefined') {
-        const { access_token, user } = response.data;
-        authService.setAuthData(access_token, user);
+      
+      // Validate response data
+      const { data } = response;
+      if (!data || !data.access_token || !data.user) {
+        throw new Error('Invalid response format from server');
       }
-      return response.data;
+
+      // Store auth data
+      const { access_token, user } = data;
+      authService.setAuthData(access_token, user);
+      
+      return data;
     } catch (error) {
-      if (error instanceof AxiosError) {
-        throw new Error(error.response?.data?.message || 'Login failed');
+      if (error instanceof Error) {
+        throw error;
+      } else {
+        throw new Error('An unexpected error occurred during login');
       }
-      throw error;
     }
   },
 
@@ -43,10 +51,17 @@ export const authService = {
 
   logout: async (): Promise<void> => {
     try {
+      const token = authService.getToken();
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      
       await api.post(AUTH.LOGOUT);
     } catch (error) {
+      // Log but don't throw error since we want to clear auth data anyway
       console.error('Logout error:', error);
     } finally {
+      // Always clear local auth data
       authService.clearAuthData();
     }
   },
@@ -106,30 +121,39 @@ export const authService = {
 
   setAuthData: (token: string, user: User | { id: string; email: string; name: string; role: string }): void => {
     if (typeof window !== 'undefined') {
-      // First store user data and expiry
-      const userData = 'role' in user ? {
-        _id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role === 'user' ? 'customer' : user.role,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      } : user;
-      localStorage.setItem(USER_KEY, JSON.stringify(userData));
-      
-      const expiry = new Date();
-      expiry.setHours(expiry.getHours() + 24); // Token expires in 24 hours
-      localStorage.setItem(TOKEN_EXPIRY_KEY, expiry.toISOString());
+      try {
+        // First store user data and expiry
+        const userData = 'role' in user ? {
+          _id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role === 'user' ? 'customer' : user.role,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        } : user;
 
-      // Set token last to trigger storage event
-      localStorage.setItem(AUTH_TOKEN_KEY, token);
+        // Set token first since it's most important
+        localStorage.setItem(AUTH_TOKEN_KEY, token);
+        
+        // Then set user data
+        localStorage.setItem(USER_KEY, JSON.stringify(userData));
+        
+        // Set expiry last
+        const expiry = new Date();
+        expiry.setHours(expiry.getHours() + 24); // Token expires in 24 hours
+        localStorage.setItem(TOKEN_EXPIRY_KEY, expiry.toISOString());
 
-      // Dispatch storage event for the current window since localStorage events
-      // don't trigger in the same window that made the change
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: AUTH_TOKEN_KEY,
-        newValue: token
-      }));
+        // Notify other tabs/windows
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: AUTH_TOKEN_KEY,
+          newValue: token
+        }));
+      } catch (error) {
+        console.error('Error setting auth data:', error);
+        // If anything fails, clear all auth data to ensure consistency
+        authService.clearAuthData();
+        throw error;
+      }
     }
   },
 

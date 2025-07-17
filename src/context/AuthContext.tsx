@@ -53,21 +53,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
+    const loadingToast = toast.loading('Logging in...');
     try {
       setError(null);
-      const loadingToast = toast.loading('Logging in...');
+      console.log('Attempting login with:', { email });
       const response = await authService.login({ email, password });
+      
+      if (!response || !response.user) {
+        throw new Error('Invalid response from server');
+      }
+
+      console.log('Login response:', response);
       setUser(response.user);
       toast.success('Successfully logged in!', {
         id: loadingToast,
       });
-      console.log('User logged in:', response.user);
-      router.push('/'); // Redirect to home page after login
+      
+      // Get redirect URL from query params if it exists
+      const params = new URLSearchParams(window.location.search);
+      const redirectUrl = params.get('redirect') || '/';
+      router.push(redirectUrl);
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'An error occurred during login';
+      console.error('Login error details:', err); // Log detailed error
+      const errorMessage = err.message || 'An error occurred during login';
       setError(errorMessage);
-      toast.error(errorMessage);
-      throw err;
+      toast.error(errorMessage, {
+        id: loadingToast,
+      });
+      // Don't throw the error, handle it here
     }
   };
 

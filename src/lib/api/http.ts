@@ -39,22 +39,50 @@ http.interceptors.request.use(
 // Response interceptor
 http.interceptors.response.use(
   (response: AxiosResponse) => {
-    // Log successful responses
-    console.log(`API Success [${response.config.url}]:`, {
-      status: response.status,
-      data: response.data
-    });
     return response;
   },
   async (error: AxiosError) => {
-    // Enhanced error logging
+    // Log error details for debugging
     console.error(`API Error [${error.config?.url}]:`, {
       status: error.response?.status,
+      statusText: error.response?.statusText,
       data: error.response?.data,
-      message: error.message,
-      stack: error.stack
+      message: error.message
     });
-    throw error;
+
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      const { status, data } = error.response;
+
+      // Handle authentication errors
+      if (status === 401 || status === 403) {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(AUTH_TOKEN_KEY);
+          window.dispatchEvent(new StorageEvent('storage', {
+            key: AUTH_TOKEN_KEY,
+            newValue: null
+          }));
+        }
+      }
+
+      // If we have a response with data and message, use it
+      if (data && typeof data === 'object') {
+        if ('message' in data) {
+          throw new Error(data.message as string);
+        }
+        // If no message but we have data, throw the data
+        throw data;
+      }
+    }
+
+    // Handle network errors
+    if (!error.response) {
+      throw new Error('Network error occurred. Please check your connection.');
+    }
+
+    // Fallback error message
+    throw new Error(error.message || 'An unexpected error occurred');
   }
 );
 

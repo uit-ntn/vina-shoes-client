@@ -1,24 +1,16 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
-import { useAuth } from '@/context/AuthContext';
-import { useRouter } from 'next/navigation';
+import { withAuth } from '@/components/auth/withAuth';
 import { AiOutlineMinus, AiOutlinePlus, AiOutlineDelete } from 'react-icons/ai';
+import { CartItem } from '@/types/cartItem';
 
-export default function CartPage() {
-  const { items, updateQuantity, removeFromCart, totalPrice, isLoading } = useCart();
-  const { user } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!user) {
-      // Redirect to login if user is not authenticated
-      router.push('/login?redirect=/cart');
-    }
-  }, [user, router]);
+// Định nghĩa component Cart
+const CartPage = () => {
+  const { cart, updateQuantity, removeFromCart, isLoading } = useCart();
 
   // Show loading state while checking authentication or loading cart
   if (isLoading) {
@@ -32,25 +24,8 @@ export default function CartPage() {
     );
   }
 
-  // Show message if user is not authenticated
-  if (!user) {
-    return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <div className="max-w-md mx-auto">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Please Login</h2>
-          <p className="text-gray-600 mb-8">You need to be logged in to view your cart.</p>
-          <Link
-            href="/login?redirect=/cart"
-            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition duration-300"
-          >
-            Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (items.length === 0) {
+  // If no cart or no active items
+  if (!cart || !cart.items || cart.items.length === 0) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <div className="max-w-md mx-auto">
@@ -74,31 +49,31 @@ export default function CartPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-4">
-          {items.map((item) => (
+          {cart?.items.filter(item => item.isActive).map((item) => (
             <div
-              key={`${item.product._id}-${item.selectedSize}`}
+              key={`${item.productId}-${item.size}`}
               className="flex items-center space-x-4 bg-white p-4 rounded-lg shadow-sm"
             >
               <div className="relative w-24 h-24">
                 <Image
-                  src={item.product.images[0]}
-                  alt={item.product.name}
+                  src={item.image}
+                  alt={item.name}
                   fill
                   className="object-cover rounded"
                 />
               </div>
 
               <div className="flex-1">
-                <h3 className="font-semibold text-lg">{item.product.name}</h3>
-                <p className="text-gray-600">Size: {item.selectedSize}</p>
+                <h3 className="font-semibold text-lg">{item.name}</h3>
+                <p className="text-gray-600">Size: {item.size}</p>
                 <p className="text-blue-600 font-medium">
-                  ${item.product.price.toLocaleString()}
+                  ${item.price.toLocaleString()}
                 </p>
               </div>
 
               <div className="flex items-center space-x-2">
                 <button
-                  onClick={() => updateQuantity(item.product._id, item.quantity - 1)}
+                  onClick={() => updateQuantity(item.productId, item.quantity - 1)}
                   className="p-1 rounded-md hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={item.quantity <= 1}
                 >
@@ -106,7 +81,7 @@ export default function CartPage() {
                 </button>
                 <span className="w-8 text-center">{item.quantity}</span>
                 <button
-                  onClick={() => updateQuantity(item.product._id, item.quantity + 1)}
+                  onClick={() => updateQuantity(item.productId, item.quantity + 1)}
                   className="p-1 rounded-md hover:bg-gray-100"
                 >
                   <AiOutlinePlus size={20} />
@@ -115,10 +90,10 @@ export default function CartPage() {
 
               <div className="text-right">
                 <p className="font-semibold">
-                  ${(item.product.price * item.quantity).toLocaleString()}
+                  ${(item.price * item.quantity).toLocaleString()}
                 </p>
                 <button
-                  onClick={() => removeFromCart(item.product._id)}
+                  onClick={() => removeFromCart(item.productId)}
                   className="text-red-500 hover:text-red-700 mt-2"
                 >
                   <AiOutlineDelete size={20} />
@@ -136,7 +111,7 @@ export default function CartPage() {
             <div className="space-y-3 mb-6">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${totalPrice.toLocaleString()}</span>
+                <span>${cart?.totalAmount.toLocaleString() || '0'}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
@@ -145,7 +120,7 @@ export default function CartPage() {
               <div className="border-t pt-3 font-bold">
                 <div className="flex justify-between">
                   <span>Total</span>
-                  <span>${totalPrice.toLocaleString()}</span>
+                  <span>${cart?.totalAmount.toLocaleString() || '0'}</span>
                 </div>
               </div>
             </div>
@@ -168,4 +143,8 @@ export default function CartPage() {
       </div>
     </div>
   );
-}
+};
+
+// Wrap CartPage with withAuth HOC and export
+const ProtectedCartPage = withAuth(CartPage);
+export default ProtectedCartPage;

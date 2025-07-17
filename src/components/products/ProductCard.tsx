@@ -23,7 +23,7 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist = fa
   const [selectedSize, setSelectedSize] = useState<number | null>(null);
   const [showSizeSelector, setShowSizeSelector] = useState(false);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!product.inStock) return;
 
     if (!user) {
@@ -37,9 +37,13 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist = fa
       return;
     }
 
-    addToCart(product, 1, selectedSize);
-    setShowSizeSelector(false);
-    setSelectedSize(null);
+    try {
+      await addToCart(product, 1, selectedSize);
+      setShowSizeSelector(false);
+      setSelectedSize(null);
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+    }
   };
 
   return (
@@ -108,11 +112,16 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist = fa
       {/* Product Image */}
       <Link href={`/shop/${product._id}`} className="block relative aspect-square">
         <Image
-          src={product.images[0] || fallbackImageUrl}
+          src={product.images[0] || '/images/placeholder-shoe.jpg'}
           alt={product.name}
           fill
           className="object-cover transform group-hover:scale-105 transition-transform duration-300"
           sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          priority={true}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = '/images/placeholder-shoe.jpg';
+          }}
         />
       </Link>
 

@@ -4,14 +4,19 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { AiOutlineSearch, AiOutlineShoppingCart, AiOutlineUser, AiOutlineHeart, AiOutlineLogout } from 'react-icons/ai';
 import { useAuth } from '@/context/AuthContext';
+import { useCart } from '@/context/CartContext';
 import { useRouter, usePathname } from 'next/navigation';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const { user, logout } = useAuth();
+  const { cart } = useCart();
   const router = useRouter();
   const pathname = usePathname();
+  
+  // Calculate total items in cart
+  const cartItemsCount = cart?.items?.reduce((total, item) => total + item.quantity, 0) || 0;
 
   // Reset mobile menu and user menu when route changes
   useEffect(() => {
@@ -130,9 +135,11 @@ export default function Header() {
               </Link>
               <Link href="/cart" className="p-2 rounded-full text-blue-900 hover:bg-blue-50 hover:text-blue-700 transition duration-300 relative">
                 <AiOutlineShoppingCart size={22} />
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center transform scale-100 hover:scale-110 transition">
-                  2
-                </span>
+                {cartItemsCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center transform scale-100 hover:scale-110 transition">
+                    {cartItemsCount}
+                  </span>
+                )}
               </Link>
               
               {user ? (

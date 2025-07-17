@@ -47,11 +47,12 @@ export const CATEGORIES = {
 
 // Cart endpoints
 export const CART = {
-  GET: "/cart",
-  ADD: "/cart/add",
-  UPDATE: "/cart/update",
-  REMOVE: "/cart/remove",
-  CLEAR: "/cart/clear"
+  GET: "/cart",              // GET user's active cart
+  ADD: "/cart/items",        // POST add item to cart
+  UPDATE: "/cart/items",     // PUT update item
+  REMOVE: "/cart/items",     // DELETE remove item
+  CLEAR: "/cart/items",      // DELETE clear cart
+  COUNT: "/cart/count"       // GET cart item count
 };
 
 // Order endpoints
