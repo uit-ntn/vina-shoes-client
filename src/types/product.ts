@@ -4,6 +4,7 @@ export interface Product {
   slug: string;
   description: string;
   price: number;
+  oldPrice?: number; // Optional original price for discounts
   images: string[];
   categoryId: string;
   brand: string;
