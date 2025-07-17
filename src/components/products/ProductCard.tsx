@@ -6,6 +6,7 @@ import { AiOutlineHeart, AiFillHeart, AiOutlineShoppingCart } from 'react-icons/
 import { Product } from '@/types/product';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
+import { formatPrice } from '@/lib/utils/format';
 
 interface ProductCardProps {
   product: Product;
@@ -178,11 +179,11 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist = fa
 
         {/* Price Section */}
         <div className="flex items-end mt-3 mb-4">
-          <span className="text-xl font-bold text-blue-900">${product.price.toLocaleString()}</span>
+          <span className="text-xl font-bold text-blue-900">{formatPrice(product.price)}</span>
           
           {showDiscount && (
             <span className="ml-2 text-sm text-gray-500 line-through">
-              ${product.oldPrice?.toLocaleString()}
+              {formatPrice(product.oldPrice || 0)}
             </span>
           )}
           
