@@ -127,10 +127,10 @@ export default function ShopPage() {
             <div className="space-y-2">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-sm text-blue-700 mb-1">Min</label>
-                  <input
+                    <label className="block text-sm text-blue-900 font-semibold mb-1">Min</label>
+                    <input
                     type="number"
-                    className="w-full rounded-md border border-blue-200 px-3 py-2"
+                    className="w-full rounded-md border border-blue-400 px-3 py-2 text-blue-900 placeholder-blue-400 font-medium"
                     placeholder="0"
                     min="0"
                     onChange={(e) => {
@@ -146,10 +146,10 @@ export default function ShopPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm text-blue-700 mb-1">Max</label>
-                  <input
+                    <label className="block text-sm text-blue-900 font-semibold mb-1">Max</label>
+                    <input
                     type="number"
-                    className="w-full rounded-md border border-blue-200 px-3 py-2"
+                    className="w-full rounded-md border border-blue-400 px-3 py-2 text-blue-900 placeholder-blue-400 font-medium"
                     placeholder="1000"
                     min="0"
                     onChange={(e) => {

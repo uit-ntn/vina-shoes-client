@@ -44,10 +44,15 @@ export default function SearchPage() {
             inStock: true,
             rating: 4.5,
             sizes: [39, 40, 41, 42, 43],
-            categoryId: 'men',
             createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          },
+            updatedAt: new Date().toISOString(),
+            ageGroup: 'men' as const,
+            categories: ['men', 'sports', 'casual'],
+            category: ['lifestyle'],
+            isNewArrival: true,
+            styleTags: ['sports', 'casual'],
+            tags: ['running', 'comfort']
+          } as Product,
           {
             _id: '2',
             name: 'Giày Adidas Ultraboost',
@@ -60,10 +65,15 @@ export default function SearchPage() {
             inStock: true,
             rating: 4.7,
             sizes: [38, 39, 40, 41, 42],
-            categoryId: 'men',
             createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          },
+            updatedAt: new Date().toISOString(),
+            ageGroup: 'men' as const,
+            categories: ['men', 'sports'],
+            category: ['running'],
+            isNewArrival: false,
+            styleTags: ['sports', 'running'],
+            tags: ['training', 'premium']
+          } as Product,
           {
             _id: '3',
             name: 'Giày sandal nữ',
@@ -75,15 +85,23 @@ export default function SearchPage() {
             inStock: true,
             rating: 4.3,
             sizes: [35, 36, 37, 38, 39],
-            categoryId: 'women',
             createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString()
-          },
+            updatedAt: new Date().toISOString(),
+            ageGroup: 'women' as const,
+            categories: ['women', 'sandals', 'casual'],
+            category: ['casual'],
+            isNewArrival: true,
+            styleTags: ['casual', 'summer'],
+            tags: ['lightweight', 'comfortable']
+          } as Product,
         ].filter(product => 
           product.name.toLowerCase().includes(query.toLowerCase()) ||
           product.brand.toLowerCase().includes(query.toLowerCase()) ||
           product.description.toLowerCase().includes(query.toLowerCase()) ||
-          product.categoryId.toLowerCase().includes(query.toLowerCase())
+          product.ageGroup.toLowerCase().includes(query.toLowerCase()) ||
+          product.categories.some(cat => cat.toLowerCase().includes(query.toLowerCase())) ||
+          product.styleTags.some(tag => tag.toLowerCase().includes(query.toLowerCase())) ||
+          product.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
         );
 
         setProducts(mockProducts);
@@ -101,8 +119,8 @@ export default function SearchPage() {
   return (
     <main className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Kết quả tìm kiếm</h1>
-        <div className="flex items-center text-gray-500">
+        <h1 className="text-2xl md:text-3xl font-bold text-blue-900 mb-2">Kết quả tìm kiếm</h1>
+        <div className="flex items-center text-blue-600">
           <AiOutlineSearch className="mr-2" />
           {query ? (
             <p>
@@ -125,15 +143,15 @@ export default function SearchPage() {
       ) : products.length === 0 ? (
         <div className="text-center py-16">
           <div className="mb-6">
-            <AiOutlineSearch className="mx-auto h-16 w-16 text-gray-400" />
+            <AiOutlineSearch className="mx-auto h-16 w-16 text-blue-300" />
           </div>
-          <h3 className="text-xl font-medium text-gray-900 mb-4">Không tìm thấy sản phẩm nào</h3>
-          <p className="text-gray-500 mb-8">
+          <h3 className="text-xl font-medium text-blue-900 mb-4">Không tìm thấy sản phẩm nào</h3>
+          <p className="text-blue-600 mb-8">
             Không tìm thấy sản phẩm nào phù hợp với từ khóa "{query}".
           </p>
           <div className="space-y-4">
-            <p className="font-medium">Bạn có thể thử:</p>
-            <ul className="text-sm space-y-2">
+            <p className="font-medium text-blue-800">Bạn có thể thử:</p>
+            <ul className="text-sm space-y-2 text-blue-700">
               <li>• Kiểm tra lỗi chính tả</li>
               <li>• Sử dụng các từ khóa khác</li>
               <li>• Sử dụng từ khóa ngắn hơn</li>
@@ -148,7 +166,7 @@ export default function SearchPage() {
         </div>
       ) : (
         <div>
-          <p className="mb-4 text-sm text-gray-500">Tìm thấy {products.length} sản phẩm</p>
+          <p className="mb-4 text-sm text-blue-600">Tìm thấy {products.length} sản phẩm</p>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {products.map(product => (
               <ProductCard key={product._id} product={product} />

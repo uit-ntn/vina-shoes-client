@@ -165,10 +165,18 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist = fa
 
       {/* Product Info */}
       <div className="p-5">
-        <div className="mb-2">
+        <div className="flex items-center justify-between mb-2">
           <Link href={`/shop/${product.brand}`} className="text-xs uppercase tracking-wider text-blue-700 hover:underline">
             {product.brand}
           </Link>
+          <span className={`text-xs px-2 py-0.5 rounded-full ${
+            product.ageGroup === 'men' ? 'bg-blue-100 text-blue-700' : 
+            product.ageGroup === 'women' ? 'bg-pink-100 text-pink-700' : 
+            'bg-yellow-100 text-yellow-700'
+          }`}>
+            {product.ageGroup === 'men' ? 'Nam' : 
+             product.ageGroup === 'women' ? 'Nữ' : 'Trẻ em'}
+          </span>
         </div>
         
         <Link href={`/shop/${product._id}`} className="block group">
@@ -177,6 +185,26 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist = fa
           </h3>
         </Link>
 
+        {/* Style Tags Section */}
+        {product.styleTags && product.styleTags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {product.styleTags.map((tag, index) => (
+              <span key={index} className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+        
+        {/* New Arrival Badge */}
+        {product.isNewArrival && (
+          <div className="mt-2">
+            <span className="inline-block text-xs px-2 py-1 bg-green-100 text-green-700 rounded-full">
+              New Arrival
+            </span>
+          </div>
+        )}
+        
         {/* Price Section */}
         <div className="flex items-end mt-3 mb-4">
           <span className="text-xl font-bold text-blue-900">{formatPrice(product.price)}</span>

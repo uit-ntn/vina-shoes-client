@@ -159,7 +159,7 @@ export default function Footer() {
 
           <div className="mt-6 text-center text-sm font-semibold text-white py-4 px-6 rounded-lg shadow-lg">
             <p>
-              This website is professionally designed and developed by Nhom 7 students of the UIT. Our mission is to deliver a seamless and premium footwear shopping experience, combining modern technology, user-centric design, and a commitment to quality.
+              This website is professionally designed and developed by Nguyen Thanh Nhan and Dang Thanh Ngan students of the UIT. Our mission is to deliver a seamless and premium footwear shopping experience, combining modern technology, user-centric design, and a commitment to quality.
             </p>
           </div>
         </div>

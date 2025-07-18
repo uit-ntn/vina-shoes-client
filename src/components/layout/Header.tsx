@@ -191,30 +191,30 @@ export default function Header() {
                     </div>
                     <form onSubmit={handleSearchSubmit} className="flex items-center">
                       <input
-                        ref={searchInputRef}
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Tìm kiếm sản phẩm..."
-                        className="w-full px-3 py-2 border border-gray-300 rounded-l-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Escape') {
-                            setSearchOpen(false);
-                          }
-                        }}
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Tìm kiếm sản phẩm..."
+                      className="w-full px-3 py-2 border border-blue-900 rounded-l-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 placeholder:font-normal"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') {
+                        setSearchOpen(false);
+                        }
+                      }}
                       />
                       <button 
-                        type="submit"
-                        className="bg-blue-600 text-white px-3 py-2 rounded-r-md hover:bg-blue-700 transition-colors"
+                      type="submit"
+                      className="bg-blue-600 text-white px-3 py-2 rounded-r-md hover:bg-blue-700 transition-colors"
                       >
-                        <AiOutlineSearch size={20} />
+                      <AiOutlineSearch size={20} />
                       </button>
                     </form>
                     <div className="text-xs text-gray-500 mt-2 px-1">
                       Gõ tên sản phẩm, thương hiệu hoặc danh mục để tìm kiếm
                     </div>
                     <div className="flex flex-wrap gap-2 mt-3">
-                      <span className="text-xs font-medium mr-2">Tìm nhanh:</span>
+                        <span className="text-xs font-semibold mr-2 text-gray-700">Tìm nhanh:</span>
                       {["Nike", "Adidas", "Giày thể thao", "Dép", "Sale"].map((term) => (
                         <button
                           key={term}

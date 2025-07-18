@@ -11,8 +11,12 @@ interface ProductContextState {
   filters: {
     brand: string[];
     category: string[];
+    ageGroup: string[];
+    styleTag: string[];
+    tag: string[];
     priceRange: { min: number; max: number };
     sizes: number[];
+    isNewArrival: boolean | null;
   };
   sortBy: 'price_asc' | 'price_desc' | 'name_asc' | 'name_desc' | 'newest';
 }
@@ -35,8 +39,12 @@ const initialState: ProductContextState = {
   filters: {
     brand: [],
     category: [],
+    ageGroup: [],
+    styleTag: [],
+    tag: [],
     priceRange: { min: 0, max: Infinity },
     sizes: [],
+    isNewArrival: null
   },
   sortBy: 'newest',
 };
@@ -103,18 +111,34 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
     let result = [...state.products];
 
     // Apply filters
-    const { brand, category, priceRange, sizes } = state.filters;
+    const { brand, category, ageGroup, styleTag, tag, priceRange, sizes, isNewArrival } = state.filters;
 
     if (brand.length) {
       result = result.filter(p => brand.includes(p.brand));
     }
 
     if (category.length) {
-      result = result.filter(p => category.includes(p.categoryId));
+      result = result.filter(p => p.category.some(cat => category.includes(cat)));
+    }
+
+    if (ageGroup.length) {
+      result = result.filter(p => ageGroup.includes(p.ageGroup));
+    }
+
+    if (styleTag.length) {
+      result = result.filter(p => p.styleTags.some(style => styleTag.includes(style)));
+    }
+
+    if (tag.length) {
+      result = result.filter(p => p.tags.some(t => tag.includes(t)));
     }
 
     if (sizes.length) {
       result = result.filter(p => p.sizes?.some(size => sizes.includes(size)));
+    }
+
+    if (isNewArrival !== null) {
+      result = result.filter(p => p.isNewArrival === isNewArrival);
     }
 
     result = result.filter(p => 
