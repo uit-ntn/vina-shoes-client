@@ -10,10 +10,13 @@ import { useRouter, usePathname } from 'next/navigation';
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const { user, logout } = useAuth();
   const { cart } = useCart();
   const router = useRouter();
   const pathname = usePathname();
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
   
   // Calculate total items in cart
   const cartItemsCount = cart?.items?.reduce((total, item) => total + item.quantity, 0) || 0;
@@ -22,6 +25,7 @@ export default function Header() {
   useEffect(() => {
     setMobileMenuOpen(false);
     setUserMenuOpen(false);
+    setSearchOpen(false);
   }, [pathname]);
 
   const handleLogout = async () => {
@@ -33,18 +37,60 @@ export default function Header() {
     }
   };
 
-  // Close user menu when clicking outside
+  // Close user menu and search when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       if (userMenuOpen && !target.closest('.user-menu')) {
         setUserMenuOpen(false);
       }
+      if (searchOpen && !target.closest('.search-container')) {
+        setSearchOpen(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [userMenuOpen]);
+  }, [userMenuOpen, searchOpen]);
+  
+  // Handle search submission
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchOpen(false);
+    }
+  };
+  
+  // Focus search input when search is opened
+  React.useEffect(() => {
+    if (searchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [searchOpen]);
+  
+  // Add keyboard shortcut for search (Ctrl+K or /)
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Open search with '/' key when not in an input or textarea
+      if (
+        e.key === '/' && 
+        !['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement).tagName)
+      ) {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+      
+      // Open search with Ctrl+K
+      if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        setSearchOpen(true);
+      }
+    };
+    
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   return (
     <>
@@ -124,9 +170,68 @@ export default function Header() {
 
             {/* Action Icons */}
             <div className="flex items-center space-x-3">
-              <button className="p-2 rounded-full text-blue-900 hover:bg-blue-50 hover:text-blue-700 transition duration-300">
-                <AiOutlineSearch size={22} />
-              </button>
+              <div className="relative search-container">
+                <button 
+                  className="p-2 rounded-full text-blue-900 hover:bg-blue-50 hover:text-blue-700 transition duration-300"
+                  onClick={() => setSearchOpen(!searchOpen)}
+                  aria-label="Search"
+                >
+                  <AiOutlineSearch size={22} />
+                </button>
+                
+                {/* Search Overlay */}
+                {searchOpen && (
+                  <div className="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-lg p-3 w-80 sm:w-96 z-50 animate-fadeIn">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-sm font-medium text-gray-700">Tìm kiếm</h3>
+                      <div className="flex items-center text-xs text-gray-500">
+                        <span className="px-1.5 py-0.5 bg-gray-100 rounded-md mr-1">Esc</span>
+                        <span>để đóng</span>
+                      </div>
+                    </div>
+                    <form onSubmit={handleSearchSubmit} className="flex items-center">
+                      <input
+                      ref={searchInputRef}
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Tìm kiếm sản phẩm..."
+                      className="w-full px-3 py-2 border border-blue-900 rounded-l-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 placeholder:font-normal"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Escape') {
+                        setSearchOpen(false);
+                        }
+                      }}
+                      />
+                      <button 
+                      type="submit"
+                      className="bg-blue-600 text-white px-3 py-2 rounded-r-md hover:bg-blue-700 transition-colors"
+                      >
+                      <AiOutlineSearch size={20} />
+                      </button>
+                    </form>
+                    <div className="text-xs text-gray-500 mt-2 px-1">
+                      Gõ tên sản phẩm, thương hiệu hoặc danh mục để tìm kiếm
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-3">
+                        <span className="text-xs font-semibold mr-2 text-gray-700">Tìm nhanh:</span>
+                      {["Nike", "Adidas", "Giày thể thao", "Dép", "Sale"].map((term) => (
+                        <button
+                          key={term}
+                          className="text-xs px-2 py-1 bg-gray-100 hover:bg-blue-100 text-gray-700 hover:text-blue-700 rounded-full transition-colors"
+                          onClick={() => {
+                            setSearchQuery(term);
+                            router.push(`/search?q=${encodeURIComponent(term)}`);
+                            setSearchOpen(false);
+                          }}
+                        >
+                          {term}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
               <Link href="/favorites" className="p-2 rounded-full text-blue-900 hover:bg-blue-50 hover:text-red-500 transition duration-300 relative group">
                 <AiOutlineHeart size={22} />
                 <span className="absolute -top-1 -right-1 bg-blue-100 text-blue-900 text-xs rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

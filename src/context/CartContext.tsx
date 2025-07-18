@@ -9,7 +9,7 @@ import { cartService } from '@/services/cart.service';
 
 interface CartContextType {
   cart: Cart | null;
-  addToCart: (product: Product, quantity: number, size: number) => Promise<void>;
+  addToCart: (product: Product, quantity: number, size: number) => Promise<boolean | undefined>;
   removeFromCart: (productId: string) => Promise<void>;
   updateQuantity: (productId: string, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
@@ -42,11 +42,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const addToCart = async (product: Product, quantity: number, size: number) => {
     try {
       if (!user) {
-        toast.error('Please login to add items to cart');
+        toast.error('Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng');
         return;
       }
 
-      const loadingToast = toast.loading('Adding to cart...');
+      const loadingToast = toast.loading('Đang thêm vào giỏ hàng...');
+      
+      console.log('Adding to cart with data:', {
+        productId: product._id,
+        name: product.name,
+        image: product.images[0],
+        price: product.price,
+        size,
+        quantity,
+      });
       
       await cartService.addToCart({
         productId: product._id,
@@ -58,10 +67,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       });
       
       await loadUserCart();
-      toast.success('Added to cart!', { id: loadingToast });
+      toast.success('Đã thêm vào giỏ hàng!', { id: loadingToast });
+      return true;
     } catch (error) {
       console.error('Error adding to cart:', error);
-      toast.error('Failed to add to cart');
+      toast.error('Không thể thêm vào giỏ hàng. Vui lòng thử lại sau.');
+      return false;
     }
   };
 

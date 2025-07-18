@@ -28,8 +28,11 @@ export const USER = {
 export const PRODUCTS = {
   LIST: "/products",
   DETAIL: (id: string) => `/products/${id}`,
-  BY_CATEGORY: (categoryId: string) => `/products/category/${categoryId}`,
+  BY_CATEGORY: (categorySlug: string) => `/products/category/${categorySlug}`,
   BY_BRAND: (brand: string) => `/products/brand/${brand}`,
+  BY_AGE_GROUP: (ageGroup: string) => `/products/age-group/${ageGroup}`,
+  BY_STYLE: (style: string) => `/products/style/${style}`,
+  BY_TAG: (tag: string) => `/products/tag/${tag}`,
   SEARCH: "/products/search",
   FEATURED: "/products/featured",
   NEW_ARRIVALS: "/products/new-arrivals", 
