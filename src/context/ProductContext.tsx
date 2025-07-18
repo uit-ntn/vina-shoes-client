@@ -118,19 +118,55 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
     }
 
     if (category.length) {
-      result = result.filter(p => p.category.some(cat => category.includes(cat)));
+      result = result.filter(p => {
+        // Check in both category and categories arrays
+        const matchesCategory = p.category && p.category.some(cat => 
+          category.some(selectedCat => 
+            cat.toLowerCase() === selectedCat.toLowerCase()
+          )
+        );
+        
+        const matchesCategories = p.categories && p.categories.some(cat => 
+          category.some(selectedCat => 
+            cat.toLowerCase() === selectedCat.toLowerCase()
+          )
+        );
+        
+        // Also check if the ageGroup matches a category
+        const matchesAgeGroup = category.some(cat => 
+          p.ageGroup.toLowerCase() === cat.toLowerCase()
+        );
+        
+        return matchesCategory || matchesCategories || matchesAgeGroup;
+      });
     }
 
     if (ageGroup.length) {
-      result = result.filter(p => ageGroup.includes(p.ageGroup));
+      result = result.filter(p => 
+        ageGroup.some(ag => 
+          p.ageGroup.toLowerCase() === ag.toLowerCase()
+        )
+      );
     }
 
     if (styleTag.length) {
-      result = result.filter(p => p.styleTags.some(style => styleTag.includes(style)));
+      result = result.filter(p => 
+        p.styleTags && p.styleTags.some(style => 
+          styleTag.some(selectedStyle => 
+            style.toLowerCase() === selectedStyle.toLowerCase()
+          )
+        )
+      );
     }
 
     if (tag.length) {
-      result = result.filter(p => p.tags.some(t => tag.includes(t)));
+      result = result.filter(p => 
+        p.tags && p.tags.some(t => 
+          tag.some(selectedTag => 
+            t.toLowerCase() === selectedTag.toLowerCase()
+          )
+        )
+      );
     }
 
     if (sizes.length) {

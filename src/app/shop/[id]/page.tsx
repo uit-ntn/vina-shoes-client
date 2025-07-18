@@ -51,10 +51,17 @@ export default function ProductDetailPage() {
         
         setProduct(data);
         
-        // Fetch similar products
-        const similar = await productService.getSimilarProducts(params.id as string, 4);
-        console.log('Similar products:', similar);
-        setSimilarProducts(similar);
+        // Fetch similar products with error handling
+        try {
+          console.log('Fetching similar products...');
+          const similar = await productService.getSimilarProducts(params.id as string, 5);
+          console.log('Similar products found:', similar.length);
+          setSimilarProducts(similar);
+        } catch (similarError) {
+          console.error('Error fetching similar products:', similarError);
+          // Fallback to empty array - we'll show a message in the UI
+          setSimilarProducts([]);
+        }
         
       } catch (err) {
         console.error('Error fetching product:', err);
@@ -517,8 +524,18 @@ export default function ProductDetailPage() {
               </div>
             ))
           ) : (
-            <div className="col-span-full text-center py-4 bg-blue-50 rounded-md">
-              <p className="text-blue-800 text-sm">Không tìm thấy sản phẩm tương tự.</p>
+            <div className="col-span-full text-center py-6 bg-blue-50 rounded-md">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-blue-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <p className="text-blue-800 font-medium mb-1">Không tìm thấy sản phẩm tương tự</p>
+              <p className="text-blue-600 text-sm">Đang cập nhật thêm sản phẩm tương tự. Vui lòng quay lại sau!</p>
+              <button 
+                onClick={() => router.push('/shop')} 
+                className="mt-3 px-4 py-2 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Xem tất cả sản phẩm
+              </button>
             </div>
           )}
         </div>

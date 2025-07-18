@@ -40,17 +40,19 @@ export default function ShopPage() {
     );
   }
 
-  // Available categories for the filter
-  const categories = ['Men', 'Women', 'Kids', 'Sport', 'Casual', 'Formal'];
+  // Available filters for product selection
+  const ageGroups = ['men', 'women', 'kids'];
+  const categories = ['Sport', 'Casual', 'Formal', 'Running', 'Lifestyle'];
+  const styleTags = ['casual', 'formal', 'running', 'training', 'sports', 'summer'];
 
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-blue-900 mb-2">Shop Collection</h1>
+        <h1 className="text-3xl font-bold text-blue-900 mb-2">Cửa hàng giày</h1>
         <div className="flex items-center">
           <div className="h-1 bg-gradient-to-r from-blue-600 to-blue-300 w-24 rounded"></div>
-          <p className="ml-4 text-blue-700">Discover our premium collection of shoes</p>
+          <p className="ml-4 text-blue-700">Khám phá bộ sưu tập giày cao cấp của chúng tôi</p>
         </div>
       </div>
 
@@ -100,8 +102,35 @@ export default function ShopPage() {
           fixed md:static z-10 top-24 left-4 right-4 md:top-auto md:left-auto md:right-auto
           max-h-[calc(100vh-120px)] md:max-h-full overflow-auto
         `}>
+          {/* Age Group Filter */}
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-blue-800 mb-3 border-b border-blue-100 pb-2">Categories</h3>
+            <h3 className="text-lg font-semibold text-blue-800 mb-3 border-b border-blue-100 pb-2">Đối tượng</h3>
+            <div className="space-y-2">
+              {ageGroups.map((group) => (
+                <label key={group} className="flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox"
+                    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                    onChange={() => {
+                      const newAgeGroups = filters.ageGroup.includes(group)
+                        ? filters.ageGroup.filter(ag => ag !== group)
+                        : [...filters.ageGroup, group];
+                      updateFilters({ ageGroup: newAgeGroups });
+                    }}
+                    checked={filters.ageGroup.includes(group)}
+                  />
+                  <span className="ml-2 text-blue-700">
+                    {group === 'men' ? 'Giày Nam' : 
+                     group === 'women' ? 'Giày Nữ' : 'Giày Trẻ Em'}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+          
+          {/* Categories Filter */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-blue-800 mb-3 border-b border-blue-100 pb-2">Danh mục</h3>
             <div className="space-y-2">
               {categories.map((category) => (
                 <label key={category} className="flex items-center cursor-pointer">
@@ -117,6 +146,29 @@ export default function ShopPage() {
                     checked={filters.category.includes(category)}
                   />
                   <span className="ml-2 text-blue-700">{category}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+          
+          {/* Style Tags Filter */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-blue-800 mb-3 border-b border-blue-100 pb-2">Phong cách</h3>
+            <div className="space-y-2">
+              {styleTags.map((style) => (
+                <label key={style} className="flex items-center cursor-pointer">
+                  <input 
+                    type="checkbox"
+                    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                    onChange={() => {
+                      const newStyleTags = filters.styleTag.includes(style)
+                        ? filters.styleTag.filter(st => st !== style)
+                        : [...filters.styleTag, style];
+                      updateFilters({ styleTag: newStyleTags });
+                    }}
+                    checked={filters.styleTag.includes(style)}
+                  />
+                  <span className="ml-2 text-blue-700">{style}</span>
                 </label>
               ))}
             </div>
@@ -169,7 +221,7 @@ export default function ShopPage() {
           </div>
 
           <div className="mb-6">
-            <h3 className="text-lg font-semibold text-blue-800 mb-3 border-b border-blue-100 pb-2">Sizes</h3>
+            <h3 className="text-lg font-semibold text-blue-800 mb-3 border-b border-blue-100 pb-2">Kích cỡ</h3>
             <div className="grid grid-cols-3 gap-2">
               {[35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46].map((size) => (
                 <button
@@ -190,6 +242,24 @@ export default function ShopPage() {
                   {size}
                 </button>
               ))}
+            </div>
+          </div>
+          
+          {/* New Arrivals Filter */}
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold text-blue-800 mb-3 border-b border-blue-100 pb-2">Trạng thái</h3>
+            <div className="space-y-2">
+              <label className="flex items-center cursor-pointer">
+                <input 
+                  type="checkbox"
+                  className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                  onChange={() => {
+                    updateFilters({ isNewArrival: filters.isNewArrival === true ? null : true });
+                  }}
+                  checked={filters.isNewArrival === true}
+                />
+                <span className="ml-2 text-blue-700">Mới về</span>
+              </label>
             </div>
           </div>
           
