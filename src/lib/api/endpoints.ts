@@ -33,12 +33,8 @@ export const PRODUCTS = {
   BY_AGE_GROUP: (ageGroup: string) => `/products/age-group/${ageGroup}`,
   BY_STYLE: (style: string) => `/products/style/${style}`,
   BY_TAG: (tag: string) => `/products/tag/${tag}`,
-  SEARCH: "/products/search",
   FEATURED: "/products/featured",
   NEW_ARRIVALS: "/products/new-arrivals", 
-  BEST_SELLERS: "/products/best-sellers",
-  REVIEWS: (id: string) => `/products/${id}/reviews`,
-  ADD_REVIEW: (id: string) => `/products/${id}/reviews`
 };
 
 // Category endpoints
