@@ -159,7 +159,7 @@ export default function Footer() {
 
           <div className="mt-6 text-center text-sm font-semibold text-white py-4 px-6 rounded-lg shadow-lg">
             <p>
-              Trang web này được thiết kế và phát triển chuyên nghiệp bởi sinh viên UIT Nguyễn Thanh Nhàn và Đặng Thanh Ngân. Sứ mệnh của chúng tôi là mang đến trải nghiệm mua sắm giày dép cao cấp và liền mạch, kết hợp công nghệ hiện đại, thiết kế lấy người dùng làm trung tâm và cam kết về chất lượng.
+              Trang web này được thiết kế và phát triển chuyên nghiệp bởi sinh viên UIT Nguyễn Thanh Nhân và Đặng Thanh Ngân. Sứ mệnh của chúng tôi là mang đến trải nghiệm mua sắm giày dép cao cấp và liền mạch, kết hợp công nghệ hiện đại, thiết kế lấy người dùng làm trung tâm và cam kết về chất lượng.
             </p>
           </div>
         </div>

@@ -56,7 +56,7 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist = fa
 
   return (
     <div 
-      className="group relative bg-white rounded-lg overflow-hidden transition duration-300 hover:translate-y-[-5px]"
+      className="group relative bg-white rounded-lg overflow-hidden transition duration-300 hover:translate-y-[-5px] h-[420px] flex flex-col"
       style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
@@ -133,7 +133,7 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist = fa
       </button>
 
       {/* Product Image */}
-      <Link href={`/shop/${product._id}`} className="block relative aspect-square overflow-hidden bg-blue-50">
+      <Link href={`/shop/${product._id}`} className="block relative h-48 overflow-hidden bg-blue-50">
         <Image
           src={!imageError ? product.images[0] || '/images/placeholder-shoe.jpg' : '/images/placeholder-shoe.jpg'}
           alt={product.name}
@@ -164,7 +164,7 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist = fa
       </Link>
 
       {/* Product Info */}
-      <div className="p-5">
+      <div className="p-5 flex flex-col flex-grow">
         <div className="flex items-center justify-between mb-2">
           <Link href={`/shop/${product.brand}`} className="text-xs uppercase tracking-wider text-blue-700 hover:underline">
             {product.brand}
@@ -206,7 +206,7 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist = fa
         )}
         
         {/* Price Section */}
-        <div className="flex items-end mt-3 mb-4">
+        <div className="flex items-end mt-3 mb-3">
           <span className="text-xl font-bold text-blue-900">{formatPrice(product.price)}</span>
           
           {showDiscount && (
@@ -224,7 +224,7 @@ const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist = fa
         </div>
         
         {/* Size Chips */}
-        <div className="flex flex-wrap gap-1 mb-4">
+        <div className="flex flex-wrap gap-1 mb-3 flex-grow">
           {product.sizes?.slice(0, 5).map((size) => (
             <span key={size} className="inline-block px-2 py-1 text-xs bg-blue-50 text-blue-800 rounded-md">
               {size}
