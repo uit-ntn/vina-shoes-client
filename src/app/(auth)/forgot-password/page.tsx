@@ -97,11 +97,11 @@ export default function ForgotPasswordPage() {
               <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                 <div>
                   <label htmlFor="email-address" className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <AiOutlineMail className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <AiOutlineMail className="h-5 w-5 text-neutral-400" />
+                      </div>
+                      <input
                       id="email-address"
                       name="email"
                       type="email"
@@ -109,10 +109,10 @@ export default function ForgotPasswordPage() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="appearance-none block w-full px-3 py-3 pl-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                      className="appearance-none block w-full px-3 py-3 pl-10 border border-neutral-600 rounded-md shadow-sm placeholder-neutral-400 text-black focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Email address"
-                    />
-                  </div>
+                      />
+                    </div>
                 </div>
 
                 <div>
