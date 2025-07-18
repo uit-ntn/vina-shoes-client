@@ -29,6 +29,7 @@ interface ProductContextValue extends ProductContextState {
   setSortBy: (sort: ProductContextState['sortBy']) => void;
   filteredProducts: Product[];
   clearFilters: () => void;
+  searchProducts: (query: string) => Product[];
 }
 
 const initialState: ProductContextState = {
@@ -104,6 +105,24 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
       filters: initialState.filters,
       sortBy: initialState.sortBy
     }));
+  };
+
+  // Search products based on query
+  const searchProducts = (query: string): Product[] => {
+    if (!query.trim()) return [];
+    
+    const searchTerm = query.toLowerCase().trim();
+    
+    return state.products.filter(product => 
+      product.name.toLowerCase().includes(searchTerm) ||
+      product.brand.toLowerCase().includes(searchTerm) ||
+      (product.description && product.description.toLowerCase().includes(searchTerm)) ||
+      product.ageGroup.toLowerCase().includes(searchTerm) ||
+      (product.categories && product.categories.some(cat => cat.toLowerCase().includes(searchTerm))) ||
+      (product.category && product.category.some(cat => cat.toLowerCase().includes(searchTerm))) ||
+      (product.styleTags && product.styleTags.some(tag => tag.toLowerCase().includes(searchTerm))) ||
+      (product.tags && product.tags.some(tag => tag.toLowerCase().includes(searchTerm)))
+    );
   };
 
   // Memoize filtered and sorted products
@@ -219,6 +238,7 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
         setSortBy,
         filteredProducts,
         clearFilters,
+        searchProducts,
       }}
     >
       {children}
