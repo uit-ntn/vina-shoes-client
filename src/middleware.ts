@@ -35,7 +35,8 @@ const adminRoutes = [
 ];
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get('auth_token');
+  // Thay vì sử dụng cookies, chúng ta sẽ cho phép tất cả các route
+  // và để client-side xử lý việc kiểm tra xác thực
   const { pathname } = request.nextUrl;
 
   // Check if the request is for static files or public API routes
@@ -45,41 +46,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Allow access to public routes
-  if (publicRoutes.some(route => pathname.startsWith(route))) {
-    // Redirect to home if user is already logged in and trying to access auth pages
-    if (token && (pathname === '/login' || pathname === '/register')) {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
-    return NextResponse.next();
-  }
-
-  // Check for protected routes
-  if (protectedRoutes.some(route => pathname.startsWith(route))) {
-    if (!token) {
-      const response = NextResponse.redirect(new URL('/login', request.url));
-      // Store the original URL to redirect back after login
-      response.cookies.set({
-        name: 'redirectTo',
-        value: pathname,
-        path: '/',
-        maxAge: 60 * 5, // 5 minutes
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-      });
-      return response;
-    }
-  }
-
-  // Check for admin routes
-  if (adminRoutes.some(route => pathname.startsWith(route))) {
-    if (!token) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-    // Additional admin role check can be added here if needed
-    // You would need to decode the JWT token and check the user role
-  }
+  // Allow access to all routes - authentication will be handled client-side
+  // We're disabling server-side auth check since we're using localStorage for tokens
+  // and not cookies (which the middleware can access)
+  return NextResponse.next();
 
   return NextResponse.next();
 }

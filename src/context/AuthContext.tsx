@@ -26,9 +26,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        console.log('Checking authentication state...');
         const currentUser = authService.getCurrentUser();
-        if (currentUser && authService.isAuthenticated()) {
+        console.log('Current user from storage:', currentUser);
+        
+        const isAuth = authService.isAuthenticated();
+        console.log('Is authenticated:', isAuth);
+        
+        if (currentUser && isAuth) {
+          console.log('Setting authenticated user in context:', currentUser);
           setUser(currentUser);
+        } else {
+          console.log('No authenticated user found');
+          setUser(null);
         }
       } catch (err) {
         console.error('Auth check error:', err);
@@ -72,7 +82,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Get redirect URL from query params if it exists
       const params = new URLSearchParams(window.location.search);
       const redirectUrl = params.get('redirect') || '/';
-      router.push(redirectUrl);
+      console.log('Redirecting after login to:', redirectUrl);
+      
+      // Add a slight delay to ensure token is properly set in localStorage
+      setTimeout(() => {
+        router.push(redirectUrl);
+      }, 100);
     } catch (err: any) {
       console.error('Login error details:', err); // Log detailed error
       const errorMessage = err.message || 'An error occurred during login';
