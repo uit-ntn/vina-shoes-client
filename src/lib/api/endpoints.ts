@@ -37,13 +37,6 @@ export const PRODUCTS = {
   NEW_ARRIVALS: "/products/new-arrivals", 
 };
 
-// Category endpoints
-export const CATEGORIES = {
-  LIST: "/categories",
-  DETAIL: (id: string) => `/categories/${id}`,
-  WITH_PRODUCTS: "/categories/with-products"
-};
-
 // Cart endpoints
 export const CART = {
   GET: "/cart",              // GET user's active cart
@@ -51,7 +44,6 @@ export const CART = {
   UPDATE: "/cart/items",     // PUT update item
   REMOVE: "/cart/items",     // DELETE remove item
   CLEAR: "/cart/items",      // DELETE clear cart
-  COUNT: "/cart/count"       // GET cart item count
 };
 
 // Order endpoints
