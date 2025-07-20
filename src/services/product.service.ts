@@ -159,17 +159,6 @@ export const productService = {
       return [];
     }
   },
-
-  searchProducts: async (query: string): Promise<Product[]> => {
-    try {
-      console.log(`Searching products with query:`, query);
-      const response = await api.get<Product[]>(PRODUCTS.SEARCH, { params: { q: query } });
-      return response.data;
-    } catch (error) {
-      console.error('Error searching products:', error);
-      throw error;
-    }
-  }
 };
 
 export default productService;

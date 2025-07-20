@@ -26,9 +26,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        console.log('Checking authentication state...');
         const currentUser = authService.getCurrentUser();
-        if (currentUser && authService.isAuthenticated()) {
+        console.log('Current user from storage:', currentUser);
+        
+        const isAuth = authService.isAuthenticated();
+        console.log('Is authenticated:', isAuth);
+        
+        if (currentUser && isAuth) {
+          console.log('Setting authenticated user in context:', currentUser);
           setUser(currentUser);
+        } else {
+          console.log('No authenticated user found');
+          setUser(null);
         }
       } catch (err) {
         console.error('Auth check error:', err);
@@ -53,34 +63,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const loadingToast = toast.loading('Logging in...');
+    const loadingToast = toast.loading('Đang đăng nhập...');
     try {
       setError(null);
-      console.log('Attempting login with:', { email });
+      console.log('Đang đăng nhập với email:', email);
+      
+      // Thực hiện đăng nhập
       const response = await authService.login({ email, password });
       
-      if (!response || !response.user) {
-        throw new Error('Invalid response from server');
+      if (!response || !response.user || !response.access_token) {
+        throw new Error('Phản hồi không hợp lệ từ máy chủ');
       }
 
-      console.log('Login response:', response);
+      console.log('Đăng nhập thành công:', response);
+      
+      // Cập nhật state user trong context
       setUser(response.user);
-      toast.success('Successfully logged in!', {
+      
+      // Hiển thị thông báo thành công
+      toast.success('Đăng nhập thành công!', {
         id: loadingToast,
       });
       
-      // Get redirect URL from query params if it exists
+      // Lấy URL chuyển hướng từ query params nếu có
       const params = new URLSearchParams(window.location.search);
       const redirectUrl = params.get('redirect') || '/';
-      router.push(redirectUrl);
+      console.log('Chuyển hướng sau đăng nhập đến:', redirectUrl);
+      
+      // Thêm delay nhỏ để đảm bảo token được lưu đúng cách trong localStorage
+      // Và để user có thời gian thấy thông báo thành công
+      setTimeout(() => {
+        // Kiểm tra lại xác thực trước khi chuyển hướng
+        if (authService.isAuthenticated()) {
+          router.push(redirectUrl);
+        } else {
+          console.error('Lỗi xác thực sau khi đăng nhập');
+          toast.error('Lỗi xác thực, vui lòng đăng nhập lại');
+        }
+      }, 300);
     } catch (err: any) {
-      console.error('Login error details:', err); // Log detailed error
-      const errorMessage = err.message || 'An error occurred during login';
+      console.error('Chi tiết lỗi đăng nhập:', err);
+      const errorMessage = err.message || 'Đã xảy ra lỗi khi đăng nhập';
       setError(errorMessage);
       toast.error(errorMessage, {
         id: loadingToast,
       });
-      // Don't throw the error, handle it here
     }
   };
 
@@ -159,6 +186,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateProfile = async (data: Partial<User>) => {
+    try {
+      const updatedUser = await authService.updateProfile(data);
+      setUser(updatedUser);
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Có lỗi xảy ra khi cập nhật thông tin';
+      toast.error(errorMessage);
+      throw err;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -169,7 +207,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         register,
         forgotPassword,
-        resetPassword
+        resetPassword,
+        updateProfile
       }}
     >
       {children}

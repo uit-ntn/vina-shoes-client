@@ -399,28 +399,30 @@ export default function Header() {
                   
                   {/* User Dropdown Menu */}
                   {userMenuOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-100">
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-100">
                       <Link 
                         href="/profile" 
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 flex items-center"
                         onClick={() => setUserMenuOpen(false)}
                       >
                         <AiOutlineUser size={16} className="mr-2" />
-                        Profile
+                        Hồ sơ cá nhân
                       </Link>
                       <Link 
-                        href="/orders" 
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50"
+                        href="/profile?tab=orders" 
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 flex items-center"
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        Orders
+                        <AiOutlineShoppingCart size={16} className="mr-2" />
+                        Đơn hàng của tôi
                       </Link>
                       <Link 
-                        href="/settings" 
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50"
+                        href="/profile?tab=wishlist" 
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 flex items-center"
                         onClick={() => setUserMenuOpen(false)}
                       >
-                        Settings
+                        <AiOutlineHeart size={16} className="mr-2" />
+                        Sản phẩm yêu thích
                       </Link>
                       <div className="border-t border-gray-100 my-1"></div>
                       <button

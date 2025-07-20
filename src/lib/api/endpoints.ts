@@ -33,19 +33,8 @@ export const PRODUCTS = {
   BY_AGE_GROUP: (ageGroup: string) => `/products/age-group/${ageGroup}`,
   BY_STYLE: (style: string) => `/products/style/${style}`,
   BY_TAG: (tag: string) => `/products/tag/${tag}`,
-  SEARCH: "/products/search",
   FEATURED: "/products/featured",
   NEW_ARRIVALS: "/products/new-arrivals", 
-  BEST_SELLERS: "/products/best-sellers",
-  REVIEWS: (id: string) => `/products/${id}/reviews`,
-  ADD_REVIEW: (id: string) => `/products/${id}/reviews`
-};
-
-// Category endpoints
-export const CATEGORIES = {
-  LIST: "/categories",
-  DETAIL: (id: string) => `/categories/${id}`,
-  WITH_PRODUCTS: "/categories/with-products"
 };
 
 // Cart endpoints
@@ -55,7 +44,6 @@ export const CART = {
   UPDATE: "/cart/items",     // PUT update item
   REMOVE: "/cart/items",     // DELETE remove item
   CLEAR: "/cart/items",      // DELETE clear cart
-  COUNT: "/cart/count"       // GET cart item count
 };
 
 // Order endpoints

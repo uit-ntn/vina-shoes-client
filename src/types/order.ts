@@ -1,16 +1,41 @@
-export interface Address {
-  street: string;
+export interface ShippingAddress {
+  fullName: string;
+  phone: string;
+  addressLine: string;
+  ward: string;
+  district: string;
   city: string;
-  country: string;
-  postalCode: string;
+}
+
+export interface OrderItem {
+  productId: string;
+  name: string;
+  image: string;
+  size: number;
+  price: number;
+  quantity: number;
+}
+
+export interface OrderUser {
+  id: string;
+  name: string;
+  email: string;
 }
 
 export interface Order {
-  _id: string;
-  userId: string; // ObjectId dạng string (liên kết tới user)
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled"; // Add more statuses as needed
-  total: number;
-  paymentMethod: "credit_card" | "cod" | "paypal" | "bank_transfer"; // Add more payment methods as needed
+  id: string;
+  user: OrderUser;
+  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  totalAmount: number;
+  paymentMethod: string;
+  shippingAddress: ShippingAddress;
+  items: OrderItem[];
+  isPaid: boolean;
+  paidAt?: Date;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface OrdersResponse {
+  orders: Order[];
 }

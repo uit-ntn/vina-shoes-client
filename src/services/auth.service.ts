@@ -90,16 +90,38 @@ export const authService = {
     
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
     const expiryStr = localStorage.getItem(TOKEN_EXPIRY_KEY);
+    const userData = localStorage.getItem(USER_KEY);
     
-    if (!token || !expiryStr) return false;
-    
-    const expiry = new Date(expiryStr);
-    if (expiry <= new Date()) {
+    // Kiểm tra cả token, expiry và user data
+    if (!token || !expiryStr || !userData) {
+      console.log('Authentication check failed: Missing token, expiry or user data');
       authService.clearAuthData();
       return false;
     }
     
-    return true;
+    try {
+      // Kiểm tra ngày hết hạn
+      const expiry = new Date(expiryStr);
+      if (expiry <= new Date()) {
+        console.log('Authentication check failed: Token expired');
+        authService.clearAuthData();
+        return false;
+      }
+      
+      // Đảm bảo user data hợp lệ
+      const user = JSON.parse(userData);
+      if (!user || !user.email) {
+        console.log('Authentication check failed: Invalid user data');
+        authService.clearAuthData();
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error during authentication check:', error);
+      authService.clearAuthData();
+      return false;
+    }
   },
 
   getToken: (): string | null => {
@@ -122,6 +144,9 @@ export const authService = {
   setAuthData: (token: string, user: User | { id: string; email: string; name: string; role: string }): void => {
     if (typeof window !== 'undefined') {
       try {
+        console.log('Setting auth data with token:', token.substring(0, 10) + '...');
+        console.log('Setting auth data for user:', user);
+        
         // First store user data and expiry
         const userData = 'role' in user ? {
           _id: user.id,
@@ -142,6 +167,11 @@ export const authService = {
         const expiry = new Date();
         expiry.setHours(expiry.getHours() + 24); // Token expires in 24 hours
         localStorage.setItem(TOKEN_EXPIRY_KEY, expiry.toISOString());
+        
+        // Also set a cookie for middleware detection (helps with SSR)
+        document.cookie = `${AUTH_TOKEN_KEY}=${token}; path=/; max-age=${60*60*24}; SameSite=Lax`;
+
+        console.log('Auth data successfully set in localStorage and cookies');
 
         // Notify other tabs/windows
         window.dispatchEvent(new StorageEvent('storage', {
@@ -159,12 +189,19 @@ export const authService = {
 
   clearAuthData: (): void => {
     if (typeof window !== 'undefined') {
+      console.log('Clearing auth data...');
+      
       // Remove user data and expiry first
       localStorage.removeItem(USER_KEY);
       localStorage.removeItem(TOKEN_EXPIRY_KEY);
       
       // Remove token last to trigger storage event
       localStorage.removeItem(AUTH_TOKEN_KEY);
+      
+      // Also clear the cookie
+      document.cookie = `${AUTH_TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+
+      console.log('Auth data successfully cleared from localStorage and cookies');
 
       // Dispatch storage event for the current window
       window.dispatchEvent(new StorageEvent('storage', {
@@ -226,8 +263,13 @@ export const authService = {
     try {
       const response = await api.patch<{ user: User }>(AUTH.UPDATE_PROFILE, data);
       const updatedUser = response.data.user;
-      authService.updateStoredUser(updatedUser);
-      return updatedUser;
+      
+      // Make sure to merge with existing user data, not replace it entirely
+      const currentUser = authService.getCurrentUser();
+      const mergedUser = { ...currentUser, ...updatedUser };
+      
+      authService.updateStoredUser(mergedUser);
+      return mergedUser;
     } catch (error) {
       if (error instanceof AxiosError) {
         throw new Error(error.response?.data?.message || 'Profile update failed');

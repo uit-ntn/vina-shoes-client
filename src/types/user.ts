@@ -7,6 +7,7 @@ export interface AuthContextType {
   register: (email: string, password: string, name: string) => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, newPassword: string) => Promise<void>;
+  updateProfile: (data: Partial<User>) => Promise<void>;
 }
 
 export interface LoginCredentials {
@@ -46,19 +47,25 @@ export interface Address {
   city: string;
   state?: string;
   country: string;
-  postalCode: string;
+  postalCode?: string;
+  zipCode?: string;
+  isDefault?: boolean;
 }
 
 export interface User {
-  id: string;
+  _id?: string;
+  id?: string;
   name: string;
   email: string;
   role: string;
   address?: Address;
+  addresses?: Address[];
   phone?: string;
   avatar?: string;
   emailVerified?: boolean;
   lastLogin?: Date;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
 }
 
 export type UserRole = 'admin' | 'customer' | 'user';
