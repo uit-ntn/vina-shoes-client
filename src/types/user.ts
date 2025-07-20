@@ -7,6 +7,7 @@ export interface AuthContextType {
   register: (email: string, password: string, name: string) => Promise<void>;
   forgotPassword: (email: string) => Promise<void>;
   resetPassword: (token: string, newPassword: string) => Promise<void>;
+  updateProfile: (data: Partial<User>) => Promise<void>;
 }
 
 export interface LoginCredentials {

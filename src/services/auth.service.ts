@@ -90,16 +90,38 @@ export const authService = {
     
     const token = localStorage.getItem(AUTH_TOKEN_KEY);
     const expiryStr = localStorage.getItem(TOKEN_EXPIRY_KEY);
+    const userData = localStorage.getItem(USER_KEY);
     
-    if (!token || !expiryStr) return false;
-    
-    const expiry = new Date(expiryStr);
-    if (expiry <= new Date()) {
+    // Kiểm tra cả token, expiry và user data
+    if (!token || !expiryStr || !userData) {
+      console.log('Authentication check failed: Missing token, expiry or user data');
       authService.clearAuthData();
       return false;
     }
     
-    return true;
+    try {
+      // Kiểm tra ngày hết hạn
+      const expiry = new Date(expiryStr);
+      if (expiry <= new Date()) {
+        console.log('Authentication check failed: Token expired');
+        authService.clearAuthData();
+        return false;
+      }
+      
+      // Đảm bảo user data hợp lệ
+      const user = JSON.parse(userData);
+      if (!user || !user.email) {
+        console.log('Authentication check failed: Invalid user data');
+        authService.clearAuthData();
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Error during authentication check:', error);
+      authService.clearAuthData();
+      return false;
+    }
   },
 
   getToken: (): string | null => {
