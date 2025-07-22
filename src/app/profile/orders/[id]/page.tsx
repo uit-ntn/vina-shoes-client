@@ -5,9 +5,12 @@ import { useParams } from 'next/navigation';
 import { useOrder } from '@/context/OrderContext';
 import Link from 'next/link';
 import Image from '@/components/ui/Image';
+import React from 'react';
 
 export default function OrderDetailsPage() {
   const params = useParams();
+  // Get the ID from params, with a comment about future React.use() requirement
+  // In a future Next.js version, this should be: const orderId = React.use(params).id;
   const orderId = params.id as string;
   const { getOrderById, cancelOrder } = useOrder();
   const [order, setOrder] = useState(null);

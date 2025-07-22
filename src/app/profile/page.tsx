@@ -7,7 +7,7 @@ import { User } from '@/types/user';
 import { userService } from '@/services/user.service';
 import Link from 'next/link';
 
-type TabType = 'profile' | 'addresses' | 'orders' | 'wishlist' | 'security';
+type TabType = 'profile' | 'addresses' | 'orders' | 'wishlist' | 'security' | 'settings';
 
 // ProfileTabs component
 const ProfileTabs = ({ activeTab }: { activeTab: TabType }) => {
@@ -17,6 +17,7 @@ const ProfileTabs = ({ activeTab }: { activeTab: TabType }) => {
     { id: 'orders' as TabType, label: 'Đơn hàng của tôi', href: '/profile/orders' },
     { id: 'wishlist' as TabType, label: 'Danh sách yêu thích', href: '/profile/wishlist' },
     { id: 'security' as TabType, label: 'Bảo mật tài khoản', href: '/profile/security' },
+    { id: 'settings' as TabType, label: 'Cài đặt', href: '/profile/settings' },
   ];
   
   return (
@@ -35,7 +36,7 @@ const ProfileTabs = ({ activeTab }: { activeTab: TabType }) => {
                     className={`${
                       activeTab === tab.id
                         ? 'font-medium text-blue-800'
-                        : 'text-gray-700'
+                        : 'text-gray-900 font-medium'
                     }`}
                   >
                     {tab.label}
@@ -80,13 +81,13 @@ const ProfileForm = ({
 }) => {
   return (
     <div>
-      <h3 className="text-xl font-semibold text-gray-800 mb-6">Thông tin tài khoản</h3>
-      <p className="mb-8 text-gray-600">Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
+      <h3 className="text-xl font-semibold text-gray-900 mb-6">Thông tin tài khoản</h3>
+      <p className="mb-8 text-gray-800">Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
       
       <form onSubmit={handleUpdateProfile} className="bg-white p-4 rounded-lg">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Họ</label>
+            <label className="block text-sm font-medium text-gray-900 mb-1">Họ</label>
             <input
               type="text"
               name="lastName"
@@ -96,7 +97,7 @@ const ProfileForm = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Tên</label>
+            <label className="block text-sm font-medium text-gray-900 mb-1">Tên</label>
             <input
               type="text"
               name="firstName"
@@ -106,7 +107,7 @@ const ProfileForm = ({
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <label className="block text-sm font-medium text-gray-900 mb-1">Email</label>
             <input
               type="email"
               name="email"
@@ -117,7 +118,7 @@ const ProfileForm = ({
             <p className="mt-1 text-xs text-gray-500">Email không thể thay đổi</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Số điện thoại</label>
+            <label className="block text-sm font-medium text-gray-900 mb-1">Số điện thoại</label>
             <input
               type="tel"
               name="phone"
@@ -245,8 +246,8 @@ export default function ProfilePage() {
               )}
               {activeTab === 'security' && (
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-6">Bảo mật tài khoản</h3>
-                  <p className="mb-8 text-gray-600">Cài đặt thông tin bảo mật cho tài khoản của bạn</p>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-6">Bảo mật tài khoản</h3>
+                  <p className="mb-8 text-gray-800">Cài đặt thông tin bảo mật cho tài khoản của bạn</p>
                   <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
                     <p>Vui lòng truy cập trang <Link href="/profile/security" className="text-blue-600 hover:underline">Bảo mật</Link> để quản lý thông tin bảo mật tài khoản.</p>
                   </div>
@@ -254,8 +255,8 @@ export default function ProfilePage() {
               )}
               {activeTab === 'orders' && (
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-6">Đơn hàng của tôi</h3>
-                  <p className="mb-8 text-gray-600">Theo dõi và quản lý đơn hàng của bạn</p>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-6">Đơn hàng của tôi</h3>
+                  <p className="mb-8 text-gray-800">Theo dõi và quản lý đơn hàng của bạn</p>
                   <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
                     <p>Vui lòng truy cập trang <Link href="/profile/orders" className="text-blue-600 hover:underline">Đơn hàng</Link> để xem lịch sử đơn hàng của bạn.</p>
                   </div>
@@ -263,8 +264,8 @@ export default function ProfilePage() {
               )}
               {activeTab === 'addresses' && (
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-6">Địa chỉ giao hàng</h3>
-                  <p className="mb-8 text-gray-600">Quản lý địa chỉ giao hàng của bạn</p>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-6">Địa chỉ giao hàng</h3>
+                  <p className="mb-8 text-gray-800">Quản lý địa chỉ giao hàng của bạn</p>
                   <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
                     <p>Vui lòng truy cập trang <Link href="/profile/addresses" className="text-blue-600 hover:underline">Địa chỉ</Link> để quản lý địa chỉ giao hàng của bạn.</p>
                   </div>
@@ -272,10 +273,56 @@ export default function ProfilePage() {
               )}
               {activeTab === 'wishlist' && (
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-6">Danh sách yêu thích</h3>
-                  <p className="mb-8 text-gray-600">Quản lý sản phẩm yêu thích của bạn</p>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-6">Danh sách yêu thích</h3>
+                  <p className="mb-8 text-gray-800">Quản lý sản phẩm yêu thích của bạn</p>
                   <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
                     <p>Vui lòng truy cập trang <Link href="/profile/wishlist" className="text-blue-600 hover:underline">Yêu thích</Link> để xem danh sách sản phẩm yêu thích của bạn.</p>
+                  </div>
+                </div>
+              )}
+              {activeTab === 'settings' && (
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-6">Cài đặt</h3>
+                  <p className="mb-8 text-gray-800">Tùy chỉnh cài đặt tài khoản và ứng dụng</p>
+                  
+                  <div className="space-y-6">
+                    <div className="bg-white border border-gray-200 rounded-lg p-6">
+                      <h4 className="font-medium text-lg mb-4">Tính năng bảo mật khác</h4>
+                      
+                      <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium">Xác thực hai yếu tố</p>
+                            <p className="text-sm text-gray-600">Tăng cường bảo mật cho tài khoản bằng cách yêu cầu mã xác thực.</p>
+                          </div>
+                          <div className="relative">
+                            <input type="checkbox" className="sr-only peer" id="twofa" />
+                            <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium">Thông báo đăng nhập</p>
+                            <p className="text-sm text-gray-600">Nhận thông báo khi có đăng nhập mới vào tài khoản của bạn.</p>
+                          </div>
+                          <div className="relative">
+                            <input type="checkbox" className="sr-only peer" id="loginNotif" checked />
+                            <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-medium">Đăng xuất khỏi tất cả các thiết bị khác</p>
+                            <p className="text-sm text-gray-600">Đăng xuất tài khoản của bạn trên tất cả các thiết bị ngoại trừ thiết bị hiện tại.</p>
+                          </div>
+                          <button className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+                            Đăng xuất
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

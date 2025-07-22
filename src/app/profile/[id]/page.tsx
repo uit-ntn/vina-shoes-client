@@ -6,6 +6,7 @@ import { toast } from 'react-hot-toast';
 import { User } from '@/types/user';
 import { userService } from '@/services/user.service';
 import Image from '@/components/ui/Image';
+import React from 'react';
 
 interface ProfilePageProps {
   params: {
