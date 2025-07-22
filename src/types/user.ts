@@ -75,6 +75,7 @@ export interface UpdateProfileData {
   email?: string;
   phone?: string;
   address?: Address;
+  addresses?: Address[];
   avatar?: string;
 }
 

@@ -1,5 +1,5 @@
 import http from '@/lib/api/http';
-import { ORDERS } from '@/lib/api/endpoints';
+import { ORDERS, USER } from '@/lib/api/endpoints';
 import { Order, OrdersResponse } from '@/types/order';
 
 /**
@@ -34,7 +34,8 @@ export const createOrder = async (orderData: {
  */
 export const getUserOrders = async (): Promise<OrdersResponse> => {
   try {
-    const response = await http.get('/orders/my-orders');
+    const response = await http.get(ORDERS.MY_ORDERS);
+    console.log('User orders response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching user orders:', error);
@@ -73,16 +74,20 @@ export const cancelOrder = async (orderId: string): Promise<Order> => {
 };
 
 /**
- * Track an order's shipping status
- * @param orderId - The ID of the order to track
- * @returns Promise with the tracking information
+ * Update order status
+ * @param orderId - The ID of the order to update
+ * @param status - The new status
+ * @returns Promise with the updated order
  */
-export const trackOrder = async (orderId: string): Promise<any> => {
+export const updateOrderStatus = async (
+  orderId: string, 
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+): Promise<Order> => {
   try {
-    const response = await http.get(ORDERS.TRACK(orderId));
-    return response.data;
+    const response = await http.patch(ORDERS.UPDATE_STATUS(orderId), { status });
+    return response.data.order;
   } catch (error) {
-    console.error(`Error tracking order ${orderId}:`, error);
+    console.error(`Error updating order ${orderId} status:`, error);
     throw error;
   }
 };
@@ -111,12 +116,12 @@ export const getAllOrders = async (status?: string): Promise<OrdersResponse> => 
  * @param status - The new status
  * @returns Promise with the updated order
  */
-export const updateOrderStatus = async (
+export const updateOrderStatusAdmin = async (
   orderId: string, 
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
 ): Promise<Order> => {
   try {
-    const response = await http.patch(`/orders/${orderId}`, { status });
+    const response = await http.patch(ORDERS.UPDATE_STATUS(orderId), { status });
     return response.data.order;
   } catch (error) {
     console.error(`Error updating order ${orderId} status:`, error);
@@ -131,7 +136,7 @@ export const updateOrderStatus = async (
  */
 export const deleteOrder = async (orderId: string): Promise<{ success: boolean; message: string }> => {
   try {
-    const response = await http.delete(`/orders/${orderId}`);
+    const response = await http.delete(ORDERS.DETAIL(orderId));
     return response.data;
   } catch (error) {
     console.error(`Error deleting order ${orderId}:`, error);
@@ -145,7 +150,7 @@ export const deleteOrder = async (orderId: string): Promise<{ success: boolean; 
  */
 export const getOrderStats = async (): Promise<any> => {
   try {
-    const response = await http.get('/orders/stats/overview');
+    const response = await http.get(ORDERS.STATS);
     return response.data;
   } catch (error) {
     console.error('Error fetching order statistics:', error);

@@ -48,11 +48,15 @@ export const CART = {
 
 // Order endpoints
 export const ORDERS = {
-  CREATE: "/orders",
   LIST: "/orders",
+  MY_ORDERS: "/orders/my-orders",
   DETAIL: (id: string) => `/orders/${id}`,
+  CREATE: "/orders",
+  UPDATE: (id: string) => `/orders/${id}`,
   CANCEL: (id: string) => `/orders/${id}/cancel`,
-  TRACK: (id: string) => `/orders/${id}/track`
+  UPDATE_STATUS: (id: string) => `/orders/${id}/status`,
+  STATS: "/orders/stats/overview",
+  USER_ORDERS: (userId: string) => `/orders/user/${userId}`,
 };
 
 // Payment endpoints

@@ -175,13 +175,6 @@ export default function Header() {
 
   return (
     <>
-      {/* Top Announcement Bar */}
-      <div className="bg-gradient-to-r from-blue-700 to-blue-900 text-white text-center text-sm py-2 font-medium tracking-wide">
-        <span className="inline-flex items-center">
-          <span className="mr-2">🚚</span> Miễn phí vận chuyển cho đơn hàng trên 2.000.000₫ | <Link href="/shop/sale" className="underline ml-1 hover:text-yellow-300 transition">Mua ngay</Link>
-        </span>
-      </div>
-
       {/* Header/Navigation */}
       <header className="bg-white shadow-md sticky top-0 z-50 transition-shadow duration-300">
         <div className="container mx-auto px-4">
