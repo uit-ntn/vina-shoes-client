@@ -6,22 +6,22 @@ import { useOrder } from '@/context/OrderContext';
 import Link from 'next/link';
 import Image from '@/components/ui/Image';
 import React from 'react';
+import { Order } from '@/types/order';
 
 export default function OrderDetailsPage() {
   const params = useParams();
   // Get the ID from params, with a comment about future React.use() requirement
   // In a future Next.js version, this should be: const orderId = React.use(params).id;
   const orderId = params.id as string;
-  const { getOrderById, cancelOrder } = useOrder();
-  const [order, setOrder] = useState(null);
+  const { fetchOrderById, cancelOrder, currentOrder: orderFromContext } = useOrder();
+  const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadOrder() {
       setLoading(true);
       try {
-        const orderData = await getOrderById(orderId);
-        setOrder(orderData);
+        await fetchOrderById(orderId);
       } catch (error) {
         console.error("Failed to load order details:", error);
       } finally {
@@ -32,7 +32,14 @@ export default function OrderDetailsPage() {
     if (orderId) {
       loadOrder();
     }
-  }, [orderId, getOrderById]);
+  }, [orderId, fetchOrderById]);
+  
+  // Set our local order state from the context whenever it changes
+  useEffect(() => {
+    if (orderFromContext) {
+      setOrder(orderFromContext);
+    }
+  }, [orderFromContext]);
 
   if (loading) {
     return (
