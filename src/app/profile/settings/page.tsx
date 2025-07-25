@@ -23,28 +23,7 @@ export default function SettingsPage() {
   };
   
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="container mx-auto px-4 py-8">
-        {/* Page Header */}
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 text-white mb-6">
-          <div className="flex items-center">
-            <div>
-              <h1 className="text-2xl font-bold">Cài đặt</h1>
-              <p className="mt-1 opacity-90">Quản lý các thiết lập cá nhân của bạn</p>
-            </div>
-          </div>
-        </div>
-        
-        {/* Breadcrumbs */}
-        <div className="text-sm mb-6">
-          <Link href="/profile" className="text-blue-600 hover:underline">
-            Trang cá nhân
-          </Link>{' '}
-          /{' '}
-          <span className="font-medium">Cài đặt</span>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-white rounded-lg shadow-md p-6">
           <div className="space-y-8">
             {/* Security Settings */}
             <div>
@@ -161,8 +140,6 @@ export default function SettingsPage() {
               </button>
             </div>
           </div>
-        </div>
-      </div>
     </div>
   );
 }

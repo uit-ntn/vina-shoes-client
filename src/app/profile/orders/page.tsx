@@ -105,117 +105,10 @@ export default function OrdersPage() {
     }
   };
   
-  // Tab types for navigation
-  type TabType = 'profile' | 'addresses' | 'orders' | 'wishlist' | 'security';
-  
-  // Define all tabs with their properties
-  const tabs = [
-    {
-      id: 'profile' as TabType,
-      label: 'Thông tin tài khoản',
-      href: '/profile',
-    },
-    {
-      id: 'addresses' as TabType,
-      label: 'Địa chỉ giao hàng',
-      href: '/profile/addresses',
-    },
-    {
-      id: 'orders' as TabType,
-      label: 'Đơn hàng của tôi',
-      href: '/profile/orders',
-    },
-    {
-      id: 'wishlist' as TabType,
-      label: 'Danh sách yêu thích',
-      href: '/profile/wishlist',
-    },
-    {
-      id: 'security' as TabType,
-      label: 'Bảo mật tài khoản',
-      href: '/profile/security',
-    },
-  ];
+  // Orders page component logic
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <div className="container mx-auto px-4 py-8">
-        {/* Profile Header */}
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 text-white">
-          <div className="flex items-center">
-            <div className="relative w-16 h-16 mr-4">
-              <img
-                src={user?.avatar || '/images/avatar-placeholder.jpg'}
-                alt="Avatar"
-                className="rounded-full object-cover border-2 border-white w-full h-full"
-              />
-            </div>
-            <div>
-              <div className="text-sm font-light">Xin chào,</div>
-              <h1 className="text-2xl font-bold">
-                {user ? user.name : 'Khách hàng'}
-              </h1>
-              <div className="text-sm opacity-80">{user?.email}</div>
-            </div>
-          </div>
-          
-          <div className="mt-6 flex items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-            <h2 className="text-xl font-semibold">Đơn hàng của tôi</h2>
-          </div>
-        </div>
-        
-        <div className="flex flex-col md:flex-row gap-6 mt-6">
-          {/* Profile Navigation */}
-          <div className="md:w-1/4">
-            <nav className="bg-white rounded-lg shadow-md overflow-hidden">
-              <ul className="divide-y divide-gray-200">
-                {tabs.map((tab) => (
-                  <li key={tab.id}>
-                    <Link href={tab.href}>
-                      <div
-                        className={`flex items-center px-4 py-3 hover:bg-gray-50 transition-colors ${
-                          tab.id === 'orders' ? 'bg-blue-50 border-l-4 border-blue-600' : ''
-                        }`}
-                      >
-                        <span
-                          className={`${
-                            tab.id === 'orders'
-                              ? 'font-medium text-blue-800'
-                              : 'text-gray-700'
-                          }`}
-                        >
-                          {tab.label}
-                        </span>
-                        {tab.id === 'orders' && (
-                          <div className="ml-auto">
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              className="h-5 w-5 text-blue-600"
-                              viewBox="0 0 20 20"
-                              fill="currentColor"
-                            >
-                              <path
-                                fillRule="evenodd"
-                                d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                                clipRule="evenodd"
-                              />
-                            </svg>
-                          </div>
-                        )}
-                      </div>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </div>
-          
-          {/* Orders Content */}
-          <div className="md:w-3/4">
-            <div className="bg-white rounded-lg shadow-md p-6">
+    <div className="bg-white rounded-lg shadow-md p-6">
               <h3 className="text-xl font-semibold text-gray-800 mb-6">Đơn hàng của tôi</h3>
               
               {loading ? (
@@ -325,9 +218,5 @@ export default function OrdersPage() {
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }

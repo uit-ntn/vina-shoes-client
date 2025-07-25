@@ -107,7 +107,7 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen py-10">
+    <div className="bg-white rounded-lg shadow-md p-6">
       <div className="container mx-auto px-4">
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           {/* Profile header */}

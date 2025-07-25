@@ -52,6 +52,11 @@ export interface Address {
   isDefault?: boolean;
 }
 
+export interface UserPreferences {
+  language: string;
+  newsletter: boolean;
+}
+
 export interface User {
   _id?: string;
   id?: string;
@@ -62,8 +67,17 @@ export interface User {
   addresses?: Address[];
   phone?: string;
   avatar?: string;
+  avatarUrl?: string;
   emailVerified?: boolean;
+  status?: 'active' | 'inactive' | 'banned';
+  verificationToken?: string | null;
+  verificationExpires?: Date | null;
   lastLogin?: Date;
+  lastLoginAt?: Date;
+  passwordChangedAt?: Date;
+  refreshTokens?: string[];
+  twoFactorEnabled?: boolean;
+  preferences?: UserPreferences;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 }
