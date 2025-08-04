@@ -1,49 +1,135 @@
 import { api } from '@/lib/api/http';
-import { User, LoginCredentials, RegisterData, AuthResponse, PasswordResetRequest, PasswordResetConfirm } from '@/types/user';
+import { 
+  User, 
+  LoginCredentials, 
+  RegisterData, 
+  AuthResponse, 
+  TokenResponse,
+  OtpResponse,
+  VerifyEmailData,
+  ResetPasswordWithOtpData,
+  ForgotPasswordDto
+} from '@/types/user';
 import { AUTH } from '@/lib/api/endpoints';
 import { AxiosError } from 'axios';
 
 // Constants
 const AUTH_TOKEN_KEY = 'auth_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
 const USER_KEY = 'user_data';
 const TOKEN_EXPIRY_KEY = 'token_expiry';
 
 export const authService = {
-  login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
+  login: async (credentials: LoginCredentials): Promise<TokenResponse> => {
     try {
-      const response = await api.post<AuthResponse>(AUTH.LOGIN, credentials);
+      console.log('Sending login request with credentials:', { 
+        email: credentials.email, 
+        passwordLength: credentials.password?.length || 0 
+      });
       
-      // Validate response data
+      const response = await api.post<any>(AUTH.LOGIN, credentials);
+      
+      // Get response data
       const { data } = response;
-      if (!data || !data.access_token || !data.user) {
-        throw new Error('Invalid response format from server');
+      console.log('Login response:', JSON.stringify(data));
+      
+      // Handle NestJS JWT format based on your backend:
+      // Backend format: { access_token: string } with JWT payload { sub: userId, email: string }
+      const normalizedData: TokenResponse = {
+        // Get access_token from the response
+        access_token: data.access_token || data.accessToken || '',
+        
+        // Always ensure user object exists with default values
+        user: {
+          id: data.user?.id || data.userId || data.sub || '',
+          email: data.user?.email || credentials.email, // Fall back to the email used for login
+          name: data.user?.name || data.name || data.fullName || credentials.email.split('@')[0],
+          role: data.user?.role || data.role || 'user'
+        }
+      };
+      
+      console.log('Normalized data:', normalizedData);
+      
+      // Validate we have the access token
+      if (!normalizedData.access_token) {
+        console.error('Invalid login response format: no access_token', data);
+        throw new Error('Không thể đăng nhập: Token không hợp lệ');
+      }
+      
+      // Ensure user object has minimum required data
+      if (!normalizedData.user?.email) {
+        normalizedData.user = normalizedData.user || {};
+        normalizedData.user.email = credentials.email;
+        console.log('Added email to user object:', normalizedData.user);
       }
 
-      // Store auth data
-      const { access_token, user } = data;
-      authService.setAuthData(access_token, user);
+      // Store auth data - even with minimal user info
+      const { access_token, user } = normalizedData;
+      const refreshToken = data.refreshToken || '';
       
-      return data;
+      console.log('Storing auth data with token and user:', { 
+        tokenPrefix: access_token.substring(0, 10) + '...', 
+        user 
+      });
+      
+      authService.setAuthData(access_token, refreshToken, user);
+      
+      return normalizedData;
     } catch (error) {
-      if (error instanceof Error) {
-        throw error;
+      console.error('Login error:', error);
+      
+      // Provide user-friendly error messages based on the error type
+      if (error instanceof AxiosError) {
+        // Server returned an error response
+        const statusCode = error.response?.status;
+        const serverMessage = error.response?.data?.message;
+        
+        if (statusCode === 401 || statusCode === 403) {
+          throw new Error('Email hoặc mật khẩu không đúng. Vui lòng thử lại.');
+        } else if (statusCode === 404) {
+          throw new Error('Tài khoản không tồn tại. Vui lòng đăng ký.');
+        } else if (serverMessage) {
+          throw new Error(`Lỗi: ${serverMessage}`);
+        } else {
+          throw new Error('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
+        }
+      } else if (error instanceof Error) {
+        // Rethrow with more user-friendly message if possible
+        const errorMessage = error.message.includes('Invalid response format') 
+          ? 'Phản hồi không hợp lệ từ máy chủ. Vui lòng thử lại sau.'
+          : error.message;
+        throw new Error(errorMessage);
       } else {
-        throw new Error('An unexpected error occurred during login');
+        throw new Error('Đã xảy ra lỗi không xác định khi đăng nhập. Vui lòng thử lại sau.');
       }
     }
   },
 
-  register: async (data: RegisterData): Promise<AuthResponse> => {
+  register: async (data: RegisterData): Promise<OtpResponse> => {
     try {
-      const response = await api.post<AuthResponse>(AUTH.REGISTER, data);
-      if (typeof window !== 'undefined') {
-        const { access_token, user } = response.data;
-        authService.setAuthData(access_token, user);
-      }
+      const response = await api.post<OtpResponse>(AUTH.REGISTER, data);
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
         throw new Error(error.response?.data?.message || 'Registration failed');
+      }
+      throw error;
+    }
+  },
+  
+  verifyEmail: async (data: VerifyEmailData): Promise<AuthResponse> => {
+    try {
+      const response = await api.post<AuthResponse>(AUTH.VERIFY_EMAIL, data);
+      if (response.data && response.data.token) {
+        // After verification, save auth data
+        const { id, fullName, email, token } = response.data;
+        // Pass empty string as refresh token since it might not be provided
+        authService.setAuthData(token, '', { id, fullName, email, role: 'user' });
+      }
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw new Error(error.response?.data?.message || 'Email verification failed');
       }
       throw error;
     }
@@ -65,23 +151,89 @@ export const authService = {
       authService.clearAuthData();
     }
   },
-
-  refreshToken: async (): Promise<string> => {
+  
+  logoutFromDevice: async (refreshToken: string): Promise<void> => {
     try {
-      const response = await api.post<{ token: string }>(AUTH.REFRESH_TOKEN);
+      await api.post(AUTH.LOGOUT_DEVICE, { refreshToken });
+    } catch (error) {
+      console.error('Logout from device error:', error);
+      throw error;
+    }
+  },
+
+  refreshToken: async (): Promise<TokenResponse> => {
+    try {
+      const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+      if (!refreshToken) {
+        throw new Error('No refresh token found');
+      }
+      
+      console.log('Refreshing token...');
+      const response = await api.post<any>(AUTH.REFRESH_TOKEN, { refreshToken });
+      
+      // Get response data
+      const { data } = response;
+      console.log('Refresh token response:', JSON.stringify(data));
+      
+      // Get current user data for fallback
+      const currentUserData = localStorage.getItem(USER_KEY);
+      const currentUser = currentUserData ? JSON.parse(currentUserData) : null;
+      
+      // Handle NestJS JWT format
+      const normalizedData: TokenResponse = {
+        access_token: data.access_token || data.accessToken || '',
+        // Always provide a properly structured user object
+        user: {
+          id: data.user?.id || currentUser?._id || currentUser?.id || '',
+          email: data.user?.email || currentUser?.email || '',
+          name: data.user?.name || currentUser?.name || '',
+          role: data.user?.role || currentUser?.role || 'customer'
+        }
+      };
+      
       if (typeof window !== 'undefined') {
-        const { token } = response.data;
-        localStorage.setItem(AUTH_TOKEN_KEY, token);
+        const { access_token } = normalizedData;
+        
+        // Update tokens
+        localStorage.setItem(AUTH_TOKEN_KEY, access_token);
+        
         // Update token expiry
         const expiry = new Date();
         expiry.setHours(expiry.getHours() + 1); // Token expires in 1 hour
         localStorage.setItem(TOKEN_EXPIRY_KEY, expiry.toISOString());
+        
+        // If response doesn't include user data, keep the existing user data
+        if (!data.user) {
+          const currentUserData = localStorage.getItem(USER_KEY);
+          if (currentUserData) {
+            normalizedData.user = JSON.parse(currentUserData);
+          }
+        } else {
+          localStorage.setItem(USER_KEY, JSON.stringify(normalizedData.user));
+        }
       }
-      return response.data.token;
+      
+      console.log('Normalized refresh response:', normalizedData);
+      return normalizedData;
     } catch (error) {
       console.error('Token refresh error:', error);
+      
+      // Always clear auth data on refresh token error to force re-login
       authService.clearAuthData();
-      throw error;
+      
+      // Show user-friendly error
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) {
+          throw new Error('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+        } else {
+          const serverMessage = error.response?.data?.message;
+          throw new Error(serverMessage || 'Lỗi làm mới token. Vui lòng đăng nhập lại.');
+        }
+      } else if (error instanceof Error) {
+        throw new Error(error.message || 'Lỗi làm mới token. Vui lòng đăng nhập lại.');
+      } else {
+        throw new Error('Lỗi làm mới token. Vui lòng đăng nhập lại.');
+      }
     }
   },
 
@@ -141,42 +293,80 @@ export const authService = {
     }
   },
 
-  setAuthData: (token: string, user: User | { id: string; email: string; name: string; role: string }): void => {
+  setAuthData: (accessToken: string, refreshToken: string, user?: User | { id?: string; email?: string; fullName?: string; name?: string; role?: string } | null): void => {
     if (typeof window !== 'undefined') {
       try {
-        console.log('Setting auth data with token:', token.substring(0, 10) + '...');
+        console.log('Setting auth data with token:', accessToken.substring(0, 10) + '...');
         console.log('Setting auth data for user:', user);
         
+        // If user data is missing or incomplete, try to get existing data
+        const currentUserData = localStorage.getItem(USER_KEY);
+        const currentUser = currentUserData ? JSON.parse(currentUserData) : null;
+        
         // First store user data and expiry
-        const userData = 'role' in user ? {
-          _id: user.id,
-          email: user.email,
-          name: user.name,
-          role: user.role === 'user' ? 'customer' : user.role,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        } : user;
+        let userData: Record<string, any>;
+        
+        if (!user && currentUser) {
+          // If no new user data but we have existing user data, keep it
+          userData = currentUser;
+        } else if (user) {
+          // Extract user properties safely
+          const userId = 'id' in user ? user.id : null;
+          const userEmail = 'email' in user ? user.email : null;
+          const userName = 'name' in user ? user.name : null;
+          const userFullName = 'fullName' in user ? user.fullName : null;
+          const userRole = 'role' in user ? user.role : null;
+          
+          // We have new user data - create a safe merged object
+          userData = {
+            _id: userId || currentUser?._id || '',
+            id: userId || currentUser?.id || '',
+            email: userEmail || currentUser?.email || '',
+            // Use name as the primary field (backend standard)
+            name: userName || userFullName || currentUser?.name || '',
+            // Keep fullName for any components that might still reference it
+            fullName: userName || userFullName || currentUser?.fullName || '',
+            role: (userRole === 'user' ? 'customer' : userRole) || currentUser?.role || 'customer',
+            createdAt: new Date(),
+            updatedAt: new Date()
+          };
+        } else {
+          // Complete fallback with minimal data
+          userData = {
+            _id: '',
+            id: '',
+            email: '',
+            name: '',
+            fullName: '',
+            role: 'customer',
+            createdAt: new Date(),
+            updatedAt: new Date()
+          };
+        }
 
-        // Set token first since it's most important
-        localStorage.setItem(AUTH_TOKEN_KEY, token);
+        // Set tokens
+        localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
+        if (refreshToken) {
+          localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+        }
         
         // Then set user data
         localStorage.setItem(USER_KEY, JSON.stringify(userData));
         
         // Set expiry last
         const expiry = new Date();
-        expiry.setHours(expiry.getHours() + 24); // Token expires in 24 hours
+        expiry.setHours(expiry.getHours() + 1); // Token expires in 1 hour
         localStorage.setItem(TOKEN_EXPIRY_KEY, expiry.toISOString());
         
         // Also set a cookie for middleware detection (helps with SSR)
-        document.cookie = `${AUTH_TOKEN_KEY}=${token}; path=/; max-age=${60*60*24}; SameSite=Lax`;
+        document.cookie = `${AUTH_TOKEN_KEY}=${accessToken}; path=/; max-age=${60*60}; SameSite=Lax`;
 
         console.log('Auth data successfully set in localStorage and cookies');
 
         // Notify other tabs/windows
         window.dispatchEvent(new StorageEvent('storage', {
           key: AUTH_TOKEN_KEY,
-          newValue: token
+          newValue: accessToken
         }));
       } catch (error) {
         console.error('Error setting auth data:', error);
@@ -195,6 +385,9 @@ export const authService = {
       localStorage.removeItem(USER_KEY);
       localStorage.removeItem(TOKEN_EXPIRY_KEY);
       
+      // Remove refresh token
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      
       // Remove token last to trigger storage event
       localStorage.removeItem(AUTH_TOKEN_KEY);
       
@@ -212,9 +405,10 @@ export const authService = {
     }
   },
 
-  requestPasswordReset: async (data: PasswordResetRequest): Promise<void> => {
+  requestPasswordReset: async (data: ForgotPasswordDto): Promise<OtpResponse> => {
     try {
-      await api.post(AUTH.FORGOT_PASSWORD, data);
+      const response = await api.post<OtpResponse>(AUTH.FORGOT_PASSWORD, data);
+      return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
         throw new Error(error.response?.data?.message || 'Password reset request failed');
@@ -223,9 +417,10 @@ export const authService = {
     }
   },
 
-  resetPassword: async (data: PasswordResetConfirm): Promise<void> => {
+  resetPassword: async (data: ResetPasswordWithOtpData): Promise<{ message: string }> => {
     try {
-      await api.post(AUTH.RESET_PASSWORD, data);
+      const response = await api.post<{ message: string }>(AUTH.RESET_PASSWORD, data);
+      return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
         throw new Error(error.response?.data?.message || 'Password reset failed');
@@ -234,12 +429,13 @@ export const authService = {
     }
   },
 
-  verifyEmail: async (token: string): Promise<void> => {
+  verifyOtp: async (data: { email: string, otp: string }): Promise<{ message: string, valid: boolean }> => {
     try {
-      await api.post(AUTH.VERIFY_EMAIL, { token });
+      const response = await api.post<{ message: string, valid: boolean }>(AUTH.VERIFY_OTP, data);
+      return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
-        throw new Error(error.response?.data?.message || 'Email verification failed');
+        throw new Error(error.response?.data?.message || 'OTP verification failed');
       }
       throw error;
     }

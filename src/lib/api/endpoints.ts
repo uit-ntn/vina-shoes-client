@@ -2,14 +2,15 @@
 export const AUTH = {
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
+  VERIFY_EMAIL: '/auth/verify-email',
   LOGOUT: '/auth/logout',
-  ME: '/auth/me',
+  LOGOUT_DEVICE: '/auth/logout-device',
   FORGOT_PASSWORD: '/auth/forgot-password',
   RESET_PASSWORD: '/auth/reset-password',
-  REFRESH_TOKEN: '/auth/refresh-token',
-  VERIFY_EMAIL: '/auth/verify-email',
+  REFRESH_TOKEN: '/auth/refresh',
   CHANGE_PASSWORD: '/auth/change-password',
-  UPDATE_PROFILE: '/auth/profile',
+  VERIFY_OTP: '/auth/verify-otp',
+  UPDATE_PROFILE: '/user/profile',
 };
 
 // User endpoints

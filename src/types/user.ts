@@ -4,10 +4,13 @@ export interface AuthContextType {
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
-  forgotPassword: (email: string) => Promise<void>;
-  resetPassword: (token: string, newPassword: string) => Promise<void>;
+  register: (email: string, password: string, name: string) => Promise<OtpResponse>;
+  forgotPassword: (email: string) => Promise<OtpResponse>;
+  resetPassword: (email: string, token: string, newPassword: string) => Promise<{ message: string }>;
   updateProfile: (data: Partial<User>) => Promise<void>;
+  verifyEmail: (email: string, otp: string) => Promise<AuthResponse>;
+  verifyOtp?: (email: string, otp: string) => Promise<{ message: string; valid: boolean }>;
+  logoutFromDevice?: (refreshToken: string) => Promise<void>;
 }
 
 export interface LoginCredentials {
@@ -19,27 +22,54 @@ export interface RegisterData {
   name: string;
   email: string;
   password: string;
-  confirmPassword: string;
+}
+
+export interface VerifyEmailData {
+  email: string;
+  otp: string;
 }
 
 export interface AuthResponse {
+  id: string;
+  fullName?: string;
+  name?: string; // Added to support backend using 'name' instead of 'fullName'
+  email: string;
+  token: string;
+  refreshToken?: string;
+  message: string;
+}
+
+export interface OtpResponse {
+  email: string;
+  expiresAt: Date;
+  message: string;
+}
+
+export interface TokenResponse {
   access_token: string;
+  // Always require user object to prevent TypeScript errors
   user: {
     id: string;
     email: string;
     name: string;
     role: string;
   };
+  // Add optional fields for backward compatibility and NestJS format
+  accessToken?: string;
+  refreshToken?: string;
+  // NestJS specific fields
+  token_type?: string;
+  expires_in?: number;
 }
 
-export interface PasswordResetRequest {
+export interface ForgotPasswordDto {
   email: string;
 }
 
-export interface PasswordResetConfirm {
+export interface ResetPasswordWithOtpData {
+  email: string;
   token: string;
   newPassword: string;
-  confirmPassword: string;
 }
 
 export interface Address {
@@ -61,6 +91,7 @@ export interface User {
   _id?: string;
   id?: string;
   name: string;
+  fullName?: string; // For backward compatibility
   email: string;
   role: string;
   address?: Address;
@@ -88,15 +119,14 @@ export interface UpdateProfileData {
   name?: string;
   email?: string;
   phone?: string;
-  address?: Address;
   addresses?: Address[];
-  avatar?: string;
+  avatarUrl?: string;
+  preferences?: UserPreferences;
 }
 
 export interface ChangePasswordData {
   currentPassword: string;
   newPassword: string;
-  confirmPassword: string;
 }
 
 export interface OrderHistoryResponse {
