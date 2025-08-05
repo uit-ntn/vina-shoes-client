@@ -16,7 +16,7 @@ import { AUTH } from '@/lib/api/endpoints';
 import { AxiosError } from 'axios';
 
 // Constants
-const AUTH_TOKEN_KEY = 'auth_token';
+const ACCESS_TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
 const USER_KEY = 'user_data';
 const TOKEN_EXPIRY_KEY = 'token_expiry';
@@ -35,18 +35,19 @@ export const authService = {
       const { data } = response;
       console.log('Login response:', JSON.stringify(data));
       
-      // Handle NestJS JWT format: { access_token: string, user: {...} }
-      // Ensure we properly handle the backend response structure
+      // JWT backend structure: { access_token: string, refreshToken: string, user: {...} }
       const normalizedData: TokenResponse = {
         // Get access_token from the response
-        access_token: data.access_token || data.accessToken || '',
+        access_token: data.access_token || '',
+        // Get refreshToken
+        refreshToken: data.refreshToken || '',
         
         // Ensure user object matches our expected structure
         user: {
-          _id: data.user?._id || '',
+          _id: data.user?._id || data.user?.id || '',
           id: data.user?._id || data.user?.id || '',
           email: data.user?.email || credentials.email,
-          name: data.user?.name || credentials.email.split('@')[0],
+          name: data.user?.name || data.user?.fullName || credentials.email.split('@')[0],
           role: data.user?.role || 'user',
           avatarUrl: data.user?.avatarUrl || '',
           phone: data.user?.phone || '',
@@ -71,9 +72,9 @@ export const authService = {
         console.log('Added email to user object:', normalizedData.user);
       }
 
-      // Store auth data - even with minimal user info
+      // Store auth data - with all token info
       const { access_token, user } = normalizedData;
-      const refreshToken = data.refreshToken || '';
+      const refreshToken = normalizedData.refreshToken || '';
       
       console.log('Storing auth data with token and user:', { 
         tokenPrefix: access_token.substring(0, 10) + '...', 
@@ -116,7 +117,17 @@ export const authService = {
   register: async (data: RegisterData): Promise<OtpResponse> => {
     try {
       console.log('Calling register API with:', { email: data.email, name: data.name });
-      const response = await api.post<OtpResponse>(AUTH.REGISTER, data);
+      
+      // Update register request to match backend expectations
+      const registerData = {
+        email: data.email,
+        fullName: data.name, // Using fullName as per backend DTO
+        password: data.password
+      };
+      
+      const response = await api.post<OtpResponse>(AUTH.REGISTER, registerData);
+      
+      // The backend will send an OTP to the user's email for verification
       return response.data;
     } catch (error) {
       console.error('Registration error:', error);
@@ -124,7 +135,7 @@ export const authService = {
         const statusCode = error.response?.status;
         const serverMessage = error.response?.data?.message;
         
-        if (statusCode === 409) {
+        if (statusCode === 409 || serverMessage?.includes('already in use')) {
           throw new Error('Email đã được sử dụng. Vui lòng sử dụng email khác hoặc đăng nhập.');
         } else if (serverMessage) {
           throw new Error(serverMessage);
@@ -134,31 +145,44 @@ export const authService = {
     }
   },
   
-  verifyEmail: async (data: VerifyEmailData): Promise<AuthResponse> => {
+  verifyEmail: async (data: VerifyEmailData): Promise<TokenResponse> => {
     try {
       console.log('Calling verify email API with:', data);
-      const response = await api.post<AuthResponse>(AUTH.VERIFY_EMAIL, data);
+      const response = await api.post<any>(AUTH.VERIFY_EMAIL, data);
       console.log('Verify email response:', response.data);
       
-      if (response.data && response.data.token) {
-        // After verification, save auth data
-        const token = response.data.token;
-        const refreshToken = response.data.refreshToken || '';
+      // JWT backend returns access_token, refreshToken, and user
+      if (response.data) {
+        const { access_token, refreshToken, user } = response.data;
+        
+        if (!access_token) {
+          throw new Error('Invalid verification response: missing access_token');
+        }
+        
+        // Create normalized user data
         const userData = {
-          _id: response.data._id || response.data.id,
-          id: response.data._id || response.data.id,
-          email: response.data.email,
-          name: response.data.name,
-          role: response.data.role || 'user',
-          avatarUrl: response.data.avatarUrl || '',
-          phone: response.data.phone || '',
-          addresses: response.data.addresses || [],
+          _id: user?._id || user?.id || '',
+          id: user?._id || user?.id || '',
+          email: user?.email || data.email,
+          name: user?.name || user?.fullName || '',
+          role: user?.role || 'user',
+          avatarUrl: user?.avatarUrl || '',
+          phone: user?.phone || '',
+          addresses: user?.addresses || [],
           emailVerified: true // Since we just verified the email
         };
         
-        authService.setAuthData(token, refreshToken, userData);
+        // Save the auth data
+        authService.setAuthData(access_token, refreshToken || '', userData);
+        
+        return {
+          access_token,
+          refreshToken,
+          user: userData
+        };
       }
-      return response.data;
+      
+      throw new Error('Invalid verification response format');
     } catch (error) {
       console.error('Email verification error:', error);
       if (error instanceof AxiosError) {
@@ -221,15 +245,22 @@ export const authService = {
       const currentUserData = localStorage.getItem(USER_KEY);
       const currentUser = currentUserData ? JSON.parse(currentUserData) : null;
       
-      // Handle NestJS JWT format
+      // JWT backend returns access_token and refreshToken
       const normalizedData: TokenResponse = {
-        access_token: data.access_token || data.accessToken || '',
-        // Always provide a properly structured user object
+        access_token: data.access_token || '',
+        refreshToken: data.refreshToken || '',
+        // Merge with existing user data
         user: {
           id: data.user?.id || currentUser?._id || currentUser?.id || '',
+          _id: data.user?.id || currentUser?._id || currentUser?.id || '',
           email: data.user?.email || currentUser?.email || '',
           name: data.user?.name || currentUser?.name || '',
-          role: data.user?.role || currentUser?.role || 'customer'
+          role: data.user?.role || currentUser?.role || 'customer',
+          avatarUrl: data.user?.avatarUrl || currentUser?.avatarUrl || '',
+          phone: data.user?.phone || currentUser?.phone || '',
+          addresses: data.user?.addresses || currentUser?.addresses || [],
+          emailVerified: data.user?.emailVerified !== undefined ? data.user.emailVerified : currentUser?.emailVerified || false,
+          preferences: data.user?.preferences || currentUser?.preferences || { language: 'vi', newsletter: true }
         }
       };
       
@@ -237,7 +268,10 @@ export const authService = {
         const { access_token } = normalizedData;
         
         // Update tokens
-        localStorage.setItem(AUTH_TOKEN_KEY, access_token);
+        localStorage.setItem(ACCESS_TOKEN_KEY, access_token);
+        if (normalizedData.refreshToken) {
+          localStorage.setItem(REFRESH_TOKEN_KEY, normalizedData.refreshToken);
+        }
         
         // Update token expiry
         const expiry = new Date();
@@ -282,7 +316,7 @@ export const authService = {
   isAuthenticated: (): boolean => {
     if (typeof window === 'undefined') return false;
     
-    const token = localStorage.getItem(AUTH_TOKEN_KEY);
+    const token = localStorage.getItem(ACCESS_TOKEN_KEY);
     const expiryStr = localStorage.getItem(TOKEN_EXPIRY_KEY);
     const userData = localStorage.getItem(USER_KEY);
     
@@ -320,7 +354,7 @@ export const authService = {
 
   getToken: (): string | null => {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem(AUTH_TOKEN_KEY);
+    return localStorage.getItem(ACCESS_TOKEN_KEY);
   },
 
   getCurrentUser: (): User | null => {
@@ -397,7 +431,7 @@ export const authService = {
         }
 
         // Set tokens
-        localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
+        localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
         if (refreshToken) {
           localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
         }
@@ -411,13 +445,13 @@ export const authService = {
         localStorage.setItem(TOKEN_EXPIRY_KEY, expiry.toISOString());
         
         // Also set a cookie for middleware detection (helps with SSR)
-        document.cookie = `${AUTH_TOKEN_KEY}=${accessToken}; path=/; max-age=${60*60}; SameSite=Lax`;
+        document.cookie = `${ACCESS_TOKEN_KEY}=${accessToken}; path=/; max-age=${60*60}; SameSite=Lax`;
 
         console.log('Auth data successfully set in localStorage and cookies');
 
         // Notify other tabs/windows
         window.dispatchEvent(new StorageEvent('storage', {
-          key: AUTH_TOKEN_KEY,
+          key: ACCESS_TOKEN_KEY,
           newValue: accessToken
         }));
       } catch (error) {
@@ -441,17 +475,17 @@ export const authService = {
       localStorage.removeItem(REFRESH_TOKEN_KEY);
       
       // Remove token last to trigger storage event
-      localStorage.removeItem(AUTH_TOKEN_KEY);
+      localStorage.removeItem(ACCESS_TOKEN_KEY);
       
       // Also clear the cookie
-      document.cookie = `${AUTH_TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
+      document.cookie = `${ACCESS_TOKEN_KEY}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`;
 
       console.log('Auth data successfully cleared from localStorage and cookies');
 
       // Dispatch storage event for the current window
       window.dispatchEvent(new StorageEvent('storage', {
-        key: AUTH_TOKEN_KEY,
-        oldValue: localStorage.getItem(AUTH_TOKEN_KEY),
+        key: ACCESS_TOKEN_KEY,
+        oldValue: localStorage.getItem(ACCESS_TOKEN_KEY),
         newValue: null
       }));
     }
@@ -460,7 +494,9 @@ export const authService = {
   requestPasswordReset: async (data: ForgotPasswordDto): Promise<OtpResponse> => {
     try {
       console.log('Requesting password reset for:', data.email);
-      const response = await api.post<OtpResponse>(AUTH.FORGOT_PASSWORD, data);
+      
+      // With JWT backend, we request an OTP using the forgot-password endpoint
+      const response = await api.post<OtpResponse>(AUTH.FORGOT_PASSWORD, { email: data.email });
       return response.data;
     } catch (error) {
       console.error('Password reset request error:', error);
@@ -481,7 +517,15 @@ export const authService = {
   resetPassword: async (data: ResetPasswordWithOtpData): Promise<{ message: string }> => {
     try {
       console.log('Resetting password with OTP for:', data.email);
-      const response = await api.post<{ message: string }>(AUTH.RESET_PASSWORD, data);
+      
+      // Match the backend DTO format for reset password with JWT backend
+      const resetData = {
+        email: data.email,
+        otp: data.otp,
+        newPassword: data.newPassword
+      };
+      
+      const response = await api.post<{ message: string }>(AUTH.RESET_PASSWORD, resetData);
       return response.data;
     } catch (error) {
       console.error('Password reset error:', error);
@@ -521,6 +565,29 @@ export const authService = {
         }
       }
       throw new Error('Xác thực OTP thất bại. Vui lòng thử lại.');
+    }
+  },
+
+  requestOtp: async (email: string): Promise<OtpResponse> => {
+    try {
+      console.log('Requesting new OTP for:', email);
+      const response = await api.post<OtpResponse>(AUTH.REQUEST_OTP, { email });
+      return response.data;
+    } catch (error) {
+      console.error('OTP request error:', error);
+      if (error instanceof AxiosError) {
+        const statusCode = error.response?.status;
+        const serverMessage = error.response?.data?.message;
+        
+        if (statusCode === 404) {
+          throw new Error('Email không tồn tại trong hệ thống.');
+        } else if (statusCode === 429) {
+          throw new Error('Yêu cầu quá nhiều lần. Vui lòng đợi một lát và thử lại.');
+        } else if (serverMessage) {
+          throw new Error(serverMessage);
+        }
+      }
+      throw new Error('Không thể gửi mã OTP. Vui lòng thử lại sau.');
     }
   },
 

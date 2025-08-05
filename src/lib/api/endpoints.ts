@@ -11,6 +11,7 @@ export const AUTH = {
   CHANGE_PASSWORD: '/auth/change-password',
   VERIFY_OTP: '/auth/verify-otp',
   UPDATE_PROFILE: '/user/profile',
+  REQUEST_OTP: '/auth/request-otp',
 };
 
 // User endpoints

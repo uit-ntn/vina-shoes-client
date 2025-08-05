@@ -1,9 +1,11 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import { AUTH } from './endpoints';
 
 // Constants
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 const API_TIMEOUT = 30000;
-const AUTH_TOKEN_KEY = 'auth_token';
+const ACCESS_TOKEN_KEY = 'access_token';
+const REFRESH_TOKEN_KEY = 'refresh_token';
 
 // Create axios instance
 const http: AxiosInstance = axios.create({
@@ -15,13 +17,31 @@ const http: AxiosInstance = axios.create({
   }
 });
 
+// Flag to prevent multiple refresh token requests
+let isRefreshing = false;
+// Store the pending requests
+let failedQueue: any[] = [];
+
+// Process the failed queue
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  
+  failedQueue = [];
+};
+
 // Request interceptor
 http.interceptors.request.use(
   (config) => {
     // Get token from localStorage (client-side only)
     let token = null;
     if (typeof window !== 'undefined') {
-      token = localStorage.getItem(AUTH_TOKEN_KEY);
+      token = localStorage.getItem(ACCESS_TOKEN_KEY);
     }
     
     // If token exists, add to headers
@@ -42,28 +62,103 @@ http.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
+    // Get original request
+    const originalRequest = error.config;
+    if (!originalRequest) {
+      return Promise.reject(error);
+    }
+    
     // Log error details for debugging
-    console.error(`API Error [${error.config?.url}]:`, {
+    console.error(`API Error [${originalRequest.url}]:`, {
       status: error.response?.status,
       statusText: error.response?.statusText,
       data: error.response?.data,
       message: error.message
     });
 
+    // Token expired error
+    if (error.response?.status === 401 && !originalRequest.headers['isRetry']) {
+      if (isRefreshing) {
+        // If already refreshing, add to queue
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(token => {
+            originalRequest.headers['Authorization'] = `Bearer ${token}`;
+            return http(originalRequest);
+          })
+          .catch(err => {
+            return Promise.reject(err);
+          });
+      }
+
+      isRefreshing = true;
+      originalRequest.headers['isRetry'] = true;
+
+      // Try to refresh the token
+      try {
+        const refreshToken = typeof window !== 'undefined' ? localStorage.getItem(REFRESH_TOKEN_KEY) : null;
+        
+        if (!refreshToken) {
+          // No refresh token available, clear auth and reject
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem(ACCESS_TOKEN_KEY);
+            localStorage.removeItem(REFRESH_TOKEN_KEY);
+            window.dispatchEvent(new Event('auth:logout'));
+          }
+          processQueue(error);
+          return Promise.reject(error);
+        }
+
+        // Call refresh token API
+        const response = await axios.post(
+          `${API_BASE_URL}${AUTH.REFRESH_TOKEN}`, 
+          { refreshToken },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+
+        // Update tokens in localStorage
+        const { access_token, refreshToken: newRefreshToken } = response.data;
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(ACCESS_TOKEN_KEY, access_token);
+          localStorage.setItem(REFRESH_TOKEN_KEY, newRefreshToken);
+        }
+
+        // Update authorization header
+        originalRequest.headers['Authorization'] = `Bearer ${access_token}`;
+        
+        // Process all queued requests
+        processQueue(null, access_token);
+        
+        // Return the original request with new token
+        return http(originalRequest);
+      } catch (refreshError) {
+        // Failed to refresh token
+        console.error('Token refresh failed:', refreshError);
+        
+        // Clear auth data
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem(ACCESS_TOKEN_KEY);
+          localStorage.removeItem(REFRESH_TOKEN_KEY);
+          window.dispatchEvent(new Event('auth:logout'));
+        }
+        
+        // Process queue with error
+        processQueue(refreshError);
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
+      }
+    }
+
+    // Handle other errors
     if (error.response) {
-      // The request was made and the server responded with a status code
-      // that falls out of the range of 2xx
       const { status, data } = error.response;
 
-      // Handle authentication errors
-      if (status === 401 || status === 403) {
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem(AUTH_TOKEN_KEY);
-          window.dispatchEvent(new StorageEvent('storage', {
-            key: AUTH_TOKEN_KEY,
-            newValue: null
-          }));
-        }
+      // Other auth errors
+      if (status === 403) {
+        // Permission denied
+        console.error('Permission denied');
       }
 
       // If we have a response with data and message, use it

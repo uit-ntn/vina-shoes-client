@@ -8,9 +8,10 @@ export interface AuthContextType {
   forgotPassword: (email: string) => Promise<OtpResponse>;
   resetPassword: (email: string, otp: string, newPassword: string) => Promise<{ message: string }>;
   updateProfile: (data: Partial<User>) => Promise<void>;
-  verifyEmail: (email: string, otp: string) => Promise<AuthResponse>;
+  verifyEmail: (email: string, otp: string) => Promise<TokenResponse>;
   verifyOtp?: (email: string, otp: string) => Promise<{ message: string; valid: boolean }>;
   logoutFromDevice?: (refreshToken: string) => Promise<void>;
+  requestOtp?: (email: string) => Promise<OtpResponse>;
 }
 
 export interface LoginCredentials {
@@ -53,7 +54,7 @@ export interface OtpResponse {
 
 export interface TokenResponse {
   access_token: string;
-  // Match the LoginResponseDto from the backend
+  // User information returned from the login API
   user: {
     _id?: string;
     id?: string;
@@ -66,10 +67,10 @@ export interface TokenResponse {
     emailVerified?: boolean;
     preferences?: UserPreferences;
   };
-  // Add optional fields for backward compatibility and NestJS format
-  accessToken?: string;
+  // Backend uses refreshToken for refresh token
   refreshToken?: string;
-  // NestJS specific fields
+  // For backward compatibility
+  accessToken?: string;
   token_type?: string;
   expires_in?: number;
 }

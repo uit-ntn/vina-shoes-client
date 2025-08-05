@@ -53,13 +53,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Listen for storage changes to sync auth state across tabs/windows
     const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'auth_token') {
+      if (event.key === 'access_token') {
         checkAuth();
       }
     };
 
+    // Also listen for custom auth events
+    const handleAuthLogout = () => {
+      setUser(null);
+    };
+
     window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('auth:logout', handleAuthLogout);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('auth:logout', handleAuthLogout);
+    };
   }, []);
 
   const login = async (email: string, password: string) => {
@@ -239,22 +249,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const loadingToast = toast.loading('Verifying your email...');
       const response = await authService.verifyEmail({ email, otp });
       
-      if (response) {
-        // After successful verification, update user state
+      if (response && response.user) {
+        // After successful verification, update user state with the JWT response
         setUser({
-          _id: response._id || response.id || '',
-          id: response._id || response.id || '',
-          name: response.name || email.split('@')[0],
-          email: response.email,
-          role: response.role || 'customer', // Use role from response or default
-          avatarUrl: response.avatarUrl || '',
-          phone: response.phone || '',
-          addresses: response.addresses || [],
+          _id: response.user._id || response.user.id || '',
+          id: response.user._id || response.user.id || '',
+          name: response.user.name || email.split('@')[0],
+          email: response.user.email || email,
+          role: response.user.role || 'customer',
+          avatarUrl: response.user.avatarUrl || '',
+          phone: response.user.phone || '',
+          addresses: response.user.addresses || [],
           emailVerified: true, // Since we just verified the email
-          preferences: response.preferences || { language: 'vi', newsletter: true }
+          preferences: response.user.preferences || { language: 'vi', newsletter: true }
         });
         
-        toast.success(response.message || 'Email verified successfully!', {
+        toast.success('Email verified successfully!', {
           id: loadingToast,
         });
         
@@ -293,6 +303,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw err;
     }
   };
+  
+  const requestOtp = async (email: string) => {
+    try {
+      const loadingToast = toast.loading('Sending OTP to your email...');
+      const response = await authService.requestOtp(email);
+      toast.success(response.message || 'OTP sent to your email!', {
+        id: loadingToast,
+      });
+      return response;
+    } catch (err: any) {
+      const errorMessage = err.message || 'Failed to send OTP';
+      toast.error(errorMessage);
+      throw err;
+    }
+  };
 
   return (
     <AuthContext.Provider
@@ -308,7 +333,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         updateProfile,
         verifyEmail,
         verifyOtp,
-        logoutFromDevice
+        logoutFromDevice,
+        requestOtp
       }}
     >
       {children}
