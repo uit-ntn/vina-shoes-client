@@ -119,8 +119,11 @@ const ProfileForm = ({
               name="phone"
               value={profileData.phone}
               onChange={handleProfileChange}
+              placeholder="Nhập số điện thoại"
+              pattern="[0-9]{10,11}"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
             />
+            <p className="mt-1 text-xs text-gray-500">Định dạng: 10-11 số</p>
           </div>
         </div>
         
@@ -151,22 +154,41 @@ export default function ProfilePage() {
     lastName: lastName,
     email: user?.email || '',
     phone: user?.phone || '',
-    avatar: user?.avatar || user?.avatarUrl || '',
+    avatar: user?.avatarUrl || '', // Consistently use avatarUrl from the user object
   });
 
   // Handle profile form changes
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setProfileData({
-      ...profileData,
-      [name]: value
-    });
+    
+    // Validation for specific fields
+    if (name === 'phone') {
+      // Only allow numeric input for phone numbers
+      const numericValue = value.replace(/[^0-9]/g, '');
+      
+      // Limit to a reasonable phone number length (10-11 digits for Vietnam)
+      if (numericValue.length <= 11) {
+        setProfileData({
+          ...profileData,
+          [name]: numericValue
+        });
+      }
+    } else {
+      // For other fields (firstName, lastName), just update normally
+      setProfileData({
+        ...profileData,
+        [name]: value
+      });
+    }
   };
 
   // Handle profile update
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Create loading toast for better user experience
+      const loadingToast = toast.loading('Đang cập nhật hồ sơ...');
+      
       // Combine first and last name for the API - Vietnamese name format with last name first
       const name = `${profileData.lastName} ${profileData.firstName}`.trim();
       
@@ -174,6 +196,7 @@ export default function ProfilePage() {
       const updatedUser = await userService.updateProfile({
         name: name,
         phone: profileData.phone || '',
+        avatarUrl: profileData.avatar || '', // Include avatar URL when updating profile
       });
       
       if (updatedUser) {
@@ -181,8 +204,11 @@ export default function ProfilePage() {
         await authUpdateProfile({
           name: name,
           phone: profileData.phone || '',
+          avatarUrl: profileData.avatar || '', // Include avatar URL when updating in context
         });
-        toast.success('Hồ sơ đã được cập nhật thành công!');
+        toast.success('Hồ sơ đã được cập nhật thành công!', {
+          id: loadingToast,
+        });
       } else {
         throw new Error('Không thể cập nhật hồ sơ');
       }
@@ -202,39 +228,42 @@ export default function ProfilePage() {
       const formData = new FormData();
       formData.append('avatar', file);
       
-      // Upload the avatar using the API
-      // In a real implementation, you would have an upload endpoint
-      // Create temporary URL for preview
-      const avatarUrl = URL.createObjectURL(file);
-      
       try {
-        // Attempt to make the API call with FormData
-        // If your API supports direct avatar uploads:
+        // First, generate a temporary local URL for immediate preview
+        const tempAvatarUrl = URL.createObjectURL(file);
+        
+        // Update local state for immediate feedback
+        setProfileData({
+          ...profileData,
+          avatar: tempAvatarUrl
+        });
+        
+        // In a real implementation with a proper avatar upload endpoint:
         // const response = await api.post('/user/avatar', formData, {
         //   headers: {
         //     'Content-Type': 'multipart/form-data'
         //   }
         // });
-        
-        // Update the user profile with the avatarUrl from the API response
         // const avatarUrlFromServer = response.data.avatarUrl;
         
-        // For now, since we don't have a specific endpoint, update with local URL
-        // and send a request to update profile with avatarUrl
-        await userService.updateProfile({
-          avatarUrl: avatarUrl, // In a real scenario, this should be the URL returned from the server
+        // For now, we'll update the profile with the avatar information
+        // In a real app, this would be replaced with the actual API endpoint
+        const updatedUser = await userService.updateProfile({
+          avatarUrl: tempAvatarUrl
         });
         
-        // Update the local state
-        setProfileData({
-          ...profileData,
-          avatar: avatarUrl
-        });
-        
-        // Update the toast
-        toast.success('Ảnh đại diện đã được cập nhật!', {
-          id: loadingToast
-        });
+        // If the profile update was successful, also update in AuthContext
+        if (updatedUser) {
+          await authUpdateProfile({
+            avatarUrl: tempAvatarUrl
+          });
+          
+          toast.success('Ảnh đại diện đã được cập nhật!', {
+            id: loadingToast
+          });
+        } else {
+          throw new Error('Không thể cập nhật ảnh đại diện');
+        }
       } catch (uploadError) {
         console.error('Avatar upload error:', uploadError);
         toast.error('Không thể tải ảnh lên. Vui lòng thử lại sau.', {

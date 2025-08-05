@@ -6,7 +6,7 @@ export interface AuthContextType {
   logout: () => Promise<void>;
   register: (email: string, password: string, name: string) => Promise<OtpResponse>;
   forgotPassword: (email: string) => Promise<OtpResponse>;
-  resetPassword: (email: string, token: string, newPassword: string) => Promise<{ message: string }>;
+  resetPassword: (email: string, otp: string, newPassword: string) => Promise<{ message: string }>;
   updateProfile: (data: Partial<User>) => Promise<void>;
   verifyEmail: (email: string, otp: string) => Promise<AuthResponse>;
   verifyOtp?: (email: string, otp: string) => Promise<{ message: string; valid: boolean }>;
@@ -30,13 +30,19 @@ export interface VerifyEmailData {
 }
 
 export interface AuthResponse {
-  id: string;
-  fullName?: string;
-  name?: string; // Added to support backend using 'name' instead of 'fullName'
+  _id?: string;
+  id?: string;
+  name: string;
   email: string;
   token: string;
   refreshToken?: string;
   message: string;
+  role?: string;
+  avatarUrl?: string;
+  phone?: string;
+  addresses?: Address[];
+  emailVerified?: boolean;
+  preferences?: UserPreferences;
 }
 
 export interface OtpResponse {
@@ -47,12 +53,18 @@ export interface OtpResponse {
 
 export interface TokenResponse {
   access_token: string;
-  // Always require user object to prevent TypeScript errors
+  // Match the LoginResponseDto from the backend
   user: {
-    id: string;
-    email: string;
+    _id?: string;
+    id?: string;
     name: string;
+    email: string;
     role: string;
+    avatarUrl?: string;
+    phone?: string;
+    addresses?: Address[];
+    emailVerified?: boolean;
+    preferences?: UserPreferences;
   };
   // Add optional fields for backward compatibility and NestJS format
   accessToken?: string;
@@ -68,7 +80,7 @@ export interface ForgotPasswordDto {
 
 export interface ResetPasswordWithOtpData {
   email: string;
-  token: string;
+  otp: string; // Changed from token to otp to match backend DTO
   newPassword: string;
 }
 
@@ -76,14 +88,13 @@ export interface Address {
   street: string;
   city: string;
   state?: string;
-  country: string;
+  country: string; // Country code e.g. "VN"
   postalCode?: string;
-  zipCode?: string;
   isDefault?: boolean;
 }
 
 export interface UserPreferences {
-  language: string;
+  language: string; // "vi", "en", etc.
   newsletter: boolean;
 }
 
@@ -91,19 +102,15 @@ export interface User {
   _id?: string;
   id?: string;
   name: string;
-  fullName?: string; // For backward compatibility
   email: string;
   role: string;
-  address?: Address;
   addresses?: Address[];
   phone?: string;
-  avatar?: string;
   avatarUrl?: string;
   emailVerified?: boolean;
   status?: 'active' | 'inactive' | 'banned';
   verificationToken?: string | null;
   verificationExpires?: Date | null;
-  lastLogin?: Date;
   lastLoginAt?: Date;
   passwordChangedAt?: Date;
   refreshTokens?: string[];
@@ -121,7 +128,10 @@ export interface UpdateProfileData {
   phone?: string;
   addresses?: Address[];
   avatarUrl?: string;
-  preferences?: UserPreferences;
+  preferences?: {
+    language?: string;
+    newsletter?: boolean;
+  };
 }
 
 export interface ChangePasswordData {

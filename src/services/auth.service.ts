@@ -8,7 +8,9 @@ import {
   OtpResponse,
   VerifyEmailData,
   ResetPasswordWithOtpData,
-  ForgotPasswordDto
+  ForgotPasswordDto,
+  Address,
+  UserPreferences
 } from '@/types/user';
 import { AUTH } from '@/lib/api/endpoints';
 import { AxiosError } from 'axios';
@@ -33,18 +35,24 @@ export const authService = {
       const { data } = response;
       console.log('Login response:', JSON.stringify(data));
       
-      // Handle NestJS JWT format based on your backend:
-      // Backend format: { access_token: string } with JWT payload { sub: userId, email: string }
+      // Handle NestJS JWT format: { access_token: string, user: {...} }
+      // Ensure we properly handle the backend response structure
       const normalizedData: TokenResponse = {
         // Get access_token from the response
         access_token: data.access_token || data.accessToken || '',
         
-        // Always ensure user object exists with default values
+        // Ensure user object matches our expected structure
         user: {
-          id: data.user?.id || data.userId || data.sub || '',
-          email: data.user?.email || credentials.email, // Fall back to the email used for login
-          name: data.user?.name || data.name || data.fullName || credentials.email.split('@')[0],
-          role: data.user?.role || data.role || 'user'
+          _id: data.user?._id || '',
+          id: data.user?._id || data.user?.id || '',
+          email: data.user?.email || credentials.email,
+          name: data.user?.name || credentials.email.split('@')[0],
+          role: data.user?.role || 'user',
+          avatarUrl: data.user?.avatarUrl || '',
+          phone: data.user?.phone || '',
+          addresses: data.user?.addresses || [],
+          emailVerified: data.user?.emailVerified || false,
+          preferences: data.user?.preferences || { language: 'vi', newsletter: true }
         }
       };
       
@@ -107,31 +115,65 @@ export const authService = {
 
   register: async (data: RegisterData): Promise<OtpResponse> => {
     try {
+      console.log('Calling register API with:', { email: data.email, name: data.name });
       const response = await api.post<OtpResponse>(AUTH.REGISTER, data);
       return response.data;
     } catch (error) {
+      console.error('Registration error:', error);
       if (error instanceof AxiosError) {
-        throw new Error(error.response?.data?.message || 'Registration failed');
+        const statusCode = error.response?.status;
+        const serverMessage = error.response?.data?.message;
+        
+        if (statusCode === 409) {
+          throw new Error('Email đã được sử dụng. Vui lòng sử dụng email khác hoặc đăng nhập.');
+        } else if (serverMessage) {
+          throw new Error(serverMessage);
+        }
       }
-      throw error;
+      throw new Error('Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại.');
     }
   },
   
   verifyEmail: async (data: VerifyEmailData): Promise<AuthResponse> => {
     try {
+      console.log('Calling verify email API with:', data);
       const response = await api.post<AuthResponse>(AUTH.VERIFY_EMAIL, data);
+      console.log('Verify email response:', response.data);
+      
       if (response.data && response.data.token) {
         // After verification, save auth data
-        const { id, fullName, email, token } = response.data;
-        // Pass empty string as refresh token since it might not be provided
-        authService.setAuthData(token, '', { id, fullName, email, role: 'user' });
+        const token = response.data.token;
+        const refreshToken = response.data.refreshToken || '';
+        const userData = {
+          _id: response.data._id || response.data.id,
+          id: response.data._id || response.data.id,
+          email: response.data.email,
+          name: response.data.name,
+          role: response.data.role || 'user',
+          avatarUrl: response.data.avatarUrl || '',
+          phone: response.data.phone || '',
+          addresses: response.data.addresses || [],
+          emailVerified: true // Since we just verified the email
+        };
+        
+        authService.setAuthData(token, refreshToken, userData);
       }
       return response.data;
     } catch (error) {
+      console.error('Email verification error:', error);
       if (error instanceof AxiosError) {
-        throw new Error(error.response?.data?.message || 'Email verification failed');
+        const statusCode = error.response?.status;
+        const serverMessage = error.response?.data?.message;
+        
+        if (statusCode === 400 && serverMessage?.includes('Invalid OTP')) {
+          throw new Error('Mã OTP không hợp lệ. Vui lòng kiểm tra lại.');
+        } else if (statusCode === 400 && serverMessage?.includes('expired')) {
+          throw new Error('Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.');
+        } else if (serverMessage) {
+          throw new Error(serverMessage);
+        }
       }
-      throw error;
+      throw new Error('Xác thực email thất bại. Vui lòng thử lại.');
     }
   },
 
@@ -293,7 +335,7 @@ export const authService = {
     }
   },
 
-  setAuthData: (accessToken: string, refreshToken: string, user?: User | { id?: string; email?: string; fullName?: string; name?: string; role?: string } | null): void => {
+  setAuthData: (accessToken: string, refreshToken: string, user?: User | { _id?: string; id?: string; email?: string; name?: string; role?: string; avatarUrl?: string; phone?: string; addresses?: Address[]; emailVerified?: boolean; preferences?: UserPreferences } | null): void => {
     if (typeof window !== 'undefined') {
       try {
         console.log('Setting auth data with token:', accessToken.substring(0, 10) + '...');
@@ -311,22 +353,28 @@ export const authService = {
           userData = currentUser;
         } else if (user) {
           // Extract user properties safely
-          const userId = 'id' in user ? user.id : null;
+          const userId = ('id' in user && user.id) || ('_id' in user && user._id) || null;
           const userEmail = 'email' in user ? user.email : null;
           const userName = 'name' in user ? user.name : null;
-          const userFullName = 'fullName' in user ? user.fullName : null;
           const userRole = 'role' in user ? user.role : null;
+          const userAvatarUrl = 'avatarUrl' in user ? user.avatarUrl : null;
+          const userPhone = 'phone' in user ? user.phone : null;
+          const userAddresses = 'addresses' in user ? user.addresses : null;
+          const userEmailVerified = 'emailVerified' in user ? user.emailVerified : null;
+          const userPreferences = 'preferences' in user ? user.preferences : null;
           
           // We have new user data - create a safe merged object
           userData = {
             _id: userId || currentUser?._id || '',
             id: userId || currentUser?.id || '',
             email: userEmail || currentUser?.email || '',
-            // Use name as the primary field (backend standard)
-            name: userName || userFullName || currentUser?.name || '',
-            // Keep fullName for any components that might still reference it
-            fullName: userName || userFullName || currentUser?.fullName || '',
+            name: userName || currentUser?.name || '',
             role: (userRole === 'user' ? 'customer' : userRole) || currentUser?.role || 'customer',
+            avatarUrl: userAvatarUrl || currentUser?.avatarUrl || '',
+            phone: userPhone || currentUser?.phone || '',
+            addresses: userAddresses || currentUser?.addresses || [],
+            emailVerified: userEmailVerified !== null ? userEmailVerified : currentUser?.emailVerified || false,
+            preferences: userPreferences || currentUser?.preferences || { language: 'vi', newsletter: true },
             createdAt: new Date(),
             updatedAt: new Date()
           };
@@ -337,8 +385,12 @@ export const authService = {
             id: '',
             email: '',
             name: '',
-            fullName: '',
             role: 'customer',
+            avatarUrl: '',
+            phone: '',
+            addresses: [],
+            emailVerified: false,
+            preferences: { language: 'vi', newsletter: true },
             createdAt: new Date(),
             updatedAt: new Date()
           };
@@ -407,37 +459,68 @@ export const authService = {
 
   requestPasswordReset: async (data: ForgotPasswordDto): Promise<OtpResponse> => {
     try {
+      console.log('Requesting password reset for:', data.email);
       const response = await api.post<OtpResponse>(AUTH.FORGOT_PASSWORD, data);
       return response.data;
     } catch (error) {
+      console.error('Password reset request error:', error);
       if (error instanceof AxiosError) {
-        throw new Error(error.response?.data?.message || 'Password reset request failed');
+        const statusCode = error.response?.status;
+        const serverMessage = error.response?.data?.message;
+        
+        if (statusCode === 404) {
+          throw new Error('Không tìm thấy email này trong hệ thống.');
+        } else if (serverMessage) {
+          throw new Error(serverMessage);
+        }
       }
-      throw error;
+      throw new Error('Yêu cầu đặt lại mật khẩu thất bại. Vui lòng thử lại.');
     }
   },
 
   resetPassword: async (data: ResetPasswordWithOtpData): Promise<{ message: string }> => {
     try {
+      console.log('Resetting password with OTP for:', data.email);
       const response = await api.post<{ message: string }>(AUTH.RESET_PASSWORD, data);
       return response.data;
     } catch (error) {
+      console.error('Password reset error:', error);
       if (error instanceof AxiosError) {
-        throw new Error(error.response?.data?.message || 'Password reset failed');
+        const statusCode = error.response?.status;
+        const serverMessage = error.response?.data?.message;
+        
+        if (statusCode === 400 && serverMessage?.includes('Invalid OTP')) {
+          throw new Error('Mã OTP không hợp lệ. Vui lòng kiểm tra lại.');
+        } else if (statusCode === 400 && serverMessage?.includes('expired')) {
+          throw new Error('Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.');
+        } else if (serverMessage) {
+          throw new Error(serverMessage);
+        }
       }
-      throw error;
+      throw new Error('Đặt lại mật khẩu thất bại. Vui lòng thử lại.');
     }
   },
 
   verifyOtp: async (data: { email: string, otp: string }): Promise<{ message: string, valid: boolean }> => {
     try {
+      console.log('Verifying OTP for:', data.email);
       const response = await api.post<{ message: string, valid: boolean }>(AUTH.VERIFY_OTP, data);
       return response.data;
     } catch (error) {
+      console.error('OTP verification error:', error);
       if (error instanceof AxiosError) {
-        throw new Error(error.response?.data?.message || 'OTP verification failed');
+        const statusCode = error.response?.status;
+        const serverMessage = error.response?.data?.message;
+        
+        if (statusCode === 400 && serverMessage?.includes('Invalid OTP')) {
+          throw new Error('Mã OTP không hợp lệ. Vui lòng kiểm tra lại.');
+        } else if (statusCode === 400 && serverMessage?.includes('expired')) {
+          throw new Error('Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.');
+        } else if (serverMessage) {
+          throw new Error(serverMessage);
+        }
       }
-      throw error;
+      throw new Error('Xác thực OTP thất bại. Vui lòng thử lại.');
     }
   },
 

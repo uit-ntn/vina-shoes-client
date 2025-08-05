@@ -47,6 +47,17 @@ export const CART = {
   CLEAR: "/cart/items",      // DELETE clear cart
 };
 
+// Wishlist endpoints
+export const WISHLIST = {
+  GET: "/wishlist",
+  ADD: "/wishlist",
+  REMOVE: (productId: string) => `/wishlist/${productId}`,
+  CHECK: (productId: string) => `/wishlist/check/${productId}`,
+  CLEAR: "/wishlist",
+  STATS: "/wishlist/stats",
+  REMOVE_MULTIPLE: "/wishlist/multiple",
+};
+
 // Order endpoints
 export const ORDERS = {
   LIST: "/orders",

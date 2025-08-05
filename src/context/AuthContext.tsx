@@ -86,11 +86,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Cập nhật state user trong context
       setUser({
-        _id: userData.id || currentUser?._id || '',
-        id: userData.id || currentUser?.id || '',
+        _id: userData._id || userData.id || currentUser?._id || '',
+        id: userData._id || userData.id || currentUser?.id || '',
         name: userData.name || currentUser?.name || email.split('@')[0], // Use email username as fallback
         email: userData.email || email, // Fallback to the email used for login
         role: userData.role || currentUser?.role || 'customer',
+        avatarUrl: userData.avatarUrl || currentUser?.avatarUrl || '',
+        phone: userData.phone || currentUser?.phone || '',
+        addresses: userData.addresses || currentUser?.addresses || [],
+        emailVerified: userData.emailVerified !== undefined ? userData.emailVerified : currentUser?.emailVerified || false,
+        preferences: userData.preferences || currentUser?.preferences || { language: 'vi', newsletter: true }
       });
       
       // Hiển thị thông báo thành công
@@ -160,7 +165,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const response = await authService.register({
         email,
         password,
-        name
+        name // Use name to match backend RegisterDto
       });
       
       toast.success(response.message || 'OTP sent to your email. Please verify your account!', {
@@ -193,12 +198,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const resetPassword = async (email: string, token: string, newPassword: string) => {
+  const resetPassword = async (email: string, otp: string, newPassword: string) => {
     try {
       const loadingToast = toast.loading('Resetting password...');
       const response = await authService.resetPassword({
         email,
-        token,
+        otp,
         newPassword,
       });
       toast.success(response.message || 'Password reset successfully! Please login with your new password.', {
@@ -218,11 +223,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // If the user is updating their name, make sure it's using the property expected by the backend
       const formattedData = { ...data };
       
-      // Ensure we're using the correct property name for the backend API
-      if (formattedData.name) {
-        formattedData.name = formattedData.name;
-        delete formattedData.fullName;
-      }
+      // Backend only uses name field, no need to delete fullName as it doesn't exist anymore
       
       const updatedUser = await authService.updateProfile(formattedData);
       setUser(updatedUser);
@@ -241,12 +242,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response) {
         // After successful verification, update user state
         setUser({
-          _id: response.id,
-          id: response.id,
-          // Use name from response if available, then fullName, then fallback to email
-          name: response.name || response.fullName || email.split('@')[0],
+          _id: response._id || response.id || '',
+          id: response._id || response.id || '',
+          name: response.name || email.split('@')[0],
           email: response.email,
-          role: 'customer', // Default role for new users
+          role: response.role || 'customer', // Use role from response or default
+          avatarUrl: response.avatarUrl || '',
+          phone: response.phone || '',
+          addresses: response.addresses || [],
+          emailVerified: true, // Since we just verified the email
+          preferences: response.preferences || { language: 'vi', newsletter: true }
         });
         
         toast.success(response.message || 'Email verified successfully!', {
