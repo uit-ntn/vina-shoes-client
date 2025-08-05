@@ -60,8 +60,8 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-        <p className="ml-3 text-gray-600">Đang tải thông tin...</p>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+        <p className="ml-3 text-gray-800">Đang tải thông tin...</p>
       </div>
     );
   }
@@ -74,10 +74,10 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
           <h2 className="text-xl font-semibold text-red-600 mt-4">Lỗi</h2>
-          <p className="mt-2 text-gray-600">{error}</p>
+          <p className="mt-2 text-gray-700">{error}</p>
           <button 
             onClick={() => window.history.back()}
-            className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="mt-6 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
           >
             Quay lại
           </button>
@@ -90,14 +90,14 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center p-8 bg-white rounded-lg shadow-md max-w-md">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-400 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-500 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
           <h2 className="text-xl font-semibold text-gray-800 mt-4">Không tìm thấy người dùng</h2>
-          <p className="mt-2 text-gray-600">Người dùng không tồn tại hoặc đã bị xóa.</p>
+          <p className="mt-2 text-gray-700">Người dùng không tồn tại hoặc đã bị xóa.</p>
           <button 
             onClick={() => window.history.back()}
-            className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="mt-6 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
           >
             Quay lại
           </button>
@@ -111,7 +111,7 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
       <div className="container mx-auto px-4">
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
           {/* Profile header */}
-          <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-8 text-white">
+          <div className="bg-gradient-to-r from-gray-800 to-black p-8 text-white">
             <div className="flex flex-col md:flex-row items-center">
               <div className="relative w-32 h-32 mb-4 md:mb-0 md:mr-8">
                 <Image
@@ -123,9 +123,9 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
               </div>
               <div className="text-center md:text-left">
                 <h1 className="text-3xl font-bold">{user.name}</h1>
-                <p className="text-blue-100 mt-1">{user.email}</p>
+                <p className="text-gray-200 mt-1">{user.email}</p>
                 <div className="mt-4 flex flex-wrap justify-center md:justify-start gap-2">
-                  <div className="bg-blue-700 bg-opacity-30 px-4 py-1 rounded-full text-sm">
+                  <div className="bg-gray-700 bg-opacity-30 px-4 py-1 rounded-full text-sm">
                     {user.role === 'admin' ? 'Quản trị viên' : 'Khách hàng'}
                   </div>
                   {user.emailVerified && (
@@ -149,31 +149,31 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">Thông tin cá nhân</h2>
                 <dl className="space-y-3">
                   <div className="flex">
-                    <dt className="w-32 text-gray-600">Họ và tên:</dt>
+                    <dt className="w-32 text-gray-700">Họ và tên:</dt>
                     <dd className="flex-1 font-medium">{user.name}</dd>
                   </div>
                   <div className="flex">
-                    <dt className="w-32 text-gray-600">Email:</dt>
+                    <dt className="w-32 text-gray-700">Email:</dt>
                     <dd className="flex-1 font-medium">{user.email}</dd>
                   </div>
                   {user.phone && (
                     <div className="flex">
-                      <dt className="w-32 text-gray-600">Số điện thoại:</dt>
+                      <dt className="w-32 text-gray-700">Số điện thoại:</dt>
                       <dd className="flex-1 font-medium">{user.phone}</dd>
                     </div>
                   )}
                   <div className="flex">
-                    <dt className="w-32 text-gray-600">Vai trò:</dt>
+                    <dt className="w-32 text-gray-700">Vai trò:</dt>
                     <dd className="flex-1 font-medium">
                       {user.role === 'admin' ? 'Quản trị viên' : 'Khách hàng'}
                     </dd>
                   </div>
                   <div className="flex">
-                    <dt className="w-32 text-gray-600">Ngày tham gia:</dt>
+                    <dt className="w-32 text-gray-700">Ngày tham gia:</dt>
                     <dd className="flex-1 font-medium">{formatDate(user.createdAt)}</dd>
                   </div>
                   <div className="flex">
-                    <dt className="w-32 text-gray-600">Lần cuối đăng nhập:</dt>
+                    <dt className="w-32 text-gray-700">Lần cuối đăng nhập:</dt>
                     <dd className="flex-1 font-medium">{formatDate(user.lastLoginAt)}</dd>
                   </div>
                 </dl>
@@ -182,19 +182,22 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
               {/* Address Information if available */}
               {user.addresses && user.addresses.length > 0 && (
                 <div className="bg-gray-50 p-6 rounded-lg">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4">Địa chỉ mặc định</h2>
+                  <h2 className="text-xl font-semibold text-gray-800 mb-4">Địa chỉ</h2>
                   {user.addresses.filter(addr => addr.isDefault).length > 0 ? (
                     user.addresses.filter(addr => addr.isDefault).map((address, index) => (
                       <address key={index} className="not-italic space-y-1 text-gray-800">
                         <p>{address.street}</p>
-                        <p>{address.city}, {address.postalCode || ''}</p>
+                        <p>{address.city}{address.state ? `, ${address.state}` : ''}{address.postalCode ? ` ${address.postalCode}` : ''}</p>
                         <p>{address.country}</p>
+                        <div className="mt-1 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-200 text-gray-800">
+                          Địa chỉ mặc định
+                        </div>
                       </address>
                     ))
                   ) : (
                     <address className="not-italic space-y-1 text-gray-800">
                       <p>{user.addresses[0].street}</p>
-                      <p>{user.addresses[0].city}, {user.addresses[0].postalCode || ''}</p>
+                      <p>{user.addresses[0].city}{user.addresses[0].state ? `, ${user.addresses[0].state}` : ''}{user.addresses[0].postalCode ? ` ${user.addresses[0].postalCode}` : ''}</p>
                       <p>{user.addresses[0].country}</p>
                     </address>
                   )}
@@ -208,7 +211,7 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
                 {(currentUser.id === user.id || currentUser._id === user._id) && (
                   <a 
                     href="/profile" 
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                    className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
                   >
                     Chỉnh sửa hồ sơ
                   </a>
@@ -235,7 +238,7 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
                 )}
                 <button
                   onClick={() => window.history.back()}
-                  className="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 transition-colors"
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
                 >
                   Quay lại
                 </button>

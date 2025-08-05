@@ -38,14 +38,14 @@ const ProfileForm = ({
   
   return (
     <div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-6">Thông tin tài khoản</h3>
-      <p className="mb-8 text-gray-800">Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
+      <h3 className="text-xl font-semibold text-blue-900 mb-6">Thông tin tài khoản</h3>
+      <p className="mb-8 text-blue-700">Quản lý thông tin hồ sơ để bảo mật tài khoản</p>
       
       <form onSubmit={handleUpdateProfile} className="bg-white p-4 rounded-lg">
         {/* Avatar Section */}
         <div className="flex flex-col items-center mb-8">
           <div className="relative">
-            <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-gray-300">
+            <div className="w-24 h-24 rounded-full overflow-hidden border-2 border-blue-300">
               {profileData.avatar ? (
                 <img 
                   src={profileData.avatar} 
@@ -53,7 +53,7 @@ const ProfileForm = ({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="w-full h-full bg-gray-200 flex items-center justify-center text-gray-500">
+                <div className="w-full h-full bg-blue-100 flex items-center justify-center text-blue-500">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
@@ -78,42 +78,42 @@ const ProfileForm = ({
             accept="image/*"
             onChange={handleFileChange}
           />
-          <p className="text-sm text-gray-600 mt-2">Nhấn vào ảnh để thay đổi ảnh đại diện</p>
+          <p className="text-sm text-blue-600 mt-2">Nhấn vào ảnh để thay đổi ảnh đại diện</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">Họ</label>
+            <label className="block text-sm font-medium text-blue-800 mb-1">Họ</label>
             <input
               type="text"
               name="lastName"
               value={profileData.lastName}
               onChange={handleProfileChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border border-blue-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-blue-800"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">Tên</label>
+            <label className="block text-sm font-medium text-blue-800 mb-1">Tên</label>
             <input
               type="text"
               name="firstName"
               value={profileData.firstName}
               onChange={handleProfileChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border border-blue-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-blue-800"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">Email</label>
+            <label className="block text-sm font-medium text-blue-800 mb-1">Email</label>
             <input
               type="email"
               name="email"
               value={profileData.email}
               disabled
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50"
+              className="w-full px-4 py-2 border border-blue-200 rounded-lg bg-blue-50 text-blue-700"
             />
-            <p className="mt-1 text-xs text-gray-500">Email không thể thay đổi</p>
+            <p className="mt-1 text-xs text-blue-600">Email không thể thay đổi</p>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-900 mb-1">Số điện thoại</label>
+            <label className="block text-sm font-medium text-blue-800 mb-1">Số điện thoại</label>
             <input
               type="tel"
               name="phone"
@@ -121,9 +121,9 @@ const ProfileForm = ({
               onChange={handleProfileChange}
               placeholder="Nhập số điện thoại"
               pattern="[0-9]{10,11}"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-2 border border-blue-200 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-blue-800"
             />
-            <p className="mt-1 text-xs text-gray-500">Định dạng: 10-11 số</p>
+            <p className="mt-1 text-xs text-blue-600">Định dạng: 10-11 số</p>
           </div>
         </div>
         

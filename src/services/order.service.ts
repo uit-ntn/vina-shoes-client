@@ -61,11 +61,12 @@ export const getOrderById = async (orderId: string): Promise<Order> => {
 /**
  * Cancel an order
  * @param orderId - The ID of the order to cancel
+ * @param cancelData - Optional data with reason for cancellation
  * @returns Promise with the updated order
  */
-export const cancelOrder = async (orderId: string): Promise<Order> => {
+export const cancelOrder = async (orderId: string, cancelData?: { reason: string }): Promise<Order> => {
   try {
-    const response = await http.patch(ORDERS.CANCEL(orderId));
+    const response = await http.patch(ORDERS.CANCEL(orderId), cancelData);
     return response.data.order;
   } catch (error) {
     console.error(`Error cancelling order ${orderId}:`, error);

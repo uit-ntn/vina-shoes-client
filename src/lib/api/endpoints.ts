@@ -46,6 +46,8 @@ export const CART = {
   UPDATE: "/cart/items",     // PUT update item
   REMOVE: "/cart/items",     // DELETE remove item
   CLEAR: "/cart/items",      // DELETE clear cart
+  COUNT: "/cart/count",      // GET cart item count
+  RESTORE: "/cart/items",    // POST restore item
 };
 
 // Wishlist endpoints

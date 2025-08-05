@@ -181,4 +181,10 @@ export interface NotificationResponse {
   limit: number;
 }
 
+export interface ChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
 export type NotificationType = 'order' | 'account' | 'promotion' | 'system';

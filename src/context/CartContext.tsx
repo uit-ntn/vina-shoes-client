@@ -3,16 +3,19 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'react-hot-toast';
 import { Product } from '@/types/product';
-import { Cart } from '@/types/cartItem';
+import { Cart, CartItem } from '@/types/cartItem';
 import { useAuth } from './AuthContext';
 import { cartService } from '@/services/cart.service';
 
 interface CartContextType {
   cart: Cart | null;
+  isLoading: boolean;
   addToCart: (product: Product, quantity: number, size: number) => Promise<boolean | undefined>;
   removeFromCart: (productId: string) => Promise<void>;
   updateQuantity: (productId: string, quantity: number) => Promise<void>;
   clearCart: () => Promise<void>;
+  restoreCartItem: (productId: string) => Promise<void>;
+  getCartItemCount: () => Promise<number>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -20,9 +23,11 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [cart, setCart] = useState<Cart | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const loadUserCart = async () => {
     try {
+      setIsLoading(true);
       if (!user) {
         setCart(null);
         return;
@@ -31,7 +36,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       setCart(userCart);
     } catch (error) {
       console.error('Error loading user cart:', error);
-      toast.error('Failed to load cart');
+      toast.error('Không thể tải giỏ hàng');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -115,26 +122,58 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = async () => {
     try {
       if (!user) {
-        toast.error('Please login to manage cart');
+        toast.error('Vui lòng đăng nhập để quản lý giỏ hàng');
         return;
       }
 
-      const loadingToast = toast.loading('Clearing cart...');
+      const loadingToast = toast.loading('Đang xóa giỏ hàng...');
       await cartService.clearCart();
       await loadUserCart();
-      toast.success('Cart cleared!', { id: loadingToast });
+      toast.success('Đã xóa toàn bộ giỏ hàng!', { id: loadingToast });
     } catch (error) {
       console.error('Error clearing cart:', error);
-      toast.error('Failed to clear cart');
+      toast.error('Không thể xóa giỏ hàng');
+    }
+  };
+
+  const restoreCartItem = async (productId: string) => {
+    try {
+      if (!user) {
+        toast.error('Vui lòng đăng nhập để quản lý giỏ hàng');
+        return;
+      }
+
+      const loadingToast = toast.loading('Đang khôi phục sản phẩm...');
+      await cartService.restoreCartItem(productId);
+      await loadUserCart();
+      toast.success('Đã khôi phục sản phẩm!', { id: loadingToast });
+    } catch (error) {
+      console.error('Error restoring cart item:', error);
+      toast.error('Không thể khôi phục sản phẩm');
+    }
+  };
+
+  const getCartItemCount = async (): Promise<number> => {
+    try {
+      if (!user) return 0;
+      
+      const response = await cartService.getCartItemCount();
+      return response.count;
+    } catch (error) {
+      console.error('Error getting cart item count:', error);
+      return 0;
     }
   };
 
   const value: CartContextType = {
     cart,
+    isLoading,
     addToCart,
     removeFromCart, 
     updateQuantity,
-    clearCart
+    clearCart,
+    restoreCartItem,
+    getCartItemCount
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

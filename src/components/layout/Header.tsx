@@ -411,7 +411,7 @@ export default function Header() {
                         Hồ sơ cá nhân
                       </Link>
                       <Link 
-                        href="/profile?tab=orders" 
+                        href="/profile/orders" 
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 flex items-center"
                         onClick={() => setUserMenuOpen(false)}
                       >

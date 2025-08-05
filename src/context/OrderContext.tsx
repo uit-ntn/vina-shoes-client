@@ -15,7 +15,7 @@ interface OrderContextType {
   fetchUserOrders: () => Promise<void>;
   fetchOrderById: (orderId: string) => Promise<void>;
   createOrder: (orderData: any) => Promise<Order>;
-  cancelOrder: (orderId: string) => Promise<void>;
+  cancelOrder: (orderId: string, cancelData?: { reason: string }) => Promise<void>;
   updateOrderStatus: (orderId: string, status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled') => Promise<Order>;
   clearCurrentOrder: () => void;
 }
@@ -134,13 +134,13 @@ export function OrderProvider({ children }: { children: ReactNode }) {
   };
 
   // Cancel an order
-  const cancelOrder = async (orderId: string) => {
+  const cancelOrder = async (orderId: string, cancelData?: { reason: string }) => {
     setLoading(true);
     setError(null);
     
     try {
       const loadingToast = toast.loading('Cancelling your order...');
-      const updatedOrder = await orderService.cancelOrder(orderId);
+      const updatedOrder = await orderService.cancelOrder(orderId, cancelData);
       
       // Update the orders list with the cancelled order
       setOrders(prev => 

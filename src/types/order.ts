@@ -22,16 +22,79 @@ export interface OrderUser {
   email: string;
 }
 
+export type OrderStatus = 
+  | "pending"
+  | "processing"
+  | "confirmed"
+  | "preparing"
+  | "ready_to_ship"
+  | "picked_up"
+  | "in_transit"
+  | "shipped"
+  | "delivered"
+  | "cancelled"
+  | "returned"
+  | "refunded";
+
+export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
+
+export type ReturnStatus = "none" | "requested" | "approved" | "rejected" | "returned" | "refunded";
+
+export interface StatusHistory {
+  status: OrderStatus;
+  timestamp: Date;
+  note?: string;
+  updatedBy?: string;
+}
+
+export interface DeliveryInfo {
+  trackingNumber?: string;
+  carrier?: string;
+  estimatedDelivery?: Date;
+  actualDelivery?: Date;
+  deliveryNotes?: string;
+}
+
+export interface ReturnInfo {
+  status: ReturnStatus;
+  reason?: string;
+  requestedAt?: Date;
+  requestedBy?: string;
+  approvedAt?: Date;
+  approvedBy?: string;
+  returnTrackingNumber?: string;
+  refundAmount?: number;
+  refundedAt?: Date;
+  notes?: string;
+}
+
 export interface Order {
   id: string;
+  orderNumber: string;
   user: OrderUser;
-  status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  status: OrderStatus;
+  paymentStatus: PaymentStatus;
   totalAmount: number;
+  shippingFee: number;
+  tax: number;
+  discount: number;
+  finalAmount: number;
   paymentMethod: string;
   shippingAddress: ShippingAddress;
   items: OrderItem[];
   isPaid: boolean;
   paidAt?: Date;
+  paymentTransactionId?: string;
+  statusHistory?: StatusHistory[];
+  deliveryInfo?: DeliveryInfo;
+  returnInfo?: ReturnInfo;
+  notes?: string;
+  adminNotes?: string;
+  cancelledAt?: Date;
+  cancellationReason?: string;
+  rating?: number;
+  review?: string;
+  reviewedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
