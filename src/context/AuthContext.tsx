@@ -79,34 +79,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log('Đang đăng nhập với email:', email);
       
       // Thực hiện đăng nhập
+      console.log('Calling auth service login');
       const response = await authService.login({ email, password });
       
       // Double-check response format
       if (!response) {
+        console.error('No response received from login');
         throw new Error('Không nhận được phản hồi từ máy chủ');
       }
       
-      console.log('Đăng nhập thành công:', response);
+      console.log('Đăng nhập thành công, response:', JSON.stringify(response));
+      
+      // Verify that we have an access token
+      if (!response.access_token) {
+        console.error('Login response missing access_token:', response);
+        throw new Error('Không nhận được token xác thực từ máy chủ');
+      }
+      
+      console.log('Access token received successfully');
       
       // Ensure we have user data, even if response format is unexpected
       const userData = response.user || {};
+      if (!userData) {
+        console.error('Login response missing user data');
+      }
+      
+      console.log('User data from response:', userData);
       
       // Get current user from localStorage if available for additional data
       const currentUser = authService.getCurrentUser();
       
-      // Cập nhật state user trong context
-      setUser({
+      // Prepare user object with required fields - use type assertion to handle potential additional fields
+      const rawUserData = userData as any; // Cast to any to access potential additional fields
+      
+      const userObject = {
         _id: userData._id || userData.id || currentUser?._id || '',
         id: userData._id || userData.id || currentUser?.id || '',
-        name: userData.name || currentUser?.name || email.split('@')[0], // Use email username as fallback
-        email: userData.email || email, // Fallback to the email used for login
+        name: userData.name || rawUserData.fullName || currentUser?.name || email.split('@')[0],
+        email: userData.email || email,
         role: userData.role || currentUser?.role || 'customer',
-        avatarUrl: userData.avatarUrl || currentUser?.avatarUrl || '',
+        avatarUrl: userData.avatarUrl || rawUserData.avatar || currentUser?.avatarUrl || '',
         phone: userData.phone || currentUser?.phone || '',
         addresses: userData.addresses || currentUser?.addresses || [],
         emailVerified: userData.emailVerified !== undefined ? userData.emailVerified : currentUser?.emailVerified || false,
         preferences: userData.preferences || currentUser?.preferences || { language: 'vi', newsletter: true }
-      });
+      };
+      
+      console.log('Setting user state with:', userObject);
+      
+      // Cập nhật state user trong context
+      setUser(userObject);
       
       // Hiển thị thông báo thành công
       toast.success('Đăng nhập thành công!', {

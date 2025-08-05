@@ -25,18 +25,35 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!email || !password) {
+      console.error('Email or password missing');
+      return;
+    }
+    
+    console.log('Login form submitted with:', { email, password: '********' });
 
     try {
+      console.log('Attempting to login via AuthContext');
+      
+      // Clear any existing auth data in local storage
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('user_data');
+      
       await login(email, password);
+      console.log('Login function completed without errors');
+      
       if (rememberMe) {
         // Store email in localStorage for remember me functionality
         localStorage.setItem('rememberedEmail', email);
       } else {
         localStorage.removeItem('rememberedEmail');
       }
-    } catch (err) {
-      // Error is handled by AuthContext
-      console.error('Login failed:', err);
+    } catch (err: any) {
+      // Error is handled by AuthContext, but log it for debugging
+      console.error('Login failed in form handler:', err);
+      console.error('Error details:', err.message);
     }
   };
 

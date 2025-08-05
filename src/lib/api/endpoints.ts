@@ -1,4 +1,4 @@
-// Auth endpoints
+// Auth endpoints - with updated paths for compatibility
 export const AUTH = {
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',

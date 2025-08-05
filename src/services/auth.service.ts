@@ -18,7 +18,7 @@ import { AxiosError } from 'axios';
 // Constants
 const ACCESS_TOKEN_KEY = 'access_token';
 const REFRESH_TOKEN_KEY = 'refresh_token';
-const USER_KEY = 'user_data';
+const USER_KEY = 'user_data'; 
 const TOKEN_EXPIRY_KEY = 'token_expiry';
 
 export const authService = {
@@ -29,31 +29,54 @@ export const authService = {
         passwordLength: credentials.password?.length || 0 
       });
       
+      // Clear any existing tokens before login
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem(ACCESS_TOKEN_KEY);
+        localStorage.removeItem(REFRESH_TOKEN_KEY);
+        localStorage.removeItem(USER_KEY);
+        console.log('Cleared existing auth tokens');
+      }
+      
+      console.log('Making login request to:', AUTH.LOGIN);
       const response = await api.post<any>(AUTH.LOGIN, credentials);
       
       // Get response data
       const { data } = response;
-      console.log('Login response:', JSON.stringify(data));
+      console.log('Login response received:', data);
+      console.log('Login response JSON:', JSON.stringify(data));
       
-      // JWT backend structure: { access_token: string, refreshToken: string, user: {...} }
+      // Handle different backend response formats
+      console.log('Normalizing login response data');
+      
+      // Check if response is in the expected format or if we need to extract data
+      const responseData = data.data || data;
+      
+      // Determine if user data is at the top level or in a nested user object
+      const userData = responseData.user || responseData;
+      const accessToken = responseData.access_token || responseData.accessToken || '';
+      const refreshTokenValue = responseData.refreshToken || responseData.refresh_token || '';
+      
+      console.log('User data found:', userData);
+      console.log('Access token found:', accessToken ? 'Yes (length: ' + accessToken.length + ')' : 'No');
+      
       const normalizedData: TokenResponse = {
-        // Get access_token from the response
-        access_token: data.access_token || '',
+        // Get access_token from the response (handle both formats for compatibility)
+        access_token: accessToken,
         // Get refreshToken
-        refreshToken: data.refreshToken || '',
+        refreshToken: refreshTokenValue,
         
         // Ensure user object matches our expected structure
         user: {
-          _id: data.user?._id || data.user?.id || '',
-          id: data.user?._id || data.user?.id || '',
-          email: data.user?.email || credentials.email,
-          name: data.user?.name || data.user?.fullName || credentials.email.split('@')[0],
-          role: data.user?.role || 'user',
-          avatarUrl: data.user?.avatarUrl || '',
-          phone: data.user?.phone || '',
-          addresses: data.user?.addresses || [],
-          emailVerified: data.user?.emailVerified || false,
-          preferences: data.user?.preferences || { language: 'vi', newsletter: true }
+          _id: userData?._id || userData?.id || '',
+          id: userData?._id || userData?.id || '',
+          email: userData?.email || credentials.email,
+          name: userData?.name || userData?.fullName || credentials.email.split('@')[0],
+          role: userData?.role || 'user',
+          avatarUrl: userData?.avatarUrl || userData?.avatar || '',
+          phone: userData?.phone || '',
+          addresses: userData?.addresses || [],
+          emailVerified: userData?.emailVerified || false,
+          preferences: userData?.preferences || { language: 'vi', newsletter: true }
         }
       };
       
@@ -92,6 +115,13 @@ export const authService = {
         // Server returned an error response
         const statusCode = error.response?.status;
         const serverMessage = error.response?.data?.message;
+        const errorData = error.response?.data;
+        
+        console.log('Login error details:', {
+          statusCode,
+          serverMessage,
+          errorData
+        });
         
         if (statusCode === 401 || statusCode === 403) {
           throw new Error('Email hoặc mật khẩu không đúng. Vui lòng thử lại.');
@@ -372,6 +402,12 @@ export const authService = {
   setAuthData: (accessToken: string, refreshToken: string, user?: User | { _id?: string; id?: string; email?: string; name?: string; role?: string; avatarUrl?: string; phone?: string; addresses?: Address[]; emailVerified?: boolean; preferences?: UserPreferences } | null): void => {
     if (typeof window !== 'undefined') {
       try {
+        // Validate access token
+        if (!accessToken || accessToken.trim() === '') {
+          console.error('Invalid access token provided to setAuthData');
+          throw new Error('Invalid access token');
+        }
+        
         console.log('Setting auth data with token:', accessToken.substring(0, 10) + '...');
         console.log('Setting auth data for user:', user);
         
