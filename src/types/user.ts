@@ -4,10 +4,14 @@ export interface AuthContextType {
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
-  forgotPassword: (email: string) => Promise<void>;
-  resetPassword: (token: string, newPassword: string) => Promise<void>;
+  register: (email: string, password: string, name: string) => Promise<OtpResponse>;
+  forgotPassword: (email: string) => Promise<OtpResponse>;
+  resetPassword: (email: string, otp: string, newPassword: string) => Promise<{ message: string }>;
   updateProfile: (data: Partial<User>) => Promise<void>;
+  verifyEmail: (email: string, otp: string) => Promise<TokenResponse>;
+  verifyOtp?: (email: string, otp: string) => Promise<{ message: string; valid: boolean }>;
+  logoutFromDevice?: (refreshToken: string) => Promise<void>;
+  requestOtp?: (email: string) => Promise<OtpResponse>;
 }
 
 export interface LoginCredentials {
@@ -19,37 +23,80 @@ export interface RegisterData {
   name: string;
   email: string;
   password: string;
-  confirmPassword: string;
+}
+
+export interface VerifyEmailData {
+  email: string;
+  otp: string;
 }
 
 export interface AuthResponse {
-  access_token: string;
-  user: {
-    id: string;
-    email: string;
-    name: string;
-    role: string;
-  };
+  _id?: string;
+  id?: string;
+  name: string;
+  email: string;
+  token: string;
+  refreshToken?: string;
+  message: string;
+  role?: string;
+  avatarUrl?: string;
+  phone?: string;
+  addresses?: Address[];
+  emailVerified?: boolean;
+  preferences?: UserPreferences;
 }
 
-export interface PasswordResetRequest {
+export interface OtpResponse {
+  email: string;
+  expiresAt: Date;
+  message: string;
+}
+
+export interface TokenResponse {
+  access_token: string;
+  // User information returned from the login API
+  user: {
+    _id?: string;
+    id?: string;
+    name: string;
+    email: string;
+    role: string;
+    avatarUrl?: string;
+    phone?: string;
+    addresses?: Address[];
+    emailVerified?: boolean;
+    preferences?: UserPreferences;
+  };
+  // Backend uses refreshToken for refresh token
+  refreshToken?: string;
+  // For backward compatibility
+  accessToken?: string;
+  token_type?: string;
+  expires_in?: number;
+}
+
+export interface ForgotPasswordDto {
   email: string;
 }
 
-export interface PasswordResetConfirm {
-  token: string;
+export interface ResetPasswordWithOtpData {
+  email: string;
+  otp: string; // Changed from token to otp to match backend DTO
   newPassword: string;
-  confirmPassword: string;
 }
 
 export interface Address {
   street: string;
   city: string;
   state?: string;
-  country: string;
+  country: string; // Country code e.g. "VN"
   postalCode?: string;
-  zipCode?: string;
   isDefault?: boolean;
+}
+
+export interface UserPreferences {
+  language: string; // "vi", "en", etc.
+  newsletter: boolean;
 }
 
 export interface User {
@@ -58,12 +105,18 @@ export interface User {
   name: string;
   email: string;
   role: string;
-  address?: Address;
   addresses?: Address[];
   phone?: string;
-  avatar?: string;
+  avatarUrl?: string;
   emailVerified?: boolean;
-  lastLogin?: Date;
+  status?: 'active' | 'inactive' | 'banned';
+  verificationToken?: string | null;
+  verificationExpires?: Date | null;
+  lastLoginAt?: Date;
+  passwordChangedAt?: Date;
+  refreshTokens?: string[];
+  twoFactorEnabled?: boolean;
+  preferences?: UserPreferences;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 }
@@ -74,14 +127,17 @@ export interface UpdateProfileData {
   name?: string;
   email?: string;
   phone?: string;
-  address?: Address;
-  avatar?: string;
+  addresses?: Address[];
+  avatarUrl?: string;
+  preferences?: {
+    language?: string;
+    newsletter?: boolean;
+  };
 }
 
 export interface ChangePasswordData {
   currentPassword: string;
   newPassword: string;
-  confirmPassword: string;
 }
 
 export interface OrderHistoryResponse {

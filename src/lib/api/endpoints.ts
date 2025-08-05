@@ -1,15 +1,17 @@
-// Auth endpoints
+// Auth endpoints - with updated paths for compatibility
 export const AUTH = {
   LOGIN: '/auth/login',
   REGISTER: '/auth/register',
+  VERIFY_EMAIL: '/auth/verify-email',
   LOGOUT: '/auth/logout',
-  ME: '/auth/me',
+  LOGOUT_DEVICE: '/auth/logout-device',
   FORGOT_PASSWORD: '/auth/forgot-password',
   RESET_PASSWORD: '/auth/reset-password',
-  REFRESH_TOKEN: '/auth/refresh-token',
-  VERIFY_EMAIL: '/auth/verify-email',
+  REFRESH_TOKEN: '/auth/refresh',
   CHANGE_PASSWORD: '/auth/change-password',
-  UPDATE_PROFILE: '/auth/profile',
+  VERIFY_OTP: '/auth/verify-otp',
+  UPDATE_PROFILE: '/user/profile',
+  REQUEST_OTP: '/auth/request-otp',
 };
 
 // User endpoints
@@ -46,13 +48,28 @@ export const CART = {
   CLEAR: "/cart/items",      // DELETE clear cart
 };
 
+// Wishlist endpoints
+export const WISHLIST = {
+  GET: "/wishlist",
+  ADD: "/wishlist",
+  REMOVE: (productId: string) => `/wishlist/${productId}`,
+  CHECK: (productId: string) => `/wishlist/check/${productId}`,
+  CLEAR: "/wishlist",
+  STATS: "/wishlist/stats",
+  REMOVE_MULTIPLE: "/wishlist/multiple",
+};
+
 // Order endpoints
 export const ORDERS = {
-  CREATE: "/orders",
   LIST: "/orders",
+  MY_ORDERS: "/orders/my-orders",
   DETAIL: (id: string) => `/orders/${id}`,
+  CREATE: "/orders",
+  UPDATE: (id: string) => `/orders/${id}`,
   CANCEL: (id: string) => `/orders/${id}/cancel`,
-  TRACK: (id: string) => `/orders/${id}/track`
+  UPDATE_STATUS: (id: string) => `/orders/${id}/status`,
+  STATS: "/orders/stats/overview",
+  USER_ORDERS: (userId: string) => `/orders/user/${userId}`,
 };
 
 // Payment endpoints

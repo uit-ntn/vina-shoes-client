@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { ProductProvider } from '@/context/ProductContext';
 import { CartProvider } from '@/context/CartContext';
+import { OrderProvider } from '@/context/OrderContext';
 import { Toaster } from 'react-hot-toast';
 
 const geistSans = Geist({
@@ -94,36 +95,39 @@ export default function RootLayout({
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        suppressHydrationWarning
       >
         <AuthProvider>
           <ProductProvider>
             <CartProvider>
-              {children}
-              <Toaster 
-                position="top-right"
-                toastOptions={{
-                  success: {
-                    style: {
-                      background: '#4CAF50',
-                      color: 'white',
+              <OrderProvider>
+                {children}
+                <Toaster 
+                  position="top-right"
+                  toastOptions={{
+                    success: {
+                      style: {
+                        background: '#4CAF50',
+                        color: 'white',
+                      },
+                      iconTheme: {
+                        primary: 'white',
+                        secondary: '#4CAF50',
+                      },
                     },
-                    iconTheme: {
-                      primary: 'white',
-                      secondary: '#4CAF50',
+                    error: {
+                      style: {
+                        background: '#EF4444',
+                        color: 'white',
+                      },
+                      iconTheme: {
+                        primary: 'white',
+                        secondary: '#EF4444',
+                      },
                     },
-                  },
-                  error: {
-                    style: {
-                      background: '#EF4444',
-                      color: 'white',
-                    },
-                    iconTheme: {
-                      primary: 'white',
-                      secondary: '#EF4444',
-                    },
-                  },
-                }}
-              />
+                  }}
+                />
+              </OrderProvider>
             </CartProvider>
           </ProductProvider>
         </AuthProvider>

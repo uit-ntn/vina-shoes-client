@@ -16,7 +16,7 @@ interface OrderContextType {
   fetchOrderById: (orderId: string) => Promise<void>;
   createOrder: (orderData: any) => Promise<Order>;
   cancelOrder: (orderId: string) => Promise<void>;
-  trackOrder: (orderId: string) => Promise<any>;
+  updateOrderStatus: (orderId: string, status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled') => Promise<Order>;
   clearCurrentOrder: () => void;
 }
 
@@ -42,15 +42,23 @@ export function OrderProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const router = useRouter();
 
-  // Fetch user orders whenever the user changes
+  // Fetch user orders on mount and when user changes
   useEffect(() => {
-    if (user) {
-      fetchUserOrders();
-    } else {
-      // Clear orders if user logs out
-      setOrders([]);
-      setCurrentOrder(null);
-    }
+    const loadOrders = async () => {
+      if (user) {
+        try {
+          await fetchUserOrders();
+        } catch (error) {
+          console.error('Failed to load orders:', error);
+        }
+      } else {
+        // Clear orders if user logs out
+        setOrders([]);
+        setCurrentOrder(null);
+      }
+    };
+
+    loadOrders();
   }, [user]);
 
   // Fetch all orders for the current user
@@ -61,10 +69,18 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     setError(null);
     
     try {
+      console.log('Fetching orders for user:', user.id);
       const response = await orderService.getUserOrders();
-      setOrders(response.orders);
+      console.log('Orders response:', response);
+      if (response && Array.isArray(response.orders)) {
+        setOrders(response.orders);
+      } else {
+        console.error('Invalid orders response format:', response);
+        toast.error('Định dạng dữ liệu không hợp lệ');
+      }
     } catch (err: any) {
-      const errorMessage = err.message || 'Failed to fetch orders';
+      console.error('Error fetching orders:', err);
+      const errorMessage = err.response?.data?.message || err.message || 'Không thể tải đơn hàng';
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -148,16 +164,27 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Track an order
-  const trackOrder = async (orderId: string) => {
+  // Update order status
+  const updateOrderStatus = async (orderId: string, status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled') => {
     setLoading(true);
     setError(null);
     
     try {
-      const trackingInfo = await orderService.trackOrder(orderId);
-      return trackingInfo;
+      const updatedOrder = await orderService.updateOrderStatus(orderId, status);
+      
+      // Update the orders list with the updated order
+      setOrders(prev => 
+        prev.map(order => order.id === orderId ? updatedOrder : order)
+      );
+      
+      // Update current order if it's the one being updated
+      if (currentOrder && currentOrder.id === orderId) {
+        setCurrentOrder(updatedOrder);
+      }
+      
+      return updatedOrder;
     } catch (err: any) {
-      const errorMessage = err.message || `Failed to track order ${orderId}`;
+      const errorMessage = err.message || `Failed to update order ${orderId} status`;
       setError(errorMessage);
       toast.error(errorMessage);
       throw err;
@@ -181,7 +208,7 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     fetchOrderById,
     createOrder,
     cancelOrder,
-    trackOrder,
+    updateOrderStatus,
     clearCurrentOrder,
   };
 

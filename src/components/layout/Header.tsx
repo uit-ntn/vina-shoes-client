@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import { useProducts } from '@/context/ProductContext';
 import { useRouter, usePathname } from 'next/navigation';
+import { toast } from 'react-hot-toast';
 
 // Define suggestion type outside the component
 type Suggestion = { type: 'product' | 'brand' | 'category' | 'style', text: string };
@@ -36,10 +37,16 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
+      console.log('Starting logout process');
+      const loadingToast = toast.loading('Đang đăng xuất...');
       await logout();
+      toast.success('Đã đăng xuất thành công!', {
+        id: loadingToast,
+      });
       router.push('/login');
     } catch (error) {
       console.error('Logout error:', error);
+      toast.error('Có lỗi khi đăng xuất. Vui lòng thử lại.');
     }
   };
 
@@ -175,13 +182,6 @@ export default function Header() {
 
   return (
     <>
-      {/* Top Announcement Bar */}
-      <div className="bg-gradient-to-r from-blue-700 to-blue-900 text-white text-center text-sm py-2 font-medium tracking-wide">
-        <span className="inline-flex items-center">
-          <span className="mr-2">🚚</span> Miễn phí vận chuyển cho đơn hàng trên 2.000.000₫ | <Link href="/shop/sale" className="underline ml-1 hover:text-yellow-300 transition">Mua ngay</Link>
-        </span>
-      </div>
-
       {/* Header/Navigation */}
       <header className="bg-white shadow-md sticky top-0 z-50 transition-shadow duration-300">
         <div className="container mx-auto px-4">
@@ -394,7 +394,9 @@ export default function Header() {
                     className="ml-1 flex items-center justify-center px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition duration-300"
                   >
                     <AiOutlineUser size={18} className="mr-1" />
-                    <span className="text-sm font-medium truncate max-w-[120px]">{user.name}</span>
+                    <span className="text-sm font-medium truncate max-w-[120px]">
+                      {user.name || user.email?.split('@')[0] || 'User'}
+                    </span>
                   </button>
                   
                   {/* User Dropdown Menu */}
