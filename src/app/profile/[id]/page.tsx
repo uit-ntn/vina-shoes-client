@@ -115,7 +115,7 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
             <div className="flex flex-col md:flex-row items-center">
               <div className="relative w-32 h-32 mb-4 md:mb-0 md:mr-8">
                 <Image
-                  src={user?.avatar || '/images/avatar-placeholder.jpg'}
+                  src={user?.avatarUrl || '/images/avatar-placeholder.jpg'}
                   alt="Avatar"
                   fill
                   className="rounded-full object-cover border-4 border-white shadow-lg"
@@ -174,20 +174,30 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
                   </div>
                   <div className="flex">
                     <dt className="w-32 text-gray-600">Lần cuối đăng nhập:</dt>
-                    <dd className="flex-1 font-medium">{formatDate(user.lastLogin)}</dd>
+                    <dd className="flex-1 font-medium">{formatDate(user.lastLoginAt)}</dd>
                   </div>
                 </dl>
               </div>
 
               {/* Address Information if available */}
-              {user.address && (
+              {user.addresses && user.addresses.length > 0 && (
                 <div className="bg-gray-50 p-6 rounded-lg">
                   <h2 className="text-xl font-semibold text-gray-800 mb-4">Địa chỉ mặc định</h2>
-                  <address className="not-italic space-y-1 text-gray-800">
-                    <p>{user.address.street}</p>
-                    <p>{user.address.city}, {user.address.zipCode || ''}</p>
-                    <p>{user.address.country}</p>
-                  </address>
+                  {user.addresses.filter(addr => addr.isDefault).length > 0 ? (
+                    user.addresses.filter(addr => addr.isDefault).map((address, index) => (
+                      <address key={index} className="not-italic space-y-1 text-gray-800">
+                        <p>{address.street}</p>
+                        <p>{address.city}, {address.postalCode || ''}</p>
+                        <p>{address.country}</p>
+                      </address>
+                    ))
+                  ) : (
+                    <address className="not-italic space-y-1 text-gray-800">
+                      <p>{user.addresses[0].street}</p>
+                      <p>{user.addresses[0].city}, {user.addresses[0].postalCode || ''}</p>
+                      <p>{user.addresses[0].country}</p>
+                    </address>
+                  )}
                 </div>
               )}
             </div>
@@ -195,7 +205,7 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
             {/* Action buttons for admin or self */}
             {currentUser && (currentUser.role === 'admin' || currentUser.id === user.id || currentUser._id === user._id) && (
               <div className="mt-8 flex flex-wrap gap-3">
-                {currentUser.id === user.id && (
+                {(currentUser.id === user.id || currentUser._id === user._id) && (
                   <a 
                     href="/profile" 
                     className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
@@ -203,7 +213,7 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
                     Chỉnh sửa hồ sơ
                   </a>
                 )}
-                {currentUser.role === 'admin' && currentUser.id !== user.id && (
+                {currentUser.role === 'admin' && (currentUser.id !== user.id && currentUser._id !== user._id) && (
                   <>
                     <button 
                       className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition-colors"
