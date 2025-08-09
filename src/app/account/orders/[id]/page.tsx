@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useOrder } from '@/context/OrderContext';
 import Link from 'next/link';
@@ -9,7 +9,7 @@ import React from 'react';
 import { Order, OrderStatus, PaymentStatus } from '@/types/order';
 import { toast } from 'react-hot-toast';
 
-export default function OrderDetailsPage() {
+const OrderDetailsPage: React.FC = () => {
   const params = useParams();
   const router = useRouter();
   // Get the ID from params, with a comment about future React.use() requirement
@@ -20,23 +20,62 @@ export default function OrderDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [cancelReason, setCancelReason] = useState('');
   const [showCancelModal, setShowCancelModal] = useState(false);
+  const fetchedRef = React.useRef(false);
+  const currentOrderIdRef = React.useRef<string | null>(null);
 
+  // Memoize the fetchOrderById function to avoid unnecessary re-renders
+  const memoizedFetchOrder = useCallback((id: string) => {
+    console.log(`Memoized fetch for order ID: ${id}`);
+    return fetchOrderById(id);
+  }, [fetchOrderById]);
+  
+  // Track component mount state
+  const isMountedRef = useRef(false);
+  
   useEffect(() => {
-    async function loadOrder() {
+    // Vấn đề 1: Chỉ fetch khi component mount lần đầu hoặc khi ID thực sự thay đổi
+    // Vấn đề 2: Không reset fetchedRef trong cleanup function
+    
+    if (!orderId) return;
+    
+    // Kiểm tra xem chúng ta có nên fetch hay không
+    const isNewOrder = currentOrderIdRef.current !== orderId;
+    const isFirstLoad = !fetchedRef.current;
+    
+    if (isFirstLoad || isNewOrder) {
+      console.log(`Loading order - ID: ${orderId}, isFirstLoad: ${isFirstLoad}, isNewOrder: ${isNewOrder}`);
+      
       setLoading(true);
-      try {
-        await fetchOrderById(orderId);
-      } catch (error) {
-        console.error("Failed to load order details:", error);
-      } finally {
-        setLoading(false);
+      
+      memoizedFetchOrder(orderId)
+        .then(() => {
+          console.log(`Order ${orderId} fetched successfully`);
+          fetchedRef.current = true;
+          currentOrderIdRef.current = orderId;
+        })
+        .catch((error: unknown) => {
+          console.error("Failed to load order details:", error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      console.log(`Skipping fetch for order ID: ${orderId} - already loaded`);
+    }
+    
+    // Mark component as mounted
+    isMountedRef.current = true;
+    
+    // Cleanup function không reset fetchedRef - chỉ làm việc này khi component thực sự unmount
+    return () => {
+      // Only reset when component is actually unmounted, not when dependencies change
+      if (isMountedRef.current) {
+        console.log("Component is unmounting, resetting fetch state");
+        fetchedRef.current = false;
+        isMountedRef.current = false;
       }
-    }
-
-    if (orderId) {
-      loadOrder();
-    }
-  }, [orderId, fetchOrderById]);
+    };
+  }, [orderId, memoizedFetchOrder]);
   
   // Set our local order state from the context whenever it changes
   useEffect(() => {
@@ -62,7 +101,7 @@ export default function OrderDetailsPage() {
         <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
           <h2 className="text-xl font-semibold text-red-600 mb-2">Không tìm thấy đơn hàng</h2>
           <p className="text-gray-700 mb-4">Đơn hàng này không tồn tại hoặc bạn không có quyền truy cập.</p>
-          <Link href="/profile/orders" className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
+          <Link href="/account/orders" className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition">
             Quay lại danh sách đơn hàng
           </Link>
         </div>
@@ -71,18 +110,16 @@ export default function OrderDetailsPage() {
   }
 
   return (
-    <div className="p-8">
+      <div className="p-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-black">Chi tiết đơn hàng</h1>
-        <Link href="/profile/orders" className="text-blue-600 hover:text-blue-800 flex items-center transition">
+        <Link href="/account/orders" className="text-blue-600 hover:text-blue-800 flex items-center transition">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
           Quay lại
         </Link>
-      </div>
-
-      {/* Order summary will go here - you can expand this later */}
+      </div>      {/* Order summary will go here - you can expand this later */}
       <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-8">
         <div className="p-6 border-b border-gray-200">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center">
@@ -247,7 +284,7 @@ export default function OrderDetailsPage() {
         {/* Order Actions */}
         <div className="p-6">
           <div className="flex flex-wrap gap-4">
-            <Link href="/profile/orders" className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-lg text-black hover:bg-gray-50 transition-colors">
+            <Link href="/account/orders" className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-lg text-black hover:bg-gray-50 transition-colors">
               Quay lại danh sách
             </Link>
             
@@ -328,4 +365,6 @@ export default function OrderDetailsPage() {
       )}
     </div>
   );
-}
+};
+
+export default OrderDetailsPage;

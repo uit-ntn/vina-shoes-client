@@ -14,20 +14,50 @@ interface ProfilePageProps {
   };
 }
 
-export default function UserProfilePage({ params }: ProfilePageProps) {
+const UserProfilePage: React.FC<ProfilePageProps> = ({ params }) => {
   const { user: currentUser } = useAuth();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasMounted, setHasMounted] = useState(false);
   
-  // Fetch user profile data
+  // Use a ref to prevent repeated fetches with the same data
+  const fetchedRef = React.useRef({
+    hasLoaded: false,
+    userId: '',
+    paramsId: ''
+  });
+  
+  // This useEffect will run once after component is mounted on the client side
   useEffect(() => {
+    setHasMounted(true);
+  }, []);
+  
+  // Fetch user profile data - with proper dependency tracking and deduplication
+  useEffect(() => {
+    // Skip the data fetching on the server-side
+    if (!hasMounted) return;
+    
+    // Get current user ID 
+    const currentUserId = currentUser?.id || currentUser?._id || '';
+    
+    // Check if we need to fetch or if we've already fetched this combination
+    const shouldFetch = !fetchedRef.current.hasLoaded || 
+                       fetchedRef.current.userId !== currentUserId || 
+                       fetchedRef.current.paramsId !== params.id;
+    
+    if (!shouldFetch) {
+      console.log("Skipping fetch - data already loaded");
+      return;
+    }
+    
     const fetchUserProfile = async () => {
+      console.log("Fetching user profile...", { currentUserId, paramsId: params.id });
       try {
         setLoading(true);
         // Since we don't have a specific API for getting user by ID,
         // we'll only show the current user's profile
-        if (currentUser && (params.id === currentUser.id || params.id === currentUser._id)) {
+        if (currentUser && (params.id === currentUserId)) {
           setUser(currentUser);
           setError(null);
         } else {
@@ -36,6 +66,13 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
           setError('Không thể tải thông tin người dùng. Người dùng không tồn tại hoặc bạn không có quyền truy cập.');
           setUser(null);
         }
+        
+        // Update our ref to indicate we've loaded this combination
+        fetchedRef.current = {
+          hasLoaded: true,
+          userId: currentUserId,
+          paramsId: params.id
+        };
       } catch (err) {
         console.error('Error fetching user profile:', err);
         setError('Không thể tải thông tin người dùng. Người dùng không tồn tại hoặc bạn không có quyền truy cập.');
@@ -45,28 +82,23 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
     };
 
     fetchUserProfile();
-  }, [params.id, currentUser]);
+  }, [hasMounted, params.id, currentUser]);
 
-  // Format date string
+  // Format date string - using a consistent format for both server and client
   const formatDate = (date: Date | string | undefined) => {
     if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+    
+    // Use a specific date format that will be consistent between server and client
+    const d = new Date(date);
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const year = d.getFullYear();
+    
+    return `${day}/${month}/${year}`;
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
-        <p className="ml-3 text-gray-800">Đang tải thông tin...</p>
-      </div>
-    );
-  }
-
-  if (error) {
+  // For error state with better user experience
+  if (hasMounted && error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center p-8 bg-white rounded-lg shadow-md max-w-md">
@@ -86,27 +118,29 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
     );
   }
 
-  if (!user) {
+  // For loading state with a skeleton UI
+  if (hasMounted && loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center p-8 bg-white rounded-lg shadow-md max-w-md">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-500 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
-          <h2 className="text-xl font-semibold text-gray-800 mt-4">Không tìm thấy người dùng</h2>
-          <p className="mt-2 text-gray-700">Người dùng không tồn tại hoặc đã bị xóa.</p>
-          <button 
-            onClick={() => window.history.back()}
-            className="mt-6 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
-          >
-            Quay lại
-          </button>
-        </div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+        <p className="ml-3 text-gray-800">Đang tải thông tin...</p>
       </div>
     );
   }
 
-  return (
+  // Only render main content after component has mounted and user data is loaded
+  // This prevents hydration mismatch between server and client
+  if (!hasMounted) {
+    // Return a skeleton or placeholder while waiting for client-side hydration
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+      </div>
+    );
+  }
+  
+  // Ensure we have user data before rendering the full profile
+  return user ? (
     <div className="bg-white rounded-lg shadow-md p-6">
       <div className="container mx-auto px-4">
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -115,7 +149,7 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
             <div className="flex flex-col md:flex-row items-center">
               <div className="relative w-32 h-32 mb-4 md:mb-0 md:mr-8">
                 <Image
-                  src={user?.avatarUrl || '/images/avatar-placeholder.jpg'}
+                  src={user.avatarUrl || '/images/avatar-placeholder.jpg'}
                   alt="Avatar"
                   fill
                   className="rounded-full object-cover border-4 border-white shadow-lg"
@@ -210,7 +244,7 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
               <div className="mt-8 flex flex-wrap gap-3">
                 {(currentUser.id === user.id || currentUser._id === user._id) && (
                   <a 
-                    href="/profile" 
+                    href="/account" 
                     className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 transition-colors"
                   >
                     Chỉnh sửa hồ sơ
@@ -248,5 +282,24 @@ export default function UserProfilePage({ params }: ProfilePageProps) {
         </div>
       </div>
     </div>
+  ) : (
+    // Fallback when user is null but component has mounted and not loading
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center p-8 bg-white rounded-lg shadow-md max-w-md">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-gray-500 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+        <h2 className="text-xl font-semibold text-gray-800 mt-4">Không có thông tin</h2>
+        <p className="mt-2 text-gray-700">Không thể hiển thị thông tin người dùng.</p>
+        <button 
+          onClick={() => window.history.back()}
+          className="mt-6 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+        >
+          Quay lại
+        </button>
+      </div>
+    </div>
   );
-}
+};
+
+export default UserProfilePage;

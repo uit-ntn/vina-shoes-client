@@ -1,18 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useOrder } from '@/context/OrderContext';
 import { toast } from 'react-hot-toast';
-import { OrderStatus, PaymentStatus } from '@/types/user';
+import { OrderStatus, PaymentStatus, OrderItem, Order } from '@/types/order';
 import Link from 'next/link';
+import Image from 'next/image';
 
-// Import Order type
-import { Order, OrderItem } from '@/types/order';
-
-export default function OrdersPage() {
+const OrdersPage: React.FC = () => {
   const { user } = useAuth();
-  const { orders, loading, cancelOrder } = useOrder();
+  const { orders, loading, cancelOrder, fetchUserOrders } = useOrder();
+  const fetchedRef = useRef(false);
+  
+  useEffect(() => {
+    if (user && !fetchedRef.current) {
+      console.log('Fetching orders...');
+      fetchUserOrders();
+      fetchedRef.current = true;
+    }
+    
+    // Reset fetch flag when component unmounts
+    return () => {
+      fetchedRef.current = false;
+    };
+  }, [user, fetchUserOrders]);
 
   // Format date string
   const formatDate = (date: Date | string) => {
@@ -197,7 +209,7 @@ export default function OrdersPage() {
                         </div>
                         
                         <div className="flex gap-2 mt-3 sm:mt-0">
-                          <Link href={`/profile/orders/${order.id}`}>
+                          <Link href={`/account/orders/${order.id}`}>
                             <div className="px-4 py-2 text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors">
                               Chi tiết
                             </div>
@@ -220,3 +232,5 @@ export default function OrdersPage() {
             </div>
   );
 }
+
+export default OrdersPage;

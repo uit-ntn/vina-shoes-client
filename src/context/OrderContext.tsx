@@ -1,5 +1,5 @@
 'use client';
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Order, OrdersResponse } from '@/types/order';
 import * as orderService from '@/services/order.service';
@@ -33,7 +33,7 @@ export function useOrder() {
 }
 
 // Order provider component
-export function OrderProvider({ children }: { children: ReactNode }) {
+export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -42,38 +42,64 @@ export function OrderProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const router = useRouter();
 
+  // Track refs ở cấp cao nhất của component để không bị tạo lại mỗi lần render
+  const prevUserIdRef = useRef<string | null>(null);
+  const ordersFetchedRef = useRef<boolean>(false);
+  const fetchedOrderIds = useRef<{[key: string]: boolean}>({});
+  
   // Fetch user orders on mount and when user changes
   useEffect(() => {
     const loadOrders = async () => {
       if (user) {
-        try {
-          await fetchUserOrders();
-        } catch (error) {
-          console.error('Failed to load orders:', error);
+        const currentUserId = user.id || user._id || null;
+        const userChanged = prevUserIdRef.current !== currentUserId;
+        
+        // Only fetch orders if user changed or we haven't fetched yet
+        if (userChanged) {
+          console.log('User changed or initial load, fetching orders');
+          try {
+            await fetchUserOrders();
+            // Update the previous user ID reference
+            prevUserIdRef.current = currentUserId;
+          } catch (error) {
+            console.error('Failed to load orders:', error);
+          }
         }
       } else {
         // Clear orders if user logs out
         setOrders([]);
         setCurrentOrder(null);
+        prevUserIdRef.current = null;
       }
     };
 
     loadOrders();
   }, [user]);
 
-  // Fetch all orders for the current user
-  const fetchUserOrders = async () => {
+  // Track fetch status with refs
+  // Đã di chuyển khai báo lên trên
+  
+  // Fetch all orders for the current user - dùng useCallback để memoize
+  const fetchUserOrders = useCallback(async () => {
     if (!user) return;
+    
+    // Skip if we already have orders and have fetched before
+    if (orders.length > 0 && ordersFetchedRef.current) {
+      console.log('Skipping orders fetch - already loaded');
+      return;
+    }
     
     setLoading(true);
     setError(null);
     
     try {
-      console.log('Fetching orders for user:', user.id);
+      console.log('Fetching orders for user:', user.id || user._id);
       const response = await orderService.getUserOrders();
       console.log('Orders response:', response);
       if (response && Array.isArray(response.orders)) {
         setOrders(response.orders);
+        // Mark as fetched
+        ordersFetchedRef.current = true;
       } else {
         console.error('Invalid orders response format:', response);
         toast.error('Định dạng dữ liệu không hợp lệ');
@@ -86,16 +112,45 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, orders.length]);
 
-  // Fetch a specific order by ID
-  const fetchOrderById = async (orderId: string) => {
+  // Đã di chuyển khai báo lên trên
+  
+  // Fetch a specific order by ID - dùng useCallback để memoize
+  const fetchOrderById = useCallback(async (orderId: string) => {
+    console.log(`[OrderContext] Checking if we need to fetch order ${orderId}`);
+    
+    // Skip if we already have this order as the current order
+    if (currentOrder && currentOrder.id === orderId) {
+      console.log(`[OrderContext] Skipping fetch for order ${orderId} - already loaded as current order`);
+      return;
+    }
+    
+    // Check if this order is in our orders array
+    const existingOrder = orders.find(order => order.id === orderId);
+    if (existingOrder) {
+      console.log(`[OrderContext] Using cached order ${orderId} from orders list`);
+      setCurrentOrder(existingOrder);
+      return;
+    }
+    
+    // Check if we've already fetched this order
+    if (fetchedOrderIds.current[orderId]) {
+      console.log(`[OrderContext] Skipping fetch for order ${orderId} - already fetched`);
+      return;
+    }
+    
     setLoading(true);
     setError(null);
     
     try {
+      console.log(`[OrderContext] Fetching order details for ${orderId} from API`);
       const order = await orderService.getOrderById(orderId);
+      console.log(`[OrderContext] Order ${orderId} fetched successfully:`, order);
       setCurrentOrder(order);
+      
+      // Mark as fetched
+      fetchedOrderIds.current[orderId] = true;
     } catch (err: any) {
       const errorMessage = err.message || `Failed to fetch order ${orderId}`;
       setError(errorMessage);
@@ -103,10 +158,10 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentOrder, orders]);
 
-  // Create a new order
-  const createOrder = async (orderData: any) => {
+  // Create a new order - dùng useCallback để memoize
+  const createOrder = useCallback(async (orderData: any) => {
     setLoading(true);
     setError(null);
     
@@ -131,10 +186,10 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // Cancel an order
-  const cancelOrder = async (orderId: string, cancelData?: { reason: string }) => {
+  // Cancel an order - dùng useCallback để memoize
+  const cancelOrder = useCallback(async (orderId: string, cancelData?: { reason: string }) => {
     setLoading(true);
     setError(null);
     
@@ -162,10 +217,10 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentOrder]);
 
-  // Update order status
-  const updateOrderStatus = async (orderId: string, status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled') => {
+  // Update order status - dùng useCallback để memoize
+  const updateOrderStatus = useCallback(async (orderId: string, status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled') => {
     setLoading(true);
     setError(null);
     
@@ -191,15 +246,15 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentOrder]);
 
-  // Clear the current order
-  const clearCurrentOrder = () => {
+  // Clear the current order - dùng useCallback để memoize
+  const clearCurrentOrder = useCallback(() => {
     setCurrentOrder(null);
-  };
+  }, []);
 
-  // Context provider value
-  const value = {
+  // Context provider value - dùng useMemo để tránh re-render không cần thiết
+  const value = useMemo(() => ({
     orders,
     loading,
     error,
@@ -210,11 +265,22 @@ export function OrderProvider({ children }: { children: ReactNode }) {
     cancelOrder,
     updateOrderStatus,
     clearCurrentOrder,
-  };
+  }), [
+    orders, 
+    loading, 
+    error, 
+    currentOrder, 
+    fetchUserOrders, 
+    fetchOrderById, 
+    createOrder, 
+    cancelOrder, 
+    updateOrderStatus, 
+    clearCurrentOrder
+  ]);
 
   return (
     <OrderContext.Provider value={value}>
       {children}
     </OrderContext.Provider>
   );
-}
+};

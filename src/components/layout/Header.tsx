@@ -402,16 +402,16 @@ export default function Header() {
                   {/* User Dropdown Menu */}
                   {userMenuOpen && (
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-100">
-                      <Link 
-                        href="/profile" 
+                        <Link 
+                        href={`/account/${user.id}`}
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 flex items-center"
                         onClick={() => setUserMenuOpen(false)}
-                      >
+                        >
                         <AiOutlineUser size={16} className="mr-2" />
                         Hồ sơ cá nhân
-                      </Link>
+                        </Link>
                       <Link 
-                        href="/profile/orders" 
+                        href="/account/orders" 
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 flex items-center"
                         onClick={() => setUserMenuOpen(false)}
                       >
@@ -419,7 +419,7 @@ export default function Header() {
                         Đơn hàng của tôi
                       </Link>
                       <Link 
-                        href="/profile?tab=wishlist" 
+                        href="/account?tab=wishlist" 
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 flex items-center"
                         onClick={() => setUserMenuOpen(false)}
                       >
