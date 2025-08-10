@@ -1,18 +1,30 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useOrder } from '@/context/OrderContext';
 import { toast } from 'react-hot-toast';
-import { OrderStatus, PaymentStatus } from '@/types/user';
+import { OrderStatus, PaymentStatus, OrderItem, Order } from '@/types/order';
 import Link from 'next/link';
+import Image from 'next/image';
 
-// Import Order type
-import { Order, OrderItem } from '@/types/order';
-
-export default function OrdersPage() {
+const OrdersPage: React.FC = () => {
   const { user } = useAuth();
-  const { orders, loading, cancelOrder } = useOrder();
+  const { orders, loading, cancelOrder, fetchUserOrders } = useOrder();
+  const fetchedRef = useRef(false);
+  
+  useEffect(() => {
+    if (user && !fetchedRef.current) {
+      console.log('Fetching orders...');
+      fetchUserOrders();
+      fetchedRef.current = true;
+    }
+    
+    // Reset fetch flag when component unmounts
+    return () => {
+      fetchedRef.current = false;
+    };
+  }, [user, fetchUserOrders]);
 
   // Format date string
   const formatDate = (date: Date | string) => {
@@ -28,17 +40,17 @@ export default function OrdersPage() {
   const getStatusBadgeColor = (status: OrderStatus) => {
     switch (status) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-black bg-opacity-5 text-black font-medium';
       case 'processing':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-black bg-opacity-10 text-black font-medium';
       case 'shipped':
-        return 'bg-indigo-100 text-indigo-800';
+        return 'bg-black bg-opacity-15 text-black font-medium';
       case 'delivered':
-        return 'bg-green-100 text-green-800';
+        return 'bg-black bg-opacity-20 text-black font-semibold';
       case 'cancelled':
-        return 'bg-red-100 text-red-800';
+        return 'bg-black bg-opacity-10 text-black font-medium';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-black bg-opacity-5 text-black';
     }
   };
   
@@ -46,15 +58,15 @@ export default function OrdersPage() {
   const getPaymentBadgeColor = (status: PaymentStatus) => {
     switch (status) {
       case 'paid':
-        return 'bg-green-100 text-green-800';
+        return 'bg-black bg-opacity-20 text-black font-semibold';
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-black bg-opacity-5 text-black font-medium';
       case 'failed':
-        return 'bg-red-100 text-red-800';
+        return 'bg-black bg-opacity-10 text-black font-medium';
       case 'refunded':
-        return 'bg-purple-100 text-purple-800';
+        return 'bg-black bg-opacity-15 text-black font-medium';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-black bg-opacity-5 text-black';
     }
   };
 
@@ -136,10 +148,10 @@ export default function OrdersPage() {
                       <div className="bg-gray-50 px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
                         <div>
                           <div className="flex items-center">
-                            <span className="text-gray-600 text-sm">Mã đơn hàng:</span>
-                            <span className="ml-2 font-medium">{order.id}</span>
+                            <span className="text-black font-medium text-sm">Mã đơn hàng:</span>
+                            <span className="ml-2 font-semibold">{order.id}</span>
                           </div>
-                          <div className="text-gray-600 text-sm mt-1">
+                          <div className="text-black text-sm mt-1 font-medium">
                             Ngày đặt: {formatDate(order.createdAt)}
                           </div>
                         </div>
@@ -159,7 +171,7 @@ export default function OrdersPage() {
                         <div className="space-y-3">
                           {order.items.slice(0, 2).map((item: OrderItem) => (
                             <div key={item.productId} className="flex items-center">
-                              <div className="w-12 h-12 bg-gray-100 rounded flex-shrink-0 mr-3">
+                              <div className="w-12 h-12 bg-black bg-opacity-5 rounded flex-shrink-0 mr-3">
                                 {/* Display product image if available */}
                                 {item.image ? (
                                   <img 
@@ -168,14 +180,14 @@ export default function OrdersPage() {
                                     className="w-12 h-12 object-cover rounded"
                                   />
                                 ) : (
-                                  <div className="w-12 h-12 flex items-center justify-center bg-gray-200 rounded">
-                                    <span className="text-xs text-gray-500">No img</span>
+                                  <div className="w-12 h-12 flex items-center justify-center bg-black bg-opacity-10 rounded">
+                                    <span className="text-xs font-medium text-black">No img</span>
                                   </div>
                                 )}
                               </div>
                               <div>
-                                <div className="font-medium line-clamp-1">{item.name}</div>
-                                <div className="text-sm text-gray-600">
+                                <div className="font-semibold line-clamp-1">{item.name}</div>
+                                <div className="text-sm text-black font-medium">
                                   {item.quantity} x {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(item.price)}
                                 </div>
                               </div>
@@ -184,21 +196,21 @@ export default function OrdersPage() {
                           
                           {/* Show how many more items if there are more than 2 */}
                           {order.items.length > 2 && (
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-black font-medium">
                               + {order.items.length - 2} sản phẩm khác
                             </div>
                           )}
                         </div>
                       </div>
                       
-                      <div className="px-6 py-4 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                        <div className="font-medium">
+                      <div className="px-6 py-4 border-t border-black border-opacity-10 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                        <div className="font-semibold">
                           Tổng tiền: {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(order.totalAmount)}
                         </div>
                         
                         <div className="flex gap-2 mt-3 sm:mt-0">
-                          <Link href={`/profile/orders/${order.id}`}>
-                            <div className="px-4 py-2 text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors">
+                          <Link href={`/account/orders/${order.id}`}>
+                            <div className="px-4 py-2 text-black font-medium border border-black rounded-md hover:bg-black hover:bg-opacity-5 transition-colors">
                               Chi tiết
                             </div>
                           </Link>
@@ -206,7 +218,7 @@ export default function OrdersPage() {
                           {order.status === 'pending' && (
                             <button
                               onClick={() => handleCancelOrder(order.id)}
-                              className="px-4 py-2 text-red-600 border border-red-600 rounded-md hover:bg-red-50 transition-colors"
+                              className="px-4 py-2 text-black font-medium border border-black rounded-md hover:bg-black hover:text-white hover:bg-opacity-90 transition-colors"
                             >
                               Hủy đơn
                             </button>
@@ -220,3 +232,5 @@ export default function OrdersPage() {
             </div>
   );
 }
+
+export default OrdersPage;

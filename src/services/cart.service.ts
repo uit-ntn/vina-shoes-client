@@ -10,7 +10,7 @@ export const cartService = {
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
-        throw new Error(error.response?.data?.message || 'Failed to fetch cart');
+        throw new Error(error.response?.data?.message || 'Không thể tải giỏ hàng');
       }
       throw error;
     }
@@ -22,7 +22,7 @@ export const cartService = {
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
-        throw new Error(error.response?.data?.message || 'Failed to add item to cart');
+        throw new Error(error.response?.data?.message || 'Không thể thêm vào giỏ hàng');
       }
       throw error;
     }
@@ -34,7 +34,7 @@ export const cartService = {
       return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
-        throw new Error(error.response?.data?.message || 'Failed to update cart item');
+        throw new Error(error.response?.data?.message || 'Không thể cập nhật giỏ hàng');
       }
       throw error;
     }
@@ -45,7 +45,7 @@ export const cartService = {
       await api.delete(`${CART.REMOVE}/${productId}`);
     } catch (error) {
       if (error instanceof AxiosError) {
-        throw new Error(error.response?.data?.message || 'Failed to remove item from cart');
+        throw new Error(error.response?.data?.message || 'Không thể xóa sản phẩm');
       }
       throw error;
     }
@@ -56,19 +56,30 @@ export const cartService = {
       await api.delete(CART.CLEAR);
     } catch (error) {
       if (error instanceof AxiosError) {
-        throw new Error(error.response?.data?.message || 'Failed to clear cart');
+        throw new Error(error.response?.data?.message || 'Không thể xóa giỏ hàng');
       }
       throw error;
     }
   },
 
-  getCartItemCount: async (): Promise<number> => {
+  getCartItemCount: async (): Promise<{ count: number }> => {
     try {
       const response = await api.get<CartItemCountResponse>(CART.COUNT);
-      return response.data.count;
+      return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
-        throw new Error(error.response?.data?.message || 'Failed to get cart count');
+        throw new Error(error.response?.data?.message || 'Không thể lấy số lượng sản phẩm');
+      }
+      throw error;
+    }
+  },
+
+  restoreCartItem: async (productId: string): Promise<void> => {
+    try {
+      await api.post(`${CART.RESTORE}/${productId}/restore`);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw new Error(error.response?.data?.message || 'Không thể khôi phục sản phẩm');
       }
       throw error;
     }

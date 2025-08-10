@@ -1,7 +1,7 @@
 'use client';
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { User, AuthContextType } from '@/types/user';
+import { User, AuthContextType, Address } from '@/types/user';
 import { authService } from '@/services/auth.service';
 import toast from 'react-hot-toast';
 
@@ -98,37 +98,129 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       console.log('Access token received successfully');
       
-      // Ensure we have user data, even if response format is unexpected
-      const userData = response.user || {};
-      if (!userData) {
-        console.error('Login response missing user data');
-      }
-      
-      console.log('User data from response:', userData);
-      
-      // Get current user from localStorage if available for additional data
-      const currentUser = authService.getCurrentUser();
-      
-      // Prepare user object with required fields - use type assertion to handle potential additional fields
-      const rawUserData = userData as any; // Cast to any to access potential additional fields
-      
-      const userObject = {
-        _id: userData._id || userData.id || currentUser?._id || '',
-        id: userData._id || userData.id || currentUser?.id || '',
-        name: userData.name || rawUserData.fullName || currentUser?.name || email.split('@')[0],
-        email: userData.email || email,
-        role: userData.role || currentUser?.role || 'customer',
-        avatarUrl: userData.avatarUrl || rawUserData.avatar || currentUser?.avatarUrl || '',
-        phone: userData.phone || currentUser?.phone || '',
-        addresses: userData.addresses || currentUser?.addresses || [],
-        emailVerified: userData.emailVerified !== undefined ? userData.emailVerified : currentUser?.emailVerified || false,
-        preferences: userData.preferences || currentUser?.preferences || { language: 'vi', newsletter: true }
-      };
-      
-      console.log('Setting user state with:', userObject);
-      
-      // Cập nhật state user trong context
-      setUser(userObject);
+      // Fetch user profile after getting the token
+      console.log('Fetching user profile data from API...');
+      import('@/services/user.service').then(async (module) => {
+        try {
+          const userService = module.userService;
+          const userProfileResponse = await userService.getProfile();
+          
+          console.log('User profile fetched:', userProfileResponse);
+          
+          if (userProfileResponse) {
+            // The API returns { user: {...} } format in the response
+            // TypeScript doesn't know about .user property, so we need to handle it safely
+            const profileData = 'user' in userProfileResponse && userProfileResponse.user 
+              ? userProfileResponse.user as User
+              : userProfileResponse as User;
+            
+            // Create a normalized user object with all fields from the API response
+            const userObject: User = {
+              _id: profileData._id || profileData.id || '',
+              id: profileData._id || profileData.id || '',
+              name: profileData.name || email.split('@')[0],
+              email: profileData.email || email,
+              role: profileData.role || 'customer',
+              avatarUrl: profileData.avatarUrl || '',
+              phone: profileData.phone || '',
+              
+              // Include all additional fields from the backend
+              status: profileData.status || 'active',
+              emailVerified: profileData.emailVerified || false,
+              lastLoginAt: profileData.lastLoginAt,
+              passwordChangedAt: profileData.passwordChangedAt,
+              twoFactorEnabled: profileData.twoFactorEnabled || false,
+              
+              // Handle complex objects
+              addresses: Array.isArray(profileData.addresses) 
+                ? profileData.addresses.map((addr: Address) => ({
+                    street: addr.street,
+                    city: addr.city,
+                    state: addr.state,
+                    country: addr.country,
+                    postalCode: addr.postalCode,
+                    isDefault: addr.isDefault,
+                    label: addr.label || '',
+                    phone: addr.phone || '',
+                    recipientName: addr.recipientName || ''
+                  }))
+                : [],
+              
+              preferences: profileData.preferences || { language: 'vi', newsletter: true },
+              
+              // Include timestamps
+              createdAt: profileData.createdAt,
+              updatedAt: profileData.updatedAt
+            };
+            
+            console.log('Setting user state with complete profile data:', userObject);
+            
+            // Update user in context and localStorage
+            setUser(userObject);
+            authService.updateStoredUser(userObject);
+          } else {
+            // Fallback to minimal user data if API fetch failed
+            console.warn('Failed to fetch user profile, using minimal data');
+            
+            // Get current user from localStorage if available for additional data
+            const currentUser = authService.getCurrentUser();
+            
+            // Use minimal data from login response
+            const userData = response.user || {};
+            const rawUserData = userData as any;
+            
+            const userObject = {
+              _id: userData._id || userData.id || currentUser?._id || '',
+              id: userData._id || userData.id || currentUser?.id || '',
+              name: userData.name || rawUserData.fullName || currentUser?.name || email.split('@')[0],
+              email: userData.email || email,
+              role: userData.role || currentUser?.role || 'customer',
+              avatarUrl: userData.avatarUrl || rawUserData.avatar || currentUser?.avatarUrl || '',
+              phone: userData.phone || currentUser?.phone || '',
+              
+              // Default values for required fields
+              status: currentUser?.status || 'active',
+              emailVerified: userData.emailVerified !== undefined 
+                ? userData.emailVerified 
+                : currentUser?.emailVerified || false,
+              
+              // Include existing data for complex objects if available
+              addresses: userData.addresses || currentUser?.addresses || [],
+              preferences: userData.preferences || currentUser?.preferences || { language: 'vi', newsletter: true },
+              
+              // Default timestamps
+              createdAt: currentUser?.createdAt || new Date().toISOString(),
+              updatedAt: currentUser?.updatedAt || new Date().toISOString()
+            };
+            
+            console.log('Setting user state with minimal data:', userObject);
+            setUser(userObject);
+          }
+        } catch (profileError) {
+          console.error('Error fetching user profile:', profileError);
+          
+          // Fallback to basic data from login response if API call fails
+          const userData = response.user || {};
+          const currentUser = authService.getCurrentUser();
+          const rawUserData = userData as any;
+          
+          const userObject = {
+            _id: userData._id || userData.id || currentUser?._id || '',
+            id: userData._id || userData.id || currentUser?.id || '',
+            name: userData.name || rawUserData.fullName || currentUser?.name || email.split('@')[0],
+            email: userData.email || email,
+            role: userData.role || currentUser?.role || 'customer',
+            avatarUrl: userData.avatarUrl || rawUserData.avatar || currentUser?.avatarUrl || '',
+            phone: userData.phone || currentUser?.phone || '',
+            addresses: userData.addresses || currentUser?.addresses || [],
+            emailVerified: userData.emailVerified !== undefined ? userData.emailVerified : currentUser?.emailVerified || false,
+            preferences: userData.preferences || currentUser?.preferences || { language: 'vi', newsletter: true }
+          };
+          
+          console.log('Setting user state with fallback data:', userObject);
+          setUser(userObject);
+        }
+      });
       
       // Hiển thị thông báo thành công
       toast.success('Đăng nhập thành công!', {

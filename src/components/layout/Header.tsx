@@ -188,7 +188,7 @@ export default function Header() {
           <div className="flex items-center justify-between h-20">
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-2 rounded-md text-blue-900 hover:bg-blue-50"
+              className="md:hidden p-2 rounded-md text-black hover:bg-black hover:bg-opacity-5"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle menu"
             >
@@ -216,28 +216,28 @@ export default function Header() {
 
             {/* Main Navigation */}
             <nav className="hidden md:flex items-center space-x-1">
-              <Link href="/shop" className="px-4 py-2 text-blue-900 hover:bg-blue-50 hover:text-blue-700 rounded-md font-medium transition duration-300 relative group">
+              <Link href="/shop" className="px-4 py-2 text-black hover:bg-black hover:bg-opacity-5 rounded-md font-medium transition duration-300 relative group">
                 Shop
-                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-blue-700 group-hover:w-1/2 transition-all duration-300"></span>
+                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-black group-hover:w-1/2 transition-all duration-300"></span>
               </Link>
               <Link href="/shop/sale" className="px-4 py-2 text-white bg-red-500 hover:bg-red-600 rounded-md font-medium transition duration-300">
                 Sale
               </Link>
-              <Link href="/faq" className="px-4 py-2 text-blue-900 hover:bg-blue-50 hover:text-blue-700 rounded-md font-medium transition duration-300 relative group">
+              <Link href="/faq" className="px-4 py-2 text-black hover:bg-black hover:bg-opacity-5 rounded-md font-medium transition duration-300 relative group">
                 FAQ
-                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-blue-700 group-hover:w-1/2 transition-all duration-300"></span>
+                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-black group-hover:w-1/2 transition-all duration-300"></span>
               </Link>
-              <Link href="/blog" className="px-4 py-2 text-blue-900 hover:bg-blue-50 hover:text-blue-700 rounded-md font-medium transition duration-300 relative group">
+              <Link href="/blog" className="px-4 py-2 text-black hover:bg-black hover:bg-opacity-5 rounded-md font-medium transition duration-300 relative group">
                 Blog
                 <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-blue-700 group-hover:w-1/2 transition-all duration-300"></span>
               </Link>
-              <Link href="/about" className="px-4 py-2 text-blue-900 hover:bg-blue-50 hover:text-blue-700 rounded-md font-medium transition duration-300 relative group">
+              <Link href="/about" className="px-4 py-2 text-black hover:bg-black hover:bg-opacity-5 rounded-md font-medium transition duration-300 relative group">
                 About
-                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-blue-700 group-hover:w-1/2 transition-all duration-300"></span>
+                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-black group-hover:w-1/2 transition-all duration-300"></span>
               </Link>
-              <Link href="/contact" className="px-4 py-2 text-blue-900 hover:bg-blue-50 hover:text-blue-700 rounded-md font-medium transition duration-300 relative group">
+              <Link href="/contact" className="px-4 py-2 text-black hover:bg-black hover:bg-opacity-5 rounded-md font-medium transition duration-300 relative group">
                 Contact
-                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-blue-700 group-hover:w-1/2 transition-all duration-300"></span>
+                <span className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-black group-hover:w-1/2 transition-all duration-300"></span>
               </Link>
             </nav>
 
@@ -245,7 +245,7 @@ export default function Header() {
             <div className="flex items-center space-x-3">
               <div className="relative search-container">
                 <button 
-                  className="p-2 rounded-full text-blue-900 hover:bg-blue-50 hover:text-blue-700 transition duration-300"
+                  className="p-2 rounded-full text-black hover:bg-black hover:bg-opacity-5 transition duration-300"
                   onClick={() => setSearchOpen(!searchOpen)}
                   aria-label="Search"
                 >
@@ -256,9 +256,9 @@ export default function Header() {
                 {searchOpen && (
                   <div className="absolute right-0 top-full mt-2 bg-white rounded-lg shadow-lg p-3 w-80 sm:w-96 z-50 animate-fadeIn">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-sm font-medium text-gray-700">Tìm kiếm</h3>
-                      <div className="flex items-center text-xs text-gray-500">
-                        <span className="px-1.5 py-0.5 bg-gray-100 rounded-md mr-1">Esc</span>
+                      <h3 className="text-sm font-medium text-black">Tìm kiếm</h3>
+                      <div className="flex items-center text-xs text-black">
+                        <span className="px-1.5 py-0.5 bg-black bg-opacity-5 rounded-md mr-1 font-medium">Esc</span>
                         <span>để đóng</span>
                       </div>
                     </div>
@@ -270,7 +270,7 @@ export default function Header() {
                           value={searchQuery}
                           onChange={(e) => setSearchQuery(e.target.value)}
                           placeholder="Tìm kiếm sản phẩm..."
-                          className="w-full px-3 py-2 border border-blue-900 rounded-l-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-600 placeholder:font-medium text-black"
+                          className="w-full px-3 py-2 border border-black rounded-l-md focus:outline-none focus:ring-1 focus:ring-black focus:border-black placeholder:text-black placeholder:text-opacity-70 placeholder:font-medium text-black"
                           onKeyDown={(e) => {
                             if (e.key === 'Escape') {
                               setSearchOpen(false);
@@ -280,7 +280,7 @@ export default function Header() {
                         {searchQuery && (
                           <button 
                             type="button"
-                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-black text-opacity-60 hover:text-black"
                             onClick={() => setSearchQuery('')}
                             aria-label="Clear search"
                           >
@@ -402,16 +402,16 @@ export default function Header() {
                   {/* User Dropdown Menu */}
                   {userMenuOpen && (
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-100">
-                      <Link 
-                        href="/profile" 
+                        <Link 
+                        href="/account"
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 flex items-center"
                         onClick={() => setUserMenuOpen(false)}
-                      >
+                        >
                         <AiOutlineUser size={16} className="mr-2" />
                         Hồ sơ cá nhân
-                      </Link>
+                        </Link>
                       <Link 
-                        href="/profile?tab=orders" 
+                        href={`/account/orders`} 
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 flex items-center"
                         onClick={() => setUserMenuOpen(false)}
                       >
@@ -419,7 +419,7 @@ export default function Header() {
                         Đơn hàng của tôi
                       </Link>
                       <Link 
-                        href="/profile?tab=wishlist" 
+                        href={`/account/wishlist`} 
                         className="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 flex items-center"
                         onClick={() => setUserMenuOpen(false)}
                       >

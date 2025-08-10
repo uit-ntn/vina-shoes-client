@@ -89,9 +89,14 @@ export interface Address {
   street: string;
   city: string;
   state?: string;
+  district?: string;
+  ward?: string;
   country: string; // Country code e.g. "VN"
   postalCode?: string;
   isDefault?: boolean;
+  label: string;  // Required
+  phone: string;  // Required
+  recipientName: string;  // Required
 }
 
 export interface UserPreferences {
@@ -179,6 +184,12 @@ export interface NotificationResponse {
   totalCount: number;
   page: number;
   limit: number;
+}
+
+export interface ChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 export type NotificationType = 'order' | 'account' | 'promotion' | 'system';

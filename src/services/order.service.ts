@@ -4,24 +4,52 @@ import { Order, OrdersResponse } from '@/types/order';
 
 /**
  * Create a new order
- * @param orderData - Order data including items, shipping address and payment method
+ * @param orderData - Order data including items, shipping info and payment method
  * @returns Promise with the created order
  */
 export const createOrder = async (orderData: {
-  items: Array<{ productId: string; quantity: number; size: number }>;
-  shippingAddress: {
+  items: Array<{
+    productId: string;
+    quantity: number;
+    price: number;
+    name: string;
+    size: string | number;
+    image?: string;
+  }>;
+  shippingInfo: {
     fullName: string;
+    email: string;
     phone: string;
-    addressLine: string;
-    ward: string;
-    district: string;
+    address: string;
     city: string;
+    zipCode?: string;
+    notes?: string;
   };
   paymentMethod: string;
+  subtotal: number;
+  shipping: number;
+  total: number;
+  status: string;
+  isPaid: boolean;
+  userId?: string;
 }): Promise<Order> => {
   try {
-    const response = await http.post(ORDERS.CREATE, orderData);
-    return response.data.order;
+    // Định dạng lại dữ liệu cho API backend nếu cần
+    const apiOrderData = {
+      ...orderData,
+      // Nếu cần map dữ liệu cho phù hợp với backend
+      shippingAddress: {
+        fullName: orderData.shippingInfo.fullName,
+        phone: orderData.shippingInfo.phone,
+        addressLine: orderData.shippingInfo.address,
+        city: orderData.shippingInfo.city,
+        postalCode: orderData.shippingInfo.zipCode,
+        notes: orderData.shippingInfo.notes,
+      }
+    };
+    
+    const response = await http.post(ORDERS.CREATE, apiOrderData);
+    return response.data.order || response.data;
   } catch (error) {
     console.error('Error creating order:', error);
     throw error;
@@ -61,11 +89,12 @@ export const getOrderById = async (orderId: string): Promise<Order> => {
 /**
  * Cancel an order
  * @param orderId - The ID of the order to cancel
+ * @param cancelData - Optional data with reason for cancellation
  * @returns Promise with the updated order
  */
-export const cancelOrder = async (orderId: string): Promise<Order> => {
+export const cancelOrder = async (orderId: string, cancelData?: { reason: string }): Promise<Order> => {
   try {
-    const response = await http.patch(ORDERS.CANCEL(orderId));
+    const response = await http.patch(ORDERS.CANCEL(orderId), cancelData);
     return response.data.order;
   } catch (error) {
     console.error(`Error cancelling order ${orderId}:`, error);

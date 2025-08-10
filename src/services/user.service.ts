@@ -5,10 +5,25 @@ import { USER } from '@/lib/api/endpoints';
 
 export const userService = {
   // Get user profile
-  getProfile: async (): Promise<User | null> => {
+  getProfile: async (): Promise<{ user: User, message?: string } | User | null> => {
     try {
-      const response = await api.get<User>(USER.PROFILE);
-      return response.data;
+      // The API returns { user: {...}, message: "string" } format
+      interface UserProfileResponse {
+        user: User;
+        message?: string;
+      }
+      
+      const response = await api.get<UserProfileResponse>(USER.PROFILE);
+      console.log('Profile API response:', response.data);
+      
+      // Check if the response contains a nested user object
+      if (response.data && 'user' in response.data) {
+        console.log('Found nested user object in response');
+        return response.data; // Return { user: {...}, message: "string" } format
+      } else {
+        console.log('Response is direct user object format');
+        return response.data; // Return direct user object
+      }
     } catch (error) {
       console.error('Error fetching user profile:', error);
       return null;
@@ -16,10 +31,24 @@ export const userService = {
   },
 
   // Update user profile
-  updateProfile: async (data: UpdateProfileData): Promise<User | null> => {
+  updateProfile: async (data: UpdateProfileData): Promise<{ user: User, message?: string } | null> => {
     try {
-      const response = await api.put<User>(USER.UPDATE_PROFILE, data);
-      return response.data;
+      interface UpdateProfileResponse {
+        user: User;
+        message?: string;
+      }
+      
+      const response = await api.put<UpdateProfileResponse>(USER.UPDATE_PROFILE, data);
+      console.log('Update profile response:', response.data);
+      
+      // Check if the response contains a nested user object
+      if (response.data && 'user' in response.data) {
+        console.log('Found nested user object in update response');
+        return response.data; // Return { user: {...}, message: "string" } format
+      } else {
+        console.log('Update response is direct user object format');
+        return { user: response.data as unknown as User, message: 'Profile updated successfully' };
+      }
     } catch (error) {
       console.error('Error updating user profile:', error);
       return null;
