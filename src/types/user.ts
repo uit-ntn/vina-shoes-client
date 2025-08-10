@@ -89,9 +89,14 @@ export interface Address {
   street: string;
   city: string;
   state?: string;
+  district?: string;
+  ward?: string;
   country: string; // Country code e.g. "VN"
   postalCode?: string;
   isDefault?: boolean;
+  label: string;  // Required
+  phone: string;  // Required
+  recipientName: string;  // Required
 }
 
 export interface UserPreferences {

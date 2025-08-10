@@ -124,7 +124,7 @@ export default function AddressesPage() {
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-semibold text-gray-800">Địa chỉ giao hàng</h3>
+                <h3 className="text-xl font-semibold text-blue-800">Địa chỉ giao hàng</h3>
                 <button
                   onClick={() => setIsAddingAddress(true)}
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition flex items-center"
@@ -137,22 +137,22 @@ export default function AddressesPage() {
               </div>
               
               {isAddingAddress && (
-                <form onSubmit={handleAddAddress} className="mb-8 bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-lg text-blue-800 mb-4">Thêm địa chỉ mới</h4>
+                <form onSubmit={handleAddAddress} className="mb-8 bg-black bg-opacity-5 p-4 rounded-lg">
+                  <h4 className="font-medium text-lg text-black mb-4">Thêm địa chỉ mới</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Họ tên</label>
+                      <label className="block text-sm font-medium text-black mb-1">Họ tên</label>
                       <input
                         type="text"
                         name="fullName"
                         value={newAddress.fullName || ''}
                         onChange={handleAddressChange}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-4 py-2 border border-black border-opacity-20 rounded-lg focus:ring-black focus:border-black"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Số điện thoại</label>
+                      <label className="block text-sm font-medium text-black mb-1">Số điện thoại</label>
                       <input
                         type="tel"
                         name="phone"
@@ -223,7 +223,7 @@ export default function AddressesPage() {
                     <button
                       type="button"
                       onClick={() => setIsAddingAddress(false)}
-                      className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
+                      className="px-4 py-2 bg-black bg-opacity-10 text-black rounded-lg hover:bg-black hover:bg-opacity-20 transition"
                     >
                       Hủy
                     </button>
@@ -239,12 +239,12 @@ export default function AddressesPage() {
               
               {addresses.length === 0 ? (
                 <div className="text-center py-10">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-black text-opacity-40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  <h4 className="mt-3 text-lg font-medium text-gray-800">Chưa có địa chỉ giao hàng</h4>
-                  <p className="mt-1 text-gray-600">Thêm địa chỉ để tiện lợi hơn khi mua sắm.</p>
+                  <h4 className="mt-3 text-lg font-medium text-black">Chưa có địa chỉ giao hàng</h4>
+                  <p className="mt-1 text-black">Thêm địa chỉ để tiện lợi hơn khi mua sắm.</p>
                   <button
                     onClick={() => setIsAddingAddress(true)}
                     className="mt-4 inline-block px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
@@ -271,8 +271,8 @@ export default function AddressesPage() {
                               </span>
                             )}
                           </div>
-                          <p className="text-gray-600">{address.phone}</p>
-                          <p className="text-gray-600 mt-1">
+                          <p className="text-black">{address.phone}</p>
+                          <p className="text-black mt-1">
                             {address.street}, {address.ward}, {address.district}, {address.city}
                           </p>
                         </div>
