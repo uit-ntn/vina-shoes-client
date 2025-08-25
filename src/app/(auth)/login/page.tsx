@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from '@/components/ui/Image';
 import { useRouter } from 'next/navigation';
 import { AiOutlineLock, AiOutlineMail } from 'react-icons/ai';
 import { useAuth } from '@/context/AuthContext';
@@ -50,10 +49,10 @@ export default function LoginPage() {
       } else {
         localStorage.removeItem('rememberedEmail');
       }
-    } catch (err: any) {
+    } catch (err) {
       // Error is handled by AuthContext, but log it for debugging
       console.error('Login failed in form handler:', err);
-      console.error('Error details:', err.message);
+      console.error('Error details:', (err as Error).message);
     }
   };
 
