@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useCart } from '@/context/CartContext';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
-import { Product } from '@/types/product';
+import Image from 'next/image';
 import { wishlistService, WishlistItem } from '@/services/wishlist.service';
 
 export default function WishlistPage() {
@@ -142,10 +142,11 @@ export default function WishlistPage() {
               <div key={item.productId} className="border border-gray-200 rounded-lg overflow-hidden group">
                 {/* Product image */}
                 <div className="relative w-full h-48 bg-gray-100">
-                  <img
+                  <Image
                     src={product.images?.[0] || '/images/placeholder-shoe.jpg'}
                     alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   
                   {/* Discount badge */}

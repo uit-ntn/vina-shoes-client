@@ -41,8 +41,8 @@ export default function RegisterPage() {
     try {
       await register(email, password, name);
       setStep('verify');
-    } catch (err: any) {
-      setError(err.message || 'Registration failed. Please try again.');
+    } catch (err) {
+      setError((err as Error).message || 'Registration failed. Please try again.');
     }
   };
 
@@ -53,8 +53,8 @@ export default function RegisterPage() {
     try {
       await verifyEmail(email, otp);
       // The verifyEmail function in AuthContext already handles redirection
-    } catch (err: any) {
-      setError(err.message || 'Verification failed. Please try again.');
+    } catch (err) {
+      setError((err as Error).message || 'Verification failed. Please try again.');
     }
   };
 
@@ -242,7 +242,7 @@ export default function RegisterPage() {
 
               <div className="text-center">
                 <p className="text-sm text-gray-600">
-                  Didn't receive the code?{' '}
+                  Didn&apos;t receive the code?{' '}
                   <button
                     type="button"
                     onClick={() => setStep('register')}

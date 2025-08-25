@@ -31,7 +31,7 @@ export default function ContactPage() {
       await new Promise(resolve => setTimeout(resolve, 1000));
       setSuccess(true);
       setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
-    } catch (err) {
+    } catch {
       setError('Failed to send message. Please try again.');
     } finally {
       setIsLoading(false);
@@ -43,7 +43,7 @@ export default function ContactPage() {
       <div className="text-center mb-12">
         <h1 className="text-3xl md:text-4xl font-bold text-blue-900 mb-4">Contact Us</h1>
         <p className="text-lg text-gray-800 max-w-3xl mx-auto">
-          We're here to help and answer any questions you might have. We look forward to hearing from you!
+          We&apos;re here to help and answer any questions you might have. We look forward to hearing from you!
         </p>
       </div>
 
@@ -100,7 +100,7 @@ export default function ContactPage() {
           {success && (
             <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6">
               <p className="text-sm text-green-700">
-                Your message has been sent successfully! We'll get back to you soon.
+                Your message has been sent successfully! We&apos;ll get back to you soon.
               </p>
             </div>
           )}
@@ -214,7 +214,7 @@ export default function ContactPage() {
             <h2 className="text-2xl font-bold mb-4 text-blue-900">Find Us</h2>
             <p className="text-gray-600 mb-6">
               Visit our store in Ho Chi Minh City, Vietnam. 
-              We're located in the heart of the shopping district.
+              We&apos;re located in the heart of the shopping district.
             </p>
             
             {/* Map Placeholder - In a real application, you would use Google Maps or similar */}

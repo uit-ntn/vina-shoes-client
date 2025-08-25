@@ -9,7 +9,7 @@ import { productService } from '@/services/product.service';
 import { AiOutlineHeart, AiFillHeart, AiOutlineMinus, AiOutlinePlus, AiOutlineShoppingCart, AiOutlineStar, AiFillStar } from 'react-icons/ai';
 import { BiShareAlt, BiZoomIn, BiCheck, BiPackage } from 'react-icons/bi';
 import { FiTruck, FiShield, FiRotateCcw, FiClock, FiAlertCircle } from 'react-icons/fi';
-import { BsArrowLeft, BsArrowRight, BsImages, BsQuestionCircle, BsCalendarCheck } from 'react-icons/bs';
+import { BsArrowLeft, BsArrowRight, BsImages, BsQuestionCircle } from 'react-icons/bs';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { formatPrice } from '@/lib/utils/format';
@@ -27,7 +27,6 @@ export default function ProductDetailPage() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isWishlist, setIsWishlist] = useState(false);
   const [isZoomed, setIsZoomed] = useState(false);
-  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
   const [activeTab, setActiveTab] = useState('description');
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
@@ -48,8 +47,6 @@ export default function ProductDetailPage() {
     const { left, top, width, height } = imageRef.current.getBoundingClientRect();
     const x = (e.clientX - left) / width;
     const y = (e.clientY - top) / height;
-    
-    setZoomPosition({ x, y });
   };
 
   // Save recently viewed products to localStorage
@@ -641,10 +638,10 @@ export default function ProductDetailPage() {
           <div className="mt-6">
             <p className="text-xs text-gray-500 mb-2">Phương thức thanh toán</p>
             <div className="flex space-x-3">
-              <img src="/payment-visa.svg" alt="Visa" className="h-8" />
-              <img src="/payment-mastercard.svg" alt="MasterCard" className="h-8" />
-              <img src="/payment-paypal.svg" alt="PayPal" className="h-8" />
-              <img src="/payment-amex.svg" alt="American Express" className="h-8" />
+              <Image src="/payment-visa.svg" alt="Visa" width={32} height={32} className="h-8" />
+              <Image src="/payment-mastercard.svg" alt="MasterCard" width={32} height={32} className="h-8" />
+              <Image src="/payment-paypal.svg" alt="PayPal" width={32} height={32} className="h-8" />
+              <Image src="/payment-amex.svg" alt="American Express" width={32} height={32} className="h-8" />
             </div>
           </div>
 

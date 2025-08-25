@@ -4,7 +4,7 @@ import React, { useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useOrder } from '@/context/OrderContext';
 import { toast } from 'react-hot-toast';
-import { OrderStatus, PaymentStatus, OrderItem, Order } from '@/types/order';
+import { OrderStatus, PaymentStatus, OrderItem } from '@/types/order';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -174,9 +174,11 @@ const OrdersPage: React.FC = () => {
                               <div className="w-12 h-12 bg-black bg-opacity-5 rounded flex-shrink-0 mr-3">
                                 {/* Display product image if available */}
                                 {item.image ? (
-                                  <img 
+                                  <Image 
                                     src={item.image} 
                                     alt={item.name}
+                                    width={48}
+                                    height={48}
                                     className="w-12 h-12 object-cover rounded"
                                   />
                                 ) : (
