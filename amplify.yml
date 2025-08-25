@@ -4,9 +4,14 @@ frontend:
     preBuild:
       commands:
         - npm ci --cache .npm --prefer-offline
+        - echo "Build started at $(date)"
     build:
       commands:
+        - echo "Running Next.js build with error tolerance"
         - npm run build
+    postBuild:
+      commands:
+        - echo "Build completed at $(date)"
   artifacts:
     baseDirectory: .next
     files:

@@ -2,10 +2,8 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import Image from '@/components/ui/Image';
 import { AiOutlineMail, AiOutlineLock } from 'react-icons/ai';
 import { useAuth } from '@/context/AuthContext';
-import toast from 'react-hot-toast';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -23,8 +21,8 @@ export default function ForgotPasswordPage() {
     try {
       await forgotPassword(email);
       setStep('verify');
-    } catch (err: any) {
-      setError(err.message || 'Không thể gửi mã OTP. Vui lòng thử lại.');
+    } catch (err) {
+      setError((err as Error).message || 'Không thể gửi mã OTP. Vui lòng thử lại.');
     }
   };
 
@@ -46,8 +44,8 @@ export default function ForgotPasswordPage() {
       await resetPassword(email, otp, newPassword);
       // resetPassword đã bao gồm thông báo thành công và chuyển hướng trong AuthContext
       // Note: we're using the OTP as the token parameter now
-    } catch (err: any) {
-      setError(err.message || 'Đặt lại mật khẩu thất bại. Vui lòng thử lại.');
+    } catch (err) {
+      setError((err as Error).message || 'Đặt lại mật khẩu thất bại. Vui lòng thử lại.');
     }
   };
 
