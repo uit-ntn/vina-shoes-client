@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   // Enable experimental features
   experimental: {
     optimizePackageImports: ['react-icons'],
+    serverActions: {
+      allowedOrigins: ['localhost:3000', 'localhost:8080'],
+    },
   },
 
   // Image optimization
