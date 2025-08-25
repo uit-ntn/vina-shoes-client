@@ -124,7 +124,7 @@ export default function AboutPage() {
             <FiHeart className="w-10 h-10 text-blue-600 mb-4" />
             <h3 className="text-xl font-semibold mb-3">Sustainability</h3>
             <p className="text-gray-800">
-              We're committed to ethical production, reducing waste, and minimizing our environmental impact.
+              We&apos;re committed to ethical production, reducing waste, and minimizing our environmental impact.
             </p>
           </div>
           <div className="bg-white p-6 rounded-xl shadow-sm">
