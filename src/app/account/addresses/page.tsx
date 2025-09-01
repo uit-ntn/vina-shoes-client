@@ -77,19 +77,19 @@ export default function AddressesPage() {
         district: '',
         isDefault: false,
       });
-    } catch (_error) {
+    } catch {
       toast.error('Không thể thêm địa chỉ. Vui lòng thử lại sau.');
     }
   };
 
   // Handle editing address
-  const handleEditAddress = async (_addressId: string) => {
+  const handleEditAddress = async () => {
     try {
       // In a real app, this would call an API
       // For now, we'll just update the local state
       toast.success('Cập nhật địa chỉ thành công!');
       setIsEditingAddress(null);
-    } catch (_error) {
+    } catch {
       toast.error('Không thể cập nhật địa chỉ. Vui lòng thử lại sau.');
     }
   };
@@ -100,7 +100,7 @@ export default function AddressesPage() {
       // In a real app, this would call an API
       setAddresses(addresses.filter(a => a._id !== addressId));
       toast.success('Xóa địa chỉ thành công!');
-    } catch (_error) {
+    } catch {
       toast.error('Không thể xóa địa chỉ. Vui lòng thử lại sau.');
     }
   };
@@ -114,7 +114,7 @@ export default function AddressesPage() {
         isDefault: a._id === addressId
       })));
       toast.success('Đã cập nhật địa chỉ mặc định!');
-    } catch (_error) {
+    } catch {
       toast.error('Không thể cập nhật địa chỉ mặc định. Vui lòng thử lại sau.');
     }
   };
@@ -380,7 +380,7 @@ export default function AddressesPage() {
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleEditAddress(address._id || '')}
+                              onClick={() => handleEditAddress()}
                               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                             >
                               Lưu thay đổi

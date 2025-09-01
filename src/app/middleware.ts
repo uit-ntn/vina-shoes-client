@@ -54,7 +54,7 @@ export default function middleware(request: NextRequest) {
       if (!isAdmin) {
         return NextResponse.redirect(new URL('/', request.url));
       }
-    } catch (_err) {
+    } catch {
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }

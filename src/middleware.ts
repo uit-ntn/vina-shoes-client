@@ -1,38 +1,36 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Routes that don't require authentication
-const publicRoutes = [
-  '/login',
-  '/register',
-  '/forgot-password',
-  '/reset-password',
-  '/',
-  '/about',
-  '/contact',
-  '/shop',
-  '/blog',
-  '/faq',
-  '/policy',
-  '/images',
-  '/_next',
-  '/api/public',
-];
+// Routes configuration for future use
+// const publicRoutes = [
+//   '/login',
+//   '/register',
+//   '/forgot-password',
+//   '/reset-password',
+//   '/',
+//   '/about',
+//   '/contact',
+//   '/shop',
+//   '/blog',
+//   '/faq',
+//   '/policy',
+//   '/images',
+//   '/_next',
+//   '/api/public',
+// ];
 
-// Routes that require authentication
-const protectedRoutes = [
-  '/checkout',
-  '/account',
-  '/orders',
-  '/profile',
-  '/api/protected',
-];
+// const protectedRoutes = [
+//   '/checkout',
+//   '/account',
+//   '/orders',
+//   '/profile',
+//   '/api/protected',
+// ];
 
-// Routes that require admin role
-const adminRoutes = [
-  '/admin',
-  '/api/admin',
-];
+// const adminRoutes = [
+//   '/admin',
+//   '/api/admin',
+// ];
 
 export function middleware(request: NextRequest) {
   // Thay vì sử dụng cookies, chúng ta sẽ cho phép tất cả các route

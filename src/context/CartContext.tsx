@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'react-hot-toast';
 import { Product } from '@/types/product';
-import { Cart, CartItem } from '@/types/cartItem';
+import { Cart } from '@/types/cartItem';
 import { useAuth } from './AuthContext';
 import { cartService } from '@/services/cart.service';
 

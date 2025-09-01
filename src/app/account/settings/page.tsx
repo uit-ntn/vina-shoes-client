@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { toast } from 'react-hot-toast';
 
 export default function SettingsPage() {
-  const { user: _user } = useAuth();
+  useAuth(); // Keep auth context active
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkMode, setDarkMode] = useState(false);

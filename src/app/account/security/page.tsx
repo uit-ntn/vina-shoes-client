@@ -119,7 +119,7 @@ export default function SecurityPage() {
       // For demo, just toggle the state
       setTwoFactorEnabled(!twoFactorEnabled);
       toast.success(`Xác thực hai yếu tố đã được ${!twoFactorEnabled ? 'bật' : 'tắt'}`);
-    } catch (_error) {
+    } catch {
       toast.error('Không thể cập nhật trạng thái xác thực hai yếu tố.');
     } finally {
       setLoading(false);
@@ -139,7 +139,7 @@ export default function SecurityPage() {
       });
       
       toast.success(`Đã ${!preferences.newsletter ? 'đăng ký' : 'hủy đăng ký'} nhận bản tin.`);
-    } catch (_error) {
+    } catch {
       toast.error('Không thể cập nhật thiết lập.');
     } finally {
       setLoading(false);
@@ -160,7 +160,7 @@ export default function SecurityPage() {
       });
       
       toast.success(`Đã thay đổi ngôn ngữ thành ${newLanguage === 'vi' ? 'Tiếng Việt' : 'English'}.`);
-    } catch (_error) {
+    } catch {
       toast.error('Không thể cập nhật thiết lập ngôn ngữ.');
     } finally {
       setLoading(false);
@@ -177,7 +177,7 @@ export default function SecurityPage() {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast.success('Đã đăng xuất khỏi tất cả các thiết bị khác.');
-    } catch (_error) {
+    } catch {
       toast.error('Không thể đăng xuất khỏi các thiết bị. Vui lòng thử lại sau.');
     } finally {
       setLoading(false);
