@@ -8,6 +8,14 @@ import { AiOutlineHeart, AiFillHeart, AiOutlineFilter, AiOutlineArrowRight, AiOu
 import { BsArrowDown, BsArrowUp, BsFire, BsStars, BsSearch } from 'react-icons/bs';
 import { FiShoppingBag, FiTruck, FiRefreshCw } from 'react-icons/fi';
 import ProductCard from '@/components/products/ProductCard';
+import { Product } from '@/types/product';
+
+// Extended Product interface to handle additional properties that may come from API
+interface ExtendedProduct extends Product {
+  salePrice?: number;
+  isInWishlist?: boolean;
+  numReviews?: number;
+}
 
 export default function ShopPage() {
   // Hooks from context
@@ -26,7 +34,7 @@ export default function ShopPage() {
   // State declarations - Luôn đặt tất cả các state ở đầu component
   const [showFilters, setShowFilters] = useState(false);
   const [featuredBrands, setFeaturedBrands] = useState<string[]>([]);
-  const [trendingProducts, setTrendingProducts] = useState<any[]>([]);
+  const [trendingProducts, setTrendingProducts] = useState<ExtendedProduct[]>([]);
   const [showHeroBanner, setShowHeroBanner] = useState(true);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [currentPage, setCurrentPage] = useState(1);
@@ -249,7 +257,7 @@ export default function ShopPage() {
                         <span className="text-blue-900 font-bold">
                           {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(product.price)}
                         </span>
-                        {product.stock <= 5 && (
+                        {!product.inStock && (
                           <span className="text-xs text-red-500">Sắp hết hàng</span>
                         )}
                       </div>
@@ -322,7 +330,7 @@ export default function ShopPage() {
           <select 
             className="border border-blue-200 text-blue-800 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
+                            onChange={(e) => setSortBy(e.target.value as 'newest' | 'price_asc' | 'price_desc' | 'name_asc' | 'name_desc')}
           >
             <option value="newest">Mới nhất</option>
             <option value="price_asc">Giá: Thấp đến cao</option>
@@ -675,7 +683,7 @@ export default function ShopPage() {
                           onClick={() => console.log('Toggle wishlist:', product)}
                           className="text-gray-400 hover:text-red-500 transition-colors"
                         >
-                          {(product as any).isInWishlist ? <AiFillHeart className="text-red-500 w-5 h-5" /> : <AiOutlineHeart className="w-5 h-5" />}
+                          {(product as ExtendedProduct).isInWishlist ? <AiFillHeart className="text-red-500 w-5 h-5" /> : <AiOutlineHeart className="w-5 h-5" />}
                         </button>
                       </div>
                       
@@ -689,7 +697,7 @@ export default function ShopPage() {
                         <span className="text-sm text-blue-600 ml-1">{product.rating?.toFixed(1) || "N/A"}</span>
                         <span className="mx-2 text-gray-300">|</span>
                         <span className="text-sm text-gray-500">
-                          {(product as any).numReviews || 0} đánh giá
+                          {(product as ExtendedProduct).numReviews || 0} đánh giá
                         </span>
                       </div>
                       

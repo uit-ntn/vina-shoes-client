@@ -1,6 +1,23 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 import { AUTH } from './endpoints';
 
+// Type definitions for HTTP client
+export interface PendingRequest {
+  resolve: (token: string) => void;
+  reject: (error: unknown) => void;
+}
+
+export interface ApiError {
+  message: string;
+  status?: number;
+  data?: unknown;
+}
+
+export interface RefreshTokenResponse {
+  access_token: string;
+  refreshToken: string;
+}
+
 // Constants
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 const API_TIMEOUT = 30000;
@@ -20,15 +37,15 @@ const http: AxiosInstance = axios.create({
 // Flag to prevent multiple refresh token requests
 let isRefreshing = false;
 // Store the pending requests
-let failedQueue: any[] = [];
+let failedQueue: PendingRequest[] = [];
 
 // Process the failed queue
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue.forEach(prom => {
     if (error) {
       prom.reject(error);
     } else {
-      prom.resolve(token);
+      prom.resolve(token || '');
     }
   });
   
@@ -80,7 +97,7 @@ http.interceptors.response.use(
     if (error.response?.status === 401 && !originalRequest.headers['isRetry']) {
       if (isRefreshing) {
         // If already refreshing, add to queue
-        return new Promise((resolve, reject) => {
+        return new Promise<string>((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
           .then(token => {
@@ -111,7 +128,7 @@ http.interceptors.response.use(
         }
 
         // Call refresh token API
-        const response = await axios.post(
+        const response = await axios.post<RefreshTokenResponse>(
           `${API_BASE_URL}${AUTH.REFRESH_TOKEN}`, 
           { refreshToken },
           { headers: { 'Content-Type': 'application/json' } }
@@ -186,13 +203,13 @@ export const api = {
   get: <T>(url: string, config?: AxiosRequestConfig) => 
     http.get<T>(url, config),
       
-  post: <T>(url: string, data?: any, config?: AxiosRequestConfig) => 
+  post: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => 
     http.post<T>(url, data, config),
       
-  put: <T>(url: string, data?: any, config?: AxiosRequestConfig) => 
+  put: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => 
     http.put<T>(url, data, config),
       
-  patch: <T>(url: string, data?: any, config?: AxiosRequestConfig) => 
+  patch: <T>(url: string, data?: unknown, config?: AxiosRequestConfig) => 
     http.patch<T>(url, data, config),
       
   delete: <T>(url: string, config?: AxiosRequestConfig) => 

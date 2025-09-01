@@ -177,7 +177,7 @@ export const deleteOrder = async (orderId: string): Promise<{ success: boolean; 
  * Get order statistics (admin only)
  * @returns Promise with order statistics
  */
-export const getOrderStats = async (): Promise<any> => {
+export const getOrderStats = async (): Promise<unknown> => {
   try {
     const response = await http.get(ORDERS.STATS);
     return response.data;

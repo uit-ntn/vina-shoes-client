@@ -1,8 +1,26 @@
+/* eslint-disable react/no-unescaped-entities */
 'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { AiOutlinePlus, AiOutlineMinus, AiOutlineSearch } from 'react-icons/ai';
+
+// FAQ Type definitions
+interface FAQ {
+  id: string;
+  question: string;
+  answer: string;
+}
+
+interface FAQCategory {
+  id: string;
+  name: string;
+  faqs: FAQ[];
+}
+
+interface FAQSearchResult extends FAQ {
+  category: string;
+}
 
 // FAQ Data
 const faqCategories = [
@@ -162,7 +180,7 @@ export default function FAQPage() {
 	const [activeCategory, setActiveCategory] = useState('ordering');
 	const [expandedFaqs, setExpandedFaqs] = useState<{ [key: string]: boolean }>({});
 	const [searchQuery, setSearchQuery] = useState('');
-	const [searchResults, setSearchResults] = useState<any[]>([]);
+	const [searchResults, setSearchResults] = useState<FAQSearchResult[]>([]);
 
 	// Toggle FAQ expansion
 	const toggleFaq = (faqId: string) => {
@@ -181,7 +199,7 @@ export default function FAQPage() {
 		}
 
 		const query = searchQuery.toLowerCase();
-		const results: any[] = [];
+		const results: FAQSearchResult[] = [];
 
 		faqCategories.forEach((category) => {
 			category.faqs.forEach((faq) => {

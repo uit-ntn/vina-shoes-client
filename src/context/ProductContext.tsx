@@ -67,7 +67,7 @@ export const ProductProvider = ({ children }: { children: React.ReactNode }) => 
         error,
         message: typeof error === 'object' && error !== null && 'message' in error ? (error as { message?: string }).message : undefined,
         response: typeof error === 'object' && error !== null && 'response' in error
-          ? (error as any).response?.data
+          ? (error as Record<string, unknown>).response
           : undefined
       });
       setState(prev => ({
