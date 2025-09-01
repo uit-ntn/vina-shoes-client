@@ -15,8 +15,8 @@ interface ProductCardProps {
   isInWishlist?: boolean;
 }
 
-const ProductCard = ({ product, onAddToCart, onToggleWishlist, isInWishlist = false }: ProductCardProps) => {
-  const fallbackImageUrl = '/images/product-placeholder.jpg';
+const ProductCard = ({ product, onAddToCart: _onAddToCart, onToggleWishlist, isInWishlist = false }: ProductCardProps) => {
+  const _fallbackImageUrl = '/images/product-placeholder.jpg';
 
   const { addToCart } = useCart();
   const { user } = useAuth();

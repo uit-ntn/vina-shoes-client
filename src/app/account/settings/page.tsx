@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import Link from 'next/link';
+
 import { toast } from 'react-hot-toast';
 
 export default function SettingsPage() {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkMode, setDarkMode] = useState(false);

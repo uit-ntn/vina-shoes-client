@@ -10,7 +10,7 @@ const AccountLayout: React.FC<{
   children: React.ReactNode;
 }> = ({ children }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
 
   // Handler for toggling sidebar from the parent component
   const toggleSidebar = () => {

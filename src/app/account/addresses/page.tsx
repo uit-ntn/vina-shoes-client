@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { toast } from 'react-hot-toast';
-import Link from 'next/link';
+
 
 // Enhance Address type with properties we need
 interface ExtendedAddress {
@@ -77,19 +77,19 @@ export default function AddressesPage() {
         district: '',
         isDefault: false,
       });
-    } catch (error) {
+    } catch (_error) {
       toast.error('Không thể thêm địa chỉ. Vui lòng thử lại sau.');
     }
   };
 
   // Handle editing address
-  const handleEditAddress = async (addressId: string) => {
+  const handleEditAddress = async (_addressId: string) => {
     try {
       // In a real app, this would call an API
       // For now, we'll just update the local state
       toast.success('Cập nhật địa chỉ thành công!');
       setIsEditingAddress(null);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Không thể cập nhật địa chỉ. Vui lòng thử lại sau.');
     }
   };
@@ -100,7 +100,7 @@ export default function AddressesPage() {
       // In a real app, this would call an API
       setAddresses(addresses.filter(a => a._id !== addressId));
       toast.success('Xóa địa chỉ thành công!');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Không thể xóa địa chỉ. Vui lòng thử lại sau.');
     }
   };
@@ -114,7 +114,7 @@ export default function AddressesPage() {
         isDefault: a._id === addressId
       })));
       toast.success('Đã cập nhật địa chỉ mặc định!');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Không thể cập nhật địa chỉ mặc định. Vui lòng thử lại sau.');
     }
   };

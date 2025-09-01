@@ -45,8 +45,8 @@ export default function ProductDetailPage() {
     if (!imageRef.current) return;
     
     const { left, top, width, height } = imageRef.current.getBoundingClientRect();
-    const x = (e.clientX - left) / width;
-    const y = (e.clientY - top) / height;
+    const _x = (e.clientX - left) / width;
+    const _y = (e.clientY - top) / height;
   };
 
   // Save recently viewed products to localStorage
