@@ -167,15 +167,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             
             // Use minimal data from login response
             const userData = response.user || {};
-            const rawUserData = userData as any;
+            const rawUserData = userData as Record<string, unknown>;
             
             const userObject = {
               _id: userData._id || userData.id || currentUser?._id || '',
               id: userData._id || userData.id || currentUser?.id || '',
-              name: userData.name || rawUserData.fullName || currentUser?.name || email.split('@')[0],
+              name: (userData.name as string) || (rawUserData.fullName as string) || currentUser?.name || email.split('@')[0],
               email: userData.email || email,
               role: userData.role || currentUser?.role || 'customer',
-              avatarUrl: userData.avatarUrl || rawUserData.avatar || currentUser?.avatarUrl || '',
+              avatarUrl: (userData.avatarUrl as string) || (rawUserData.avatar as string) || currentUser?.avatarUrl || '',
               phone: userData.phone || currentUser?.phone || '',
               
               // Default values for required fields
@@ -202,15 +202,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           // Fallback to basic data from login response if API call fails
           const userData = response.user || {};
           const currentUser = authService.getCurrentUser();
-          const rawUserData = userData as any;
+          const rawUserData = userData as Record<string, unknown>;
           
           const userObject = {
             _id: userData._id || userData.id || currentUser?._id || '',
             id: userData._id || userData.id || currentUser?.id || '',
-            name: userData.name || rawUserData.fullName || currentUser?.name || email.split('@')[0],
+            name: (userData.name as string) || (rawUserData.fullName as string) || currentUser?.name || email.split('@')[0],
             email: userData.email || email,
             role: userData.role || currentUser?.role || 'customer',
-            avatarUrl: userData.avatarUrl || rawUserData.avatar || currentUser?.avatarUrl || '',
+            avatarUrl: (userData.avatarUrl as string) || (rawUserData.avatar as string) || currentUser?.avatarUrl || '',
             phone: userData.phone || currentUser?.phone || '',
             addresses: userData.addresses || currentUser?.addresses || [],
             emailVerified: userData.emailVerified !== undefined ? userData.emailVerified : currentUser?.emailVerified || false,
@@ -243,11 +243,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           toast.error('Lỗi xác thực, vui lòng đăng nhập lại');
         }
       }, 300);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Chi tiết lỗi đăng nhập:', err);
       
       // Ensure loading toast is dismissed
-      const errorMessage = err.message || 'Đã xảy ra lỗi khi đăng nhập';
+      const errorMessage = (err as Error).message || 'Đã xảy ra lỗi khi đăng nhập';
       setError(errorMessage);
       
       // Show error message to user
@@ -273,7 +273,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: loadingToast,
       });
       router.push('/login');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Logout error:', err);
       toast.error('Error logging out. Please try again.');
       // Still clear local state even if server logout fails
@@ -299,8 +299,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // The backend now handles creating the user and sending OTP
       // User will be set after email verification
       return response;
-    } catch (err: any) {
-      const errorMessage = err.message || 'An error occurred during registration';
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message || 'An error occurred during registration';
       setError(errorMessage);
       toast.error(errorMessage);
       throw err;
@@ -315,8 +315,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: loadingToast,
       });
       return response;
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to send OTP for password reset';
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message || 'Failed to send OTP for password reset';
       toast.error(errorMessage);
       throw err;
     }
@@ -335,8 +335,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       router.push('/login');
       return response;
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to reset password';
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message || 'Failed to reset password';
       toast.error(errorMessage);
       throw err;
     }
@@ -351,8 +351,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       const updatedUser = await authService.updateProfile(formattedData);
       setUser(updatedUser);
-    } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Có lỗi xảy ra khi cập nhật thông tin';
+    } catch (err: unknown) {
+      const errorMessage = (err as any)?.response?.data?.message || 'Có lỗi xảy ra khi cập nhật thông tin';
       toast.error(errorMessage);
       throw err;
     }
@@ -386,8 +386,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       
       return response;
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to verify email';
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message || 'Failed to verify email';
       toast.error(errorMessage);
       throw err;
     }
@@ -397,8 +397,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const response = await authService.verifyOtp({ email, otp });
       return response;
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to verify OTP';
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message || 'Failed to verify OTP';
       toast.error(errorMessage);
       throw err;
     }
@@ -411,8 +411,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       toast.success('Successfully logged out from device!', {
         id: loadingToast,
       });
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to logout from device';
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message || 'Failed to logout from device';
       toast.error(errorMessage);
       throw err;
     }
@@ -426,8 +426,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         id: loadingToast,
       });
       return response;
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to send OTP';
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message || 'Failed to send OTP';
       toast.error(errorMessage);
       throw err;
     }

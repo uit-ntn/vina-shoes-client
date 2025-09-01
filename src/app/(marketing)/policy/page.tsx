@@ -35,7 +35,7 @@ export default function PolicyIndexPage() {
       <div className="text-center mb-12">
         <h1 className="text-3xl font-bold mb-4">Vina Shoes Policies</h1>
         <p className="text-gray-800 max-w-2xl mx-auto">
-          At Vina Shoes, we believe in transparency and fairness. Below you'll find all the policies
+          At Vina Shoes, we believe in transparency and fairness. Below you&apos;ll find all the policies
           that govern your experience with our store.
         </p>
       </div>
@@ -62,7 +62,7 @@ export default function PolicyIndexPage() {
       <div className="mt-12 bg-blue-50 rounded-lg p-6">
         <h2 className="text-xl font-semibold mb-4">Have Questions About Our Policies?</h2>
         <p className="mb-4">
-          If you have any questions or need clarification about our policies, we're here to help.
+          If you have any questions or need clarification about our policies, we&apos;re here to help.
           Our customer service team is available to assist you.
         </p>
         <div className="flex flex-wrap gap-4">

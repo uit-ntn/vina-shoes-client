@@ -63,7 +63,7 @@ const CartPage = () => {
             </svg>
           </div>
           <h2 className="text-3xl font-bold text-blue-900 mb-2">Your Cart is Empty</h2>
-          <p className="text-blue-700 mb-8 max-w-md mx-auto">Looks like you haven't added any items to your cart yet. Find something you love and add it to your cart.</p>
+          <p className="text-blue-700 mb-8 max-w-md mx-auto">Looks like you haven&apos;t added any items to your cart yet. Find something you love and add it to your cart.</p>
           
           <Link
             href="/shop"

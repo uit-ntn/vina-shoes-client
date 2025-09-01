@@ -102,3 +102,30 @@ export interface Order {
 export interface OrdersResponse {
   orders: Order[];
 }
+
+export interface CreateOrderData {
+  items: Array<{
+    productId: string;
+    quantity: number;
+    price: number;
+    name: string;
+    size: string | number;
+    image?: string;
+  }>;
+  shippingInfo: {
+    fullName: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
+    zipCode?: string;
+    notes?: string;
+  };
+  paymentMethod: string;
+  subtotal: number;
+  shipping: number;
+  total: number;
+  status: string;
+  isPaid: boolean;
+  userId?: string;
+}

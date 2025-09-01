@@ -1,7 +1,7 @@
 'use client';
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Order, OrdersResponse } from '@/types/order';
+import { Order, OrdersResponse, CreateOrderData } from '@/types/order';
 import * as orderService from '@/services/order.service';
 import { useAuth } from './AuthContext';
 import toast from 'react-hot-toast';
@@ -14,7 +14,7 @@ interface OrderContextType {
   currentOrder: Order | null;
   fetchUserOrders: () => Promise<void>;
   fetchOrderById: (orderId: string) => Promise<void>;
-  createOrder: (orderData: any) => Promise<Order>;
+  createOrder: (orderData: CreateOrderData) => Promise<Order>;
   cancelOrder: (orderId: string, cancelData?: { reason: string }) => Promise<void>;
   updateOrderStatus: (orderId: string, status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled') => Promise<Order>;
   clearCurrentOrder: () => void;
@@ -104,9 +104,9 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         console.error('Invalid orders response format:', response);
         toast.error('Định dạng dữ liệu không hợp lệ');
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching orders:', err);
-      const errorMessage = err.response?.data?.message || err.message || 'Không thể tải đơn hàng';
+      const errorMessage = (err as any)?.response?.data?.message || (err as Error).message || 'Không thể tải đơn hàng';
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -151,8 +151,8 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       
       // Mark as fetched
       fetchedOrderIds.current[orderId] = true;
-    } catch (err: any) {
-      const errorMessage = err.message || `Failed to fetch order ${orderId}`;
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message || `Failed to fetch order ${orderId}`;
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -161,7 +161,7 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   }, [currentOrder, orders]);
 
   // Create a new order - dùng useCallback để memoize
-  const createOrder = useCallback(async (orderData: any) => {
+  const createOrder = useCallback(async (orderData: CreateOrderData) => {
     setLoading(true);
     setError(null);
     
@@ -178,8 +178,8 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       });
       
       return order;
-    } catch (err: any) {
-      const errorMessage = err.message || 'Failed to create order';
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message || 'Failed to create order';
       setError(errorMessage);
       toast.error(errorMessage);
       throw err;
@@ -210,8 +210,8 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       toast.success('Order cancelled successfully!', {
         id: loadingToast,
       });
-    } catch (err: any) {
-      const errorMessage = err.message || `Failed to cancel order ${orderId}`;
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message || `Failed to cancel order ${orderId}`;
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
@@ -238,8 +238,8 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       }
       
       return updatedOrder;
-    } catch (err: any) {
-      const errorMessage = err.message || `Failed to update order ${orderId} status`;
+    } catch (err: unknown) {
+      const errorMessage = (err as Error).message || `Failed to update order ${orderId} status`;
       setError(errorMessage);
       toast.error(errorMessage);
       throw err;

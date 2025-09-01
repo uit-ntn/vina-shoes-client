@@ -38,7 +38,7 @@ export const authService = {
       }
       
       console.log('Making login request to:', AUTH.LOGIN);
-      const response = await api.post<any>(AUTH.LOGIN, credentials);
+      const response = await api.post<unknown>(AUTH.LOGIN, credentials);
       
       // Get response data
       const { data } = response;
@@ -178,7 +178,7 @@ export const authService = {
   verifyEmail: async (data: VerifyEmailData): Promise<TokenResponse> => {
     try {
       console.log('Calling verify email API with:', data);
-      const response = await api.post<any>(AUTH.VERIFY_EMAIL, data);
+      const response = await api.post<unknown>(AUTH.VERIFY_EMAIL, data);
       console.log('Verify email response:', response.data);
       
       // JWT backend returns access_token, refreshToken, and user
@@ -265,7 +265,7 @@ export const authService = {
       }
       
       console.log('Refreshing token...');
-      const response = await api.post<any>(AUTH.REFRESH_TOKEN, { refreshToken });
+      const response = await api.post<unknown>(AUTH.REFRESH_TOKEN, { refreshToken });
       
       // Get response data
       const { data } = response;
@@ -416,7 +416,7 @@ export const authService = {
         const currentUser = currentUserData ? JSON.parse(currentUserData) : null;
         
         // First store user data and expiry
-        let userData: Record<string, any>;
+        let userData: Record<string, unknown>;
         
         if (!user && currentUser) {
           // If no new user data but we have existing user data, keep it
