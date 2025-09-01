@@ -1,5 +1,5 @@
 import http from '@/lib/api/http';
-import { ORDERS, USER } from '@/lib/api/endpoints';
+import { ORDERS } from '@/lib/api/endpoints';
 import { Order, OrdersResponse } from '@/types/order';
 
 /**

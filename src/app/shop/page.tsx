@@ -5,7 +5,7 @@ import { useProducts } from '@/context/ProductContext';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AiOutlineHeart, AiFillHeart, AiOutlineFilter, AiOutlineArrowRight, AiOutlineTags, AiOutlinePercentage, AiOutlineShop } from 'react-icons/ai';
-import { BsArrowDown, BsArrowUp, BsFire, BsStars, BsSearch } from 'react-icons/bs';
+import { BsFire, BsStars, BsSearch } from 'react-icons/bs';
 import { FiShoppingBag, FiTruck, FiRefreshCw } from 'react-icons/fi';
 import ProductCard from '@/components/products/ProductCard';
 import { Product } from '@/types/product';
@@ -184,7 +184,7 @@ export default function ShopPage() {
             </Link>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {featuredBrands.map((brand, index) => (
+            {featuredBrands.map((brand) => (
               <button 
                 key={brand}
                 onClick={() => {

@@ -13,7 +13,7 @@ export default function NewArrivalsPage() {
   const [newProducts, setNewProducts] = useState<Product[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filters, setFilters] = useState({
+  const [_filters, _setFilters] = useState({
     categories: [],
     priceRange: [0, 5000000], // VND
     sizes: [],

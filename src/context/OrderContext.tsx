@@ -1,6 +1,6 @@
 'use client';
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+
 import { Order, OrdersResponse, CreateOrderData } from '@/types/order';
 import * as orderService from '@/services/order.service';
 import { useAuth } from './AuthContext';
@@ -40,7 +40,7 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [error, setError] = useState<string | null>(null);
   
   const { user } = useAuth();
-  const router = useRouter();
+
 
   // Track refs ở cấp cao nhất của component để không bị tạo lại mỗi lần render
   const prevUserIdRef = useRef<string | null>(null);

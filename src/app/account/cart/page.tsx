@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useCart } from '@/context/CartContext';
 import { withAuth } from '@/components/auth/withAuth';
 import { AiOutlineMinus, AiOutlinePlus, AiOutlineDelete } from 'react-icons/ai';
-import { CartItem } from '@/types/cartItem';
+
 import { toast } from 'react-hot-toast';
 
 const CartPage = () => {
