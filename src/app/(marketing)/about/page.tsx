@@ -24,9 +24,9 @@ export default function AboutPage() {
       bio: 'A skilled web developer from UIT with expertise in React, Next.js, and TypeScript. Passionate about creating intuitive user experiences and implementing modern web architectures. Proficient in building responsive, performant e-commerce solutions.',
     },
     {
-      name: 'Đặng Thanh Ngân',
-      role: 'Gen AI Engineer',
-      bio: 'An innovative AI engineer from UIT specializing in generative AI, computer vision, and machine learning. Experienced in developing AI-powered recommendation systems and personalization features. Committed to leveraging AI technology to enhance online shopping experiences.',
+      name: 'Hà Khả Nguyên',
+      role: 'Data Engineer',
+      bio: 'An experienced data engineer from UIT specializing in data pipeline architecture, analytics, and database optimization. Expert in building scalable data solutions and implementing data-driven insights for e-commerce platforms.',
     },
   ];
 
@@ -69,13 +69,13 @@ export default function AboutPage() {
           </p>
           <p className="text-gray-800 mb-4">
             Our team consists of Nguyễn Thanh Nhân, a web developer specializing in modern frontend technologies, 
-            and Đặng Thanh Ngân, an AI engineer focused on generative AI applications. Together, we combine our 
-            expertise in web development and artificial intelligence to create an innovative e-commerce platform.
+            and Hà Khả Nguyên, a data engineer focused on data architecture and analytics. Together, we combine our 
+            expertise in web development and data engineering to create a robust e-commerce platform.
           </p>
           <p className="text-gray-800">
             As UIT students, we believe in the power of technology to transform traditional industries. 
             Vina Shoes represents our commitment to innovation, combining cutting-edge web technologies 
-            with AI-driven features to deliver a superior online shopping experience.
+            with data-driven insights to deliver a superior online shopping experience.
           </p>
         </div>
         <div className="md:w-1/2 relative h-80 md:h-[500px] w-full">
