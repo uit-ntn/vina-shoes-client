@@ -3,7 +3,6 @@ import {
   User, 
   LoginCredentials, 
   RegisterData, 
-  AuthResponse, 
   TokenResponse,
   OtpResponse,
   VerifyEmailData,

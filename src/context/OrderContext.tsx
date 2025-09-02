@@ -1,7 +1,7 @@
 'use client';
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef, useCallback, useMemo } from 'react';
 
-import { Order, OrdersResponse, CreateOrderData } from '@/types/order';
+import { Order, CreateOrderData } from '@/types/order';
 import * as orderService from '@/services/order.service';
 import { useAuth } from './AuthContext';
 import toast from 'react-hot-toast';
@@ -106,7 +106,7 @@ export const OrderProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       }
     } catch (err: unknown) {
       console.error('Error fetching orders:', err);
-      const errorMessage = (err as any)?.response?.data?.message || (err as Error).message || 'Không thể tải đơn hàng';
+      const errorMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message || (err as Error).message || 'Không thể tải đơn hàng';
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {

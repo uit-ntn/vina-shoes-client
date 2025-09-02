@@ -41,12 +41,9 @@ export default function ProductDetailPage() {
   console.log('Current params:', params);
 
   // Handle image zoom effect
-  const handleImageMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleImageMouseMove = (_e: React.MouseEvent<HTMLDivElement>) => {
     if (!imageRef.current) return;
-    
-    const { left, top, width, height } = imageRef.current.getBoundingClientRect();
-    const _x = (e.clientX - left) / width;
-    const _y = (e.clientY - top) / height;
+    // Image zoom logic would go here
   };
 
   // Save recently viewed products to localStorage

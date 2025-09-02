@@ -234,9 +234,9 @@ export default function ShopPage() {
                         style={{objectFit: "cover"}}
                         className="group-hover:scale-110 transition-transform duration-300"
                       />
-                      {(product as any).salePrice && product.price > (product as any).salePrice && (
+                      {(product as ExtendedProduct).salePrice && product.price > (product as ExtendedProduct).salePrice && (
                         <div className="absolute top-2 right-2 bg-red-500 text-white rounded-full px-2 py-1 text-xs font-bold">
-                          -{Math.round(((product.price - (product as any).salePrice) / product.price) * 100)}%
+                          -{Math.round(((product.price - ((product as ExtendedProduct).salePrice || 0)) / product.price) * 100)}%
                         </div>
                       )}
                     </div>
@@ -670,9 +670,9 @@ export default function ShopPage() {
                         fill
                         style={{objectFit: "cover"}}
                       />
-                      {(product as any).salePrice && product.price > (product as any).salePrice && (
+                      {(product as ExtendedProduct).salePrice && product.price > (product as ExtendedProduct).salePrice && (
                         <div className="absolute top-2 right-2 bg-red-500 text-white rounded-full px-2 py-1 text-xs font-bold">
-                          -{Math.round(((product.price - (product as any).salePrice) / product.price) * 100)}%
+                          -{Math.round(((product.price - ((product as ExtendedProduct).salePrice || 0)) / product.price) * 100)}%
                         </div>
                       )}
                     </div>

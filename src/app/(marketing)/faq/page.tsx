@@ -23,7 +23,7 @@ interface FAQSearchResult extends FAQ {
 }
 
 // FAQ Data
-const faqCategories = [
+const faqCategories: FAQCategory[] = [
 	{
 		id: 'ordering',
 		name: 'Ordering & Payment',

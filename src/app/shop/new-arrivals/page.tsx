@@ -13,12 +13,13 @@ export default function NewArrivalsPage() {
   const [newProducts, setNewProducts] = useState<Product[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [_filters, _setFilters] = useState({
-    categories: [],
-    priceRange: [0, 5000000], // VND
-    sizes: [],
-    brands: []
-  });
+  // Filters state for future implementation
+  // const [filters, setFilters] = useState({
+  //   categories: [],
+  //   priceRange: [0, 5000000], // VND
+  //   sizes: [],
+  //   brands: []
+  // });
 
   useEffect(() => {
     if (products && products.length > 0) {
