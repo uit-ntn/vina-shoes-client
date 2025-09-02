@@ -13,6 +13,7 @@ import { BsArrowLeft, BsArrowRight, BsImages, BsQuestionCircle } from 'react-ico
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { formatPrice } from '@/lib/utils/format';
+import { normalizeImageUrl, getProductImageFallback } from '@/lib/imageUtils';
 import toast from 'react-hot-toast';
 
 export default function ProductDetailPage() {
@@ -177,7 +178,7 @@ export default function ProductDetailPage() {
           >
             <div className="absolute inset-0 bg-gradient-to-t from-blue-900/10 to-transparent z-10"></div>
             <Image
-              src={product.images[activeImageIndex]}
+              src={normalizeImageUrl(product.images[activeImageIndex]) || getProductImageFallback()}
               alt={product.name}
               fill
               sizes="(max-width: 768px) 95vw, 45vw"
@@ -220,7 +221,7 @@ export default function ProductDetailPage() {
                       }`}
                     >
                       <Image
-                        src={image}
+                        src={normalizeImageUrl(image) || getProductImageFallback()}
                         alt={`${product.name} ${index + 1}`}
                         fill
                         sizes="(max-width: 768px) 20vw, 8vw"

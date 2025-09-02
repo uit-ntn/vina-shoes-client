@@ -7,6 +7,7 @@ import { Product } from '@/types/product';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/context/AuthContext';
 import { formatPrice } from '@/lib/utils/format';
+import { normalizeImageUrl, getProductImageFallback } from '@/lib/imageUtils';
 
 interface ProductCardProps {
   product: Product;
@@ -135,7 +136,7 @@ const ProductCard = ({ product, onToggleWishlist, isInWishlist = false }: Omit<P
       {/* Product Image */}
       <Link href={`/shop/${product._id}`} className="block relative h-48 overflow-hidden bg-blue-50">
         <Image
-          src={!imageError ? product.images[0] || '/images/placeholder-shoe.jpg' : '/images/placeholder-shoe.jpg'}
+          src={!imageError ? normalizeImageUrl(product.images[0]) || getProductImageFallback() : getProductImageFallback()}
           alt={product.name}
           fill
           className={`object-cover transition-transform duration-500 ${isHovering ? 'scale-110' : 'scale-100'}`}
@@ -146,7 +147,7 @@ const ProductCard = ({ product, onToggleWishlist, isInWishlist = false }: Omit<P
         
         {product.images.length > 1 && isHovering && !imageError && (
           <Image
-            src={product.images[1] || '/images/placeholder-shoe.jpg'}
+            src={normalizeImageUrl(product.images[1]) || getProductImageFallback()}
             alt={`${product.name} - alternate view`}
             fill
             className="object-cover absolute inset-0 opacity-0 animate-fadeIn hover:opacity-100"

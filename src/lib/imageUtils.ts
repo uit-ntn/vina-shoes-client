@@ -6,7 +6,7 @@
 export function normalizeImageUrl(src: string): string {
   // If the URL is null or undefined, return a placeholder
   if (!src) {
-    return 'https://via.placeholder.com/400x400?text=No+Image';
+    return '/images/placeholder-shoe.jpg';
   }
   
   // If the URL is already absolute (starts with http or https), return it as is
@@ -19,6 +19,18 @@ export function normalizeImageUrl(src: string): string {
     return src;
   }
   
+  // For CloudFront/S3 images, ensure proper format
+  if (src.includes('cloudfront') || src.includes('amazonaws')) {
+    return src.startsWith('https://') ? src : `https://${src}`;
+  }
+  
   // Otherwise, add a leading slash to make it relative to the root
   return `/${src}`;
+}
+
+/**
+ * Gets a fallback image URL for products
+ */
+export function getProductImageFallback(): string {
+  return '/images/placeholder-shoe.jpg';
 }
