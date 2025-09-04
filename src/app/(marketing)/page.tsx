@@ -13,6 +13,7 @@ export default function Home() {
             alt="Hero Banner"
             fill
             priority
+            unoptimized={true}
             className="object-cover brightness-75"
           />
         </div>
@@ -58,6 +59,7 @@ export default function Home() {
                   src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                   alt="Men's Collection"
                   fill
+                  unoptimized={true}
                   className="object-cover group-hover:scale-105 transition duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -76,6 +78,7 @@ export default function Home() {
                   src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                   alt="Women's Collection"
                   fill
+                  unoptimized={true}
                   className="object-cover group-hover:scale-105 transition duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -94,6 +97,7 @@ export default function Home() {
                   src="https://images.unsplash.com/photo-1575537302964-96cd47c06b1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                   alt="Sale"
                   fill
+                  unoptimized={true}
                   className="object-cover group-hover:scale-105 transition duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -112,6 +116,7 @@ export default function Home() {
                   src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                   alt="Blog"
                   fill
+                  unoptimized={true}
                   className="object-cover group-hover:scale-105 transition duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -166,6 +171,7 @@ export default function Home() {
                       src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                       alt="Running Shoe 1"
                       fill
+                      unoptimized={true}
                       className="object-cover"
                     />
                   </div>
@@ -174,6 +180,7 @@ export default function Home() {
                       src="https://images.unsplash.com/photo-1608231387042-66d1773070a5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                       alt="Running Shoe 2"
                       fill
+                      unoptimized={true}
                       className="object-cover"
                     />
                   </div>
@@ -182,6 +189,7 @@ export default function Home() {
                       src="https://images.unsplash.com/photo-1595341888016-a392ef81b7de?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                       alt="Running Shoe 3"
                       fill
+                      unoptimized={true}
                       className="object-cover"
                     />
                   </div>
@@ -190,6 +198,7 @@ export default function Home() {
                       src="https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                       alt="Running Shoe 4"
                       fill
+                      unoptimized={true}
                       className="object-cover"
                     />
                   </div>
@@ -208,6 +217,7 @@ export default function Home() {
                       src="https://images.unsplash.com/photo-1600269452121-4f2416e55c28?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                       alt="Casual Sneaker 1"
                       fill
+                      unoptimized={true}
                       className="object-cover"
                     />
                   </div>
@@ -216,6 +226,7 @@ export default function Home() {
                       src="https://images.unsplash.com/photo-1603808033192-082d6919d3e1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                       alt="Casual Sneaker 2"
                       fill
+                      unoptimized={true}
                       className="object-cover"
                     />
                   </div>
@@ -224,6 +235,7 @@ export default function Home() {
                       src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                       alt="Casual Sneaker 3"
                       fill
+                      unoptimized={true}
                       className="object-cover"
                     />
                   </div>
@@ -232,6 +244,7 @@ export default function Home() {
                       src="https://images.unsplash.com/photo-1512374382149-233c42b6a83b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                       alt="Casual Sneaker 4"
                       fill
+                      unoptimized={true}
                       className="object-cover"
                     />
                   </div>
@@ -286,6 +299,7 @@ export default function Home() {
                       src="https://images.unsplash.com/photo-1546367791-e7447b431084?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                       alt="Formal Shoe 1"
                       fill
+                      unoptimized={true}
                       className="object-cover"
                     />
                   </div>
@@ -294,6 +308,7 @@ export default function Home() {
                       src="https://images.unsplash.com/photo-1546367791-e7447b431084?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                       alt="Formal Shoe 2"
                       fill
+                      unoptimized={true}
                       className="object-cover"
                     />
                   </div>
@@ -302,6 +317,7 @@ export default function Home() {
                       src="https://images.unsplash.com/photo-1582897085656-c636d006a246?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                       alt="Formal Shoe 3"
                       fill
+                      unoptimized={true}
                       className="object-cover"
                     />
                   </div>
@@ -310,6 +326,7 @@ export default function Home() {
                       src="https://images.unsplash.com/photo-1533867617858-e7b97e060509?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                       alt="Formal Shoe 4"
                       fill
+                      unoptimized={true}
                       className="object-cover"
                     />
                   </div>
@@ -344,6 +361,7 @@ export default function Home() {
             src="https://images.unsplash.com/photo-1565992441121-4367c2967103?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
             alt="How to Choose Running Shoes"
             fill
+            unoptimized={true}
             className="object-cover"
           />
             </div>
@@ -375,6 +393,7 @@ export default function Home() {
             src="https://images.unsplash.com/photo-1552346154-21d32810aba3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
             alt="Sneaker Trends 2024"
             fill
+            unoptimized={true}
             className="object-cover"
           />
             </div>
@@ -406,6 +425,7 @@ export default function Home() {
             src="https://images.unsplash.com/photo-1520639888713-7851133b1ed0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
             alt="Caring for Leather Shoes"
             fill
+            unoptimized={true}
             className="object-cover"
           />
             </div>
